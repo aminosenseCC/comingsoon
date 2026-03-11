@@ -14,6 +14,7 @@
         body {
             min-height: 100vh;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             background: rgba(242, 201, 76, 0.05);
@@ -41,7 +42,7 @@
         }
 
         .logo {
-            max-width: 1000px;
+            max-width: 480px;
             width: 85vw;
             margin-bottom: 48px;
         }
@@ -56,13 +57,34 @@
             animation: fadeUp 1.2s ease-out 0.4s both;
         }
 
+        .footer {
+            position: absolute;
+            bottom: 32px;
+            text-align: center;
+            animation: fadeUp 1.2s ease-out 0.6s both;
+        }
+
+        .footer p {
+            font-family: 'Segoe UI Semilight';
+            font-weight: 350;
+            font-size: 0.85rem;
+            color: #000000;
+            margin-bottom: 8px;
+        }
+
+        .footer img {
+            max-width: 120px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <img src="Logo_Full.png" alt="aminosense" class="logo">
-        <div class="divider"></div>
         <p class="coming-soon">Coming Soon</p>
+    </div>
+    <div class="footer">
+        <p>Originated By:</p>
+        <img src="CClogo.png" alt="CC Logo">
     </div>
 </body>
 </html>
