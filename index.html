@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>aminosense — Coming Soon</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(242, 201, 76, 0.05);
+            font-family: 'Segoe UI Semilight', 'Segoe UI', sans-serif;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .container {
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            animation: fadeUp 1.2s ease-out both;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            max-width: 480px;
+            width: 85vw;
+            margin-bottom: 48px;
+        }
+
+        .coming-soon {
+            font-family: 'Segoe UI Semilight', 'Segoe UI', sans-serif;
+            font-weight: 350;
+            font-size: 1.6rem;
+            letter-spacing: 0.45em;
+            text-transform: uppercase;
+            color: #000000;
+            animation: fadeUp 1.2s ease-out 0.4s both;
+        }
+
+        .divider {
+            width: 60px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(180, 40, 70, 0.5), transparent);
+            margin: 0 auto 32px;
+            animation: fadeUp 1.2s ease-out 0.25s both;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="Logo_Full.png" alt="aminosense" class="logo">
+        <div class="divider"></div>
+        <p class="coming-soon">Coming Soon</p>
+    </div>
+</body>
+</html>
