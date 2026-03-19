@@ -8,7 +8,9 @@
   "main": "src/worker.js",
   "assets": {
     "directory": "./public",
-    "binding": "ASSETS"
+    "binding": "ASSETS",
+    "html_handling": "none",
+    "not_found_handling": "none"
   },
   "compatibility_flags": [
     "nodejs_compat"
