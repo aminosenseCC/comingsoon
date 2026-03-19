@@ -14,7 +14,7 @@ html{font-size:14px}body{font-family:'DM Sans',sans-serif;background:var(--bg);c
 .hdr{background:var(--sf);border-bottom:1px solid var(--bd);padding:18px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
 .logo{display:flex;align-items:center;gap:12px}.logo-m{width:34px;height:34px;background:var(--ac);border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:15px}
 .logo-t{font-size:17px;font-weight:700}.logo-t span{color:var(--ac2)}.logo-s{font-size:10px;color:var(--tx2);font-weight:600;letter-spacing:.6px;text-transform:uppercase;margin-top:1px}
-.pills{display:flex;gap:3px;background:var(--sf3);border-radius:var(--r);padding:3px}.pill{padding:7px 18px;border-radius:5px;cursor:pointer;font-size:12px;font-weight:600;color:var(--tx2);border:none;background:none;transition:.15s}.pill.on{background:var(--ac);color:#fff;box-shadow:0 2px 8px rgba(197,56,42,.3)}.pill:hover:not(.on){color:var(--tx);background:var(--bd)}
+.pills{display:inline-flex;gap:3px;background:var(--sf3);border-radius:var(--r);padding:3px}.pill{padding:7px 18px;border-radius:5px;cursor:pointer;font-size:12px;font-weight:600;color:var(--tx2);border:none;background:none;transition:.15s}.pill.on{background:var(--ac);color:#fff;box-shadow:0 2px 8px rgba(197,56,42,.3)}.pill:hover:not(.on){color:var(--tx);background:var(--bd)}
 .main{padding:22px 28px;max-width:1580px;margin:0 auto}
 .kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:22px}.kpi{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);padding:18px 20px;position:relative;overflow:hidden}.kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:2px}.kpi:nth-child(1)::after{background:var(--ac)}.kpi:nth-child(2)::after{background:var(--bl)}.kpi:nth-child(3)::after{background:var(--pu)}.kpi:nth-child(4)::after{background:var(--gn)}.kpi:nth-child(5)::after{background:var(--yl)}
 .kl{font-size:10px;color:var(--tx2);font-weight:600;text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px}.kv{font-family:'JetBrains Mono',monospace;font-size:21px;font-weight:700;letter-spacing:-.4px}.ks{font-size:10px;color:var(--tx3);margin-top:4px;font-weight:500}
@@ -380,13 +380,13 @@ function rsgT(){
 }
 
 function rpr(){
-  var sc=S.sc,ls=S.pl;
+  var sc=adminSc2,ls=S.pl;
   var h='<div class="pc"><h3>Pricing<span class="b">'+sc+'</span></h3><div class="ag">';
   ls.forEach(function(l,i){h+='<div class="ig"><label>'+l+'</label><input type="number" step="any" value="'+S.pr[sc][i]+'" data-t="pr" data-i="'+i+'"></div>'});
   h+='</div></div><div class="pc"><h3>COGS per Unit<span class="b">'+sc+'</span></h3><div class="ag">';
   ls.forEach(function(l,i){h+='<div class="ig"><label>'+l+'</label><input type="number" step="any" value="'+S.cg[sc][i]+'" data-t="cg" data-i="'+i+'"></div>'});
   h+='</div></div>';document.getElementById('pgr').innerHTML=h;
-  document.querySelectorAll('#pgr input').forEach(function(el){el.onchange=function(){S[el.dataset.t][S.sc][+el.dataset.i]=parseFloat(el.value)||0;upd()}});
+  document.querySelectorAll('#pgr input').forEach(function(el){el.onchange=function(){S[el.dataset.t][adminSc2][+el.dataset.i]=parseFloat(el.value)||0;upd()}});
 }
 
 function rst(){
@@ -414,77 +414,289 @@ function rsi(){
   }});
 }
 
-// Scenario pills — main header (read-only display) and admin panel (functional)
-function rscPills(){
-  ['sp','sp2'].forEach(function(id){
-    var el=document.getElementById(id);
-    if(!el)return;
-    el.innerHTML=['Bull','Base','Bear'].map(function(s){return'<button class="pill'+(s===S.sc?' on':'')+'" data-s="'+s+'">'+s+'</button>'}).join('');
-    if(id==='sp2'){
-      el.querySelectorAll('.pill').forEach(function(p){p.onclick=function(){S.sc=p.dataset.s;rscPills();upd()}});
-    }
+// Scenario pills — header changes dashboard view, admin panel changes editing context
+var adminSc2=S.sc; // track which scenario admin is editing (separate from display)
+function initHeaderPills(){
+  var el=document.getElementById('sp');
+  el.innerHTML=['Bull','Base','Bear'].map(function(s){return'<button class="pill'+(s===S.sc?' on':'')+'" data-s="'+s+'">'+s+'</button>'}).join('');
+  el.querySelectorAll('.pill').forEach(function(p){
+    p.onclick=function(){
+      S.sc=p.dataset.s;
+      el.querySelectorAll('.pill').forEach(function(b){b.classList.remove('on')});
+      p.classList.add('on');
+      upd();
+    };
   });
 }
-rscPills();
+function updateHeaderPills(){
+  var el=document.getElementById('sp');
+  el.querySelectorAll('.pill').forEach(function(b){
+    if(b.dataset.s===S.sc)b.classList.add('on');else b.classList.remove('on');
+  });
+}
+function initAdminPills(){
+  var el=document.getElementById('sp2');
+  if(!el)return;
+  el.innerHTML=['Bull','Base','Bear'].map(function(s){return'<button class="pill'+(s===adminSc2?' on':'')+'" data-s="'+s+'">'+s+'</button>'}).join('');
+  el.querySelectorAll('.pill').forEach(function(p){
+    p.onclick=function(){
+      adminSc2=p.dataset.s;
+      el.querySelectorAll('.pill').forEach(function(b){b.classList.remove('on')});
+      p.classList.add('on');
+      rpr();
+    };
+  });
+}
+initHeaderPills();
 
 document.getElementById('vt').innerHTML='<button class="vb on" data-v="annual">Annual</button><button class="vb" data-v="monthly">Monthly</button>';
 document.querySelectorAll('.vb').forEach(function(el){el.onclick=function(){document.querySelectorAll('.vb').forEach(function(b){b.classList.remove('on')});el.classList.add('on');vm=el.dataset.v;rch(calc())}});
 
 // Admin panel open/close
-document.getElementById('adminBtn').onclick=function(){document.getElementById('adminOverlay').classList.add('open');rpr();rsi()};
+document.getElementById('adminBtn').onclick=function(){document.getElementById('adminOverlay').classList.add('open');initAdminPills();rpr();rsi()};
 document.getElementById('adminClose').onclick=function(){document.getElementById('adminOverlay').classList.remove('open')};
 document.getElementById('adminOverlay').onclick=function(e){if(e.target===this)this.classList.remove('open')};
 
 // Excel download
+// Warn before closing tab
+window.addEventListener('beforeunload',function(e){
+  e.preventDefault();
+  e.returnValue='';
+});
+
 document.getElementById('dlBtn').onclick=function(){
   if(typeof XLSX==='undefined'){alert('SheetJS library not loaded. Check internet connection.');return}
   var R=calc();
   var wb=XLSX.utils.book_new();
-
-  // Assumptions sheet
-  var aData=[['AminoSense Revenue Model — Assumptions'],['Scenario',S.sc],[''],
-    ['PRICING ('+S.sc+')']];
-  S.pl.forEach(function(l,i){aData.push([l,S.pr[S.sc][i]])});
-  aData.push([''],['COGS ('+S.sc+')']);
-  S.pl.forEach(function(l,i){aData.push([l,S.cg[S.sc][i]])});
-  aData.push([''],['SEGMENT ASSUMPTIONS']);
-  var segH=['Segment','Population','% Sensor','% Reagent Kit','% Reagent EA','Sensor Launch','Reagent Launch','EA Launch',
-    'Sensor Freq','Reagent Freq','EA Freq','RPK'];
-  for(var p=0;p<10;p++)segH.push('Pen M'+(12*(p+1)));
-  aData.push(segH);
-  S.sg.forEach(function(s){
-    var row=[s.n,s.pop,s.sP,s.rP,s.eP,s.sLm+'/'+s.sLy,s.rLm+'/'+s.rLy,s.eLm+'/'+s.eLy,s.sF,s.rF,s.eF,s.rpk];
-    s.pen.forEach(function(p){row.push(p)});
-    aData.push(row);
-  });
-  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(aData),'Assumptions');
-
-  // Annual Summary sheet
-  var t=R.t;
-  var aR=toA(t.totR),aS=toA(t.rdrR.map(function(r,i){return r+t.strR[i]})),aK=toA(t.kitR),aE=toA(t.eaR),aC=toA(t.totC),aG=toA(t.gp);
-  var aGM=aR.map(function(r,i){return r>0?aG[i]/r:0});
-  var sData=[['Annual Summary'],['Metric'].concat(YRS.map(function(y){return'FY '+y})),
-    ['Sensor Revenue'].concat(aS),['Reagent Kit Revenue'].concat(aK),['Reagent EA Revenue'].concat(aE),
-    ['Total Revenue'].concat(aR),['Total COGS'].concat(aC),['Gross Profit'].concat(aG),
-    ['Gross Margin %'].concat(aGM.map(function(v){return(v*100).toFixed(1)+'%'})),
-    [''],['Revenue by Segment']];
-  S.sg.forEach(function(s){sData.push([s.n].concat(toA(R.sg[s.n].totR)))});
-  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(sData),'Summary');
-
-  // Monthly Revenue sheet
-  var mH=['Month'].concat(S.sg.map(function(s){return s.n})).concat(['Total']);
-  var mData=[['Monthly Revenue'],mH];
+  var sc=S.sc,pr=S.pr[sc],cg=S.cg[sc],pm=sc==='Bull'?1.5:sc==='Bear'?0.5:1;
   var mn=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  for(var i=0;i<120;i++){
-    var y=2026+Math.floor(i/12),m=i%12;
-    var row=[mn[m]+' '+y];
-    var tot=0;
-    S.sg.forEach(function(s){var v=R.sg[s.n].totR[i];row.push(v);tot+=v});
-    row.push(tot);mData.push(row);
-  }
-  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(mData),'Monthly Revenue');
+  var mLabels=[];for(var y=2026;y<=2035;y++)for(var m=0;m<12;m++)mLabels.push(mn[m]+' '+y);
+  var fyLabels=YRS.map(function(y){return'FY '+y});
 
-  XLSX.writeFile(wb,'AminoSense_Model_'+S.sc+'.xlsx');
+  // ── Tab 1: Assumptions ──
+  var a=[];
+  a.push(['AminoSense Revenue Model — Assumptions']);
+  a.push(['All blue values are editable inputs. Black values are calculated.']);
+  a.push([]);
+  a.push(['SCENARIO SELECTION']);
+  a.push(['Active Scenario',sc]);
+  a.push([]);
+  a.push(['PRICING BY SCENARIO']);
+  a.push(['','Bull','Base','Bear']);
+  S.pl.forEach(function(l,i){a.push([l,S.pr.Bull[i],S.pr.Base[i],S.pr.Bear[i]])});
+  a.push([]);
+  a.push(['COGS PER UNIT BY SCENARIO']);
+  a.push(['','Bull','Base','Bear']);
+  S.pl.forEach(function(l,i){a.push([l,S.cg.Bull[i],S.cg.Base[i],S.cg.Bear[i]])});
+  a.push([]);
+  a.push(['ACTIVE PRICING (from scenario selection)']);
+  S.pl.forEach(function(l,i){a.push([l,pr[i]])});
+  a.push([]);
+  a.push(['ACTIVE COGS PER UNIT (from scenario selection)']);
+  S.pl.forEach(function(l,i){a.push([l,cg[i]])});
+  a.push([]);
+  a.push(['PENETRATION RATE MULTIPLIER (from scenario)']);
+  a.push(['Multiplier',pm]);
+  a.push([]);
+  a.push(['SEGMENT ASSUMPTIONS']);
+  var segH=['Segment','Sensor TAM ($)','Reagent Kit TAM ($)','% Using Sensor','% Using Reagent Kit','% Using Reagent EA',
+    'Sensor Launch Month','Sensor Launch Year','Reagent Kit Launch Month','Reagent Kit Launch Year',
+    'Reagent EA Launch Month','Reagent EA Launch Year','Sensor Tests/User/Week','Reagent Reactions/User/Wk',
+    'Reagent EA React/User/Wk','Reactions per Kit','Target Population'];
+  for(var p=0;p<10;p++)segH.push('Pen M'+(12*(p+1))+' (%)');
+  a.push(segH);
+  S.sg.forEach(function(s){
+    var row=[s.n,0,0,s.sP,s.rP,s.eP,s.sLm,s.sLy,s.rLm,s.rLy,s.eLm,s.eLy,s.sF,s.rF,s.eF,s.rpk,s.pop];
+    s.pen.forEach(function(p){row.push(p)});
+    a.push(row);
+  });
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(a),'Assumptions');
+
+  // ── Helper: build monthly tab with segment sections ──
+  function buildMonthlyTab(title,segBuilder,grandTotalBuilder){
+    var d=[];
+    d.push([title]);d.push([]);
+    var hdr=['Section','Segment / Line'].concat(mLabels).concat(fyLabels);
+    d.push(hdr);
+    S.sg.forEach(function(seg,si){
+      var rows=segBuilder(seg,si,R);
+      rows.forEach(function(r){d.push(r)});
+    });
+    if(grandTotalBuilder){
+      var gt=grandTotalBuilder(R);
+      gt.forEach(function(r){d.push(r)});
+    }
+    return XLSX.utils.aoa_to_sheet(d);
+  }
+
+  // ── Tab 2: Unit Volumes ──
+  XLSX.utils.book_append_sheet(wb,buildMonthlyTab('AminoSense — Unit Volumes',function(seg,si,R){
+    var d=R.sg[seg.n];
+    var rows=[];
+    rows.push([seg.n]);
+    var labels=['Months Since Sensor Launch','Sensor Penetration %','Cumulative Sensor Customers','New Sensor Customers',
+      'Months Since Reagent Kit Launch','Reagent Kit Penetration %','Cumulative Reagent Kit Customers','New Reagent Kit Customers',
+      'Months Since Reagent EA Launch','Reagent EA Penetration %','Cumulative Reagent EA Customers','New Reagent EA Customers',
+      'Strips Consumed (Monthly)','Reagent Kits Consumed (Monthly)','Reagent EA Kits Consumed (Monthly)','Readers Sold (Monthly)'];
+    // Compute months since launch and penetration for each month
+    var mos=[];for(var y=2026;y<=2035;y++)for(var m=1;m<=12;m++)mos.push([m,y]);
+    labels.forEach(function(lbl,li){
+      var row=['',lbl];
+      var annual=new Array(10).fill(0);
+      for(var mi=0;mi<120;mi++){
+        var mo=mos[mi],m=mo[0],y=mo[1],yi=Math.floor(mi/12);
+        var v=0;
+        if(li===0)v=Math.max(0,(y-seg.sLy)*12+(m-seg.sLm)+1);
+        else if(li===1){var msl=Math.max(0,(y-seg.sLy)*12+(m-seg.sLm)+1);v=gpen(msl,seg.pen,pm)}
+        else if(li===2)v=d.cS[mi];
+        else if(li===3)v=mi===0?d.cS[0]:Math.max(0,d.cS[mi]-d.cS[mi-1]);
+        else if(li===4)v=Math.max(0,(y-seg.rLy)*12+(m-seg.rLm)+1);
+        else if(li===5){var msl2=Math.max(0,(y-seg.rLy)*12+(m-seg.rLm)+1);v=gpen(msl2,seg.pen,pm)}
+        else if(li===6)v=d.cR[mi];
+        else if(li===7)v=mi===0?d.cR[0]:Math.max(0,d.cR[mi]-d.cR[mi-1]);
+        else if(li===8)v=(seg.eLm>0&&seg.eLy>0)?Math.max(0,(y-seg.eLy)*12+(m-seg.eLm)+1):0;
+        else if(li===9){var msl3=(seg.eLm>0&&seg.eLy>0)?Math.max(0,(y-seg.eLy)*12+(m-seg.eLm)+1):0;v=gpen(msl3,seg.pen,pm)}
+        else if(li===10)v=d.cE[mi];
+        else if(li===11)v=mi===0?d.cE[0]:Math.max(0,d.cE[mi]-d.cE[mi-1]);
+        else if(li===12)v=d.str[mi];
+        else if(li===13)v=d.kit[mi];
+        else if(li===14)v=d.eak[mi];
+        else if(li===15)v=d.rdr[mi];
+        row.push(v);
+        if([2,6,10].indexOf(li)>=0){annual[yi]=v}
+        else{annual[yi]+=v}
+      }
+      row=row.concat(annual);
+      rows.push(row);
+    });
+    return rows;
+  }),'Unit Volumes');
+
+  // ── Tab 3: Sensor Revenue ──
+  XLSX.utils.book_append_sheet(wb,buildMonthlyTab('AminoSense — Sensor Revenue ($)',function(seg,si,R){
+    var d=R.sg[seg.n];var rows=[];rows.push([seg.n]);
+    ['Reader Revenue','Strip Revenue','Total Sensor Revenue'].forEach(function(lbl,li){
+      var row=['',lbl];var annual=new Array(10).fill(0);
+      for(var mi=0;mi<120;mi++){
+        var v=li===0?d.rdrR[mi]:li===1?d.strR[mi]:(d.rdrR[mi]+d.strR[mi]);
+        row.push(v);annual[Math.floor(mi/12)]+=v;
+      }
+      row=row.concat(annual);rows.push(row);
+    });
+    return rows;
+  },function(R){
+    var t=R.t;var row=['','TOTAL SENSOR REVENUE'];var annual=new Array(10).fill(0);
+    for(var mi=0;mi<120;mi++){var v=t.rdrR[mi]+t.strR[mi];row.push(v);annual[Math.floor(mi/12)]+=v}
+    row=row.concat(annual);return[row];
+  }),'Sensor Revenue');
+
+  // ── Tab 4: Reagent Kit Revenue ──
+  XLSX.utils.book_append_sheet(wb,buildMonthlyTab('AminoSense — Reagent Kit & EA Revenue ($)',function(seg,si,R){
+    var d=R.sg[seg.n];var rows=[];rows.push([seg.n]);
+    ['Reagent Kit Revenue','Reagent EA Revenue','Total Reagent Revenue'].forEach(function(lbl,li){
+      var row=['',lbl];var annual=new Array(10).fill(0);
+      for(var mi=0;mi<120;mi++){
+        var v=li===0?d.kitR[mi]:li===1?d.eaR[mi]:(d.kitR[mi]+d.eaR[mi]);
+        row.push(v);annual[Math.floor(mi/12)]+=v;
+      }
+      row=row.concat(annual);rows.push(row);
+    });
+    return rows;
+  },function(R){
+    var t=R.t;var rows=[];
+    [['TOTAL REAGENT KIT REVENUE','kitR'],['TOTAL REAGENT EA REVENUE','eaR'],['TOTAL ALL REAGENT REVENUE',null]].forEach(function(x){
+      var row=['',x[0]];var annual=new Array(10).fill(0);
+      for(var mi=0;mi<120;mi++){var v=x[1]?t[x[1]][mi]:(t.kitR[mi]+t.eaR[mi]);row.push(v);annual[Math.floor(mi/12)]+=v}
+      row=row.concat(annual);rows.push(row);
+    });
+    return rows;
+  }),'Reagent Kit Revenue');
+
+  // ── Tab 5: COGS & Gross Margin ──
+  XLSX.utils.book_append_sheet(wb,buildMonthlyTab('AminoSense — COGS & Gross Margin ($)',function(seg,si,R){
+    var d=R.sg[seg.n];var rows=[];rows.push([seg.n]);
+    var isRuo=si===0;
+    ['Reader COGS','Strip COGS','Reagent Kit COGS','Reagent EA COGS','Total COGS','Total Revenue','Gross Profit','Gross Margin %'].forEach(function(lbl,li){
+      var row=['',lbl];var annual=new Array(10).fill(0);
+      for(var mi=0;mi<120;mi++){
+        var v=0;
+        if(li===0)v=d.rdr[mi]*(isRuo?cg[0]:cg[2]);
+        else if(li===1)v=d.str[mi]*(isRuo?cg[1]:cg[3]);
+        else if(li===2)v=d.kit[mi]*cg[4];
+        else if(li===3)v=d.eak[mi]*cg[5];
+        else if(li===4)v=d.totC[mi];
+        else if(li===5)v=d.totR[mi];
+        else if(li===6)v=d.gp[mi];
+        else if(li===7)v=d.gm[mi];
+        row.push(v);
+        if(li===7){var rev=annual[Math.floor(mi/12)];/*skip*/}
+        else{annual[Math.floor(mi/12)]+=v}
+      }
+      if(li===7){
+        // Recalc annual GM%
+        var aRev=new Array(10).fill(0),aGP=new Array(10).fill(0);
+        for(var mi2=0;mi2<120;mi2++){aRev[Math.floor(mi2/12)]+=d.totR[mi2];aGP[Math.floor(mi2/12)]+=d.gp[mi2]}
+        annual=aRev.map(function(r,i){return r>0?aGP[i]/r:0});
+      }
+      row=row.concat(annual);rows.push(row);
+    });
+    return rows;
+  },function(R){
+    var t=R.t;var rows=[];
+    ['TOTAL COGS','TOTAL REVENUE','TOTAL GROSS PROFIT','TOTAL GROSS MARGIN %'].forEach(function(lbl,li){
+      var row=['',lbl];var annual=new Array(10).fill(0);
+      for(var mi=0;mi<120;mi++){
+        var v=li===0?t.totC[mi]:li===1?t.totR[mi]:li===2?t.gp[mi]:t.gm[mi];
+        row.push(v);
+        if(li<3)annual[Math.floor(mi/12)]+=v;
+      }
+      if(li===3){
+        var aR2=toA(t.totR),aG2=toA(t.gp);
+        annual=aR2.map(function(r,i){return r>0?aG2[i]/r:0});
+      }
+      row=row.concat(annual);rows.push(row);
+    });
+    return rows;
+  }),'COGS & Gross Margin');
+
+  // ── Tab 6: Summary ──
+  var sd=[];
+  sd.push(['AminoSense — Revenue Model Summary']);
+  sd.push(['Active Scenario: '+sc]);
+  sd.push([]);
+  var sHdr=['Section','Segment / Line'].concat(mLabels).concat(fyLabels);
+  sd.push(sHdr);
+  var t=R.t;
+  var sumRows=[
+    ['','Total Sensor Revenue',t.rdrR.map(function(v,i){return v+t.strR[i]})],
+    ['','Total Reagent Kit Revenue',t.kitR],
+    ['','Total Reagent EA Revenue',t.eaR],
+    ['','TOTAL REVENUE',t.totR],
+    ['','Total COGS',t.totC],
+    ['','GROSS PROFIT',t.gp],
+    ['','Gross Margin %',t.gm]
+  ];
+  sumRows.forEach(function(sr){
+    var row=[sr[0],sr[1]].concat(sr[2]);
+    var isGM=sr[1]==='Gross Margin %';
+    if(isGM){
+      var aR3=toA(t.totR),aG3=toA(t.gp);
+      row=row.concat(aR3.map(function(r,i){return r>0?aG3[i]/r:0}));
+    }else{
+      row=row.concat(toA(sr[2]));
+    }
+    sd.push(row);
+  });
+  sd.push([]);
+  sd.push(['','REVENUE BY SEGMENT']);
+  S.sg.forEach(function(s){
+    var d2=R.sg[s.n];
+    var row=['',s.n].concat(d2.totR).concat(toA(d2.totR));
+    sd.push(row);
+  });
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(sd),'Summary');
+
+  XLSX.writeFile(wb,'AminoSense_Revenue_Model_'+sc+'.xlsx');
 };
 
 function rro(){
@@ -514,7 +726,7 @@ function rro(){
   document.getElementById('roSegments').innerHTML=sh;
 }
 
-function upd(){var R=calc();rkpi(R);rch(R);rtbl(R);rsgT();rscPills();rro()}
+function upd(){var R=calc();rkpi(R);rch(R);rtbl(R);rsgT();updateHeaderPills();rro()}
 upd();
 </script>
 </body>
