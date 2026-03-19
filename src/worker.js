@@ -105,11 +105,3 @@ export default {
     return loginPage(false);
   },
 };
-```
-
-And remember to move `index.html` and `Logo_Full.png` into a `public/` folder. Your final repo structure:
-```
-/wrangler.jsonc
-/src/worker.js
-/public/index.html
-/public/Logo_Full.png
