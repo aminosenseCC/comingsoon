@@ -20,8 +20,10 @@ html{font-size:14px}body{font-family:'DM Sans',sans-serif;background:var(--bg);c
 .sec{margin-bottom:24px}.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.st{font-size:14px;font-weight:700}
 .cg{display:grid;grid-template-columns:1fr 1fr;gap:14px}.cc{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);padding:18px}.cc.full{grid-column:1/-1}.ct{font-size:12px;font-weight:600;margin-bottom:2px}.cs2{font-size:10px;color:var(--tx2);margin-bottom:12px}.cw{position:relative;height:270px}.cc.tall .cw{height:340px}
 .tg{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}.tc{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:18px;font-size:10px;font-weight:600;cursor:pointer;border:1px solid var(--bd);background:var(--sf2);color:var(--tx2);user-select:none;transition:.15s}.tc.on{border-color:var(--ac);color:var(--tx);background:var(--acg)}.tc .dot{width:7px;height:7px;border-radius:50%}
+.tc .line{width:16px;height:2px;border-radius:1px}
+.tc .bar{width:10px;height:7px;border-radius:2px}
 .vt{display:flex;gap:2px;background:var(--sf3);border-radius:5px;padding:2px}.vb{padding:5px 13px;border-radius:3px;font-size:11px;font-weight:600;cursor:pointer;color:var(--tx2);background:none;border:none;transition:.15s}.vb.on{background:var(--sf);color:var(--tx)}
-.tw{overflow-x:auto;border-radius:var(--rl);border:1px solid var(--bd)}table{width:100%;border-collapse:collapse;font-size:11px}thead th{background:var(--sf2);color:var(--tx2);font-weight:600;text-transform:uppercase;letter-spacing:.4px;font-size:10px;padding:9px 12px;text-align:right;border-bottom:1px solid var(--bd);position:sticky;top:0}thead th:first-child{text-align:left}tbody td{padding:7px 12px;text-align:right;font-family:'JetBrains Mono',monospace;font-size:10px;border-bottom:1px solid var(--bd)}tbody td:first-child{text-align:left;font-family:'DM Sans',sans-serif;font-weight:600;font-size:11px}tbody tr:hover{background:var(--sf2)}tbody tr.tr{background:var(--sf2);font-weight:700}tbody tr.tr td{border-top:2px solid var(--bd2)}
+.tw{overflow-x:auto;border-radius:var(--rl);border:1px solid var(--bd)}table{width:100%;border-collapse:collapse;font-size:13px}thead th{background:var(--sf2);color:var(--tx);font-weight:600;text-transform:uppercase;letter-spacing:.4px;font-size:12px;padding:10px 14px;text-align:right;border-bottom:1px solid var(--bd);position:sticky;top:0}thead th:first-child{text-align:left}tbody td{padding:9px 14px;text-align:right;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--tx);border-bottom:1px solid var(--bd)}tbody td:first-child{text-align:left;font-family:'DM Sans',sans-serif;font-weight:600;font-size:13px;color:var(--tx)}tbody tr:hover{background:var(--sf2)}tbody tr.tr{background:var(--sf2);font-weight:700}tbody tr.tr td{border-top:2px solid var(--bd2)}
 .pg{display:grid;grid-template-columns:1fr 1fr;gap:14px}.pc{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);padding:14px}.pc h3{font-size:12px;font-weight:700;margin-bottom:10px}.pc h3 .b{font-size:9px;padding:2px 7px;border-radius:9px;background:var(--acg);color:var(--ac2);font-weight:700;margin-left:6px}
 .ag{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}.ig{display:flex;flex-direction:column;gap:3px}.ig label{font-size:10px;color:var(--tx2);font-weight:600;text-transform:uppercase;letter-spacing:.4px}.ig input{background:var(--sf3);border:1px solid var(--bd);border-radius:5px;padding:7px 10px;color:var(--tx);font-family:'JetBrains Mono',monospace;font-size:11px;outline:none;transition:.15s;width:100%}.ig input:focus{border-color:var(--ac)}
 .stabs{display:flex;gap:2px;margin-bottom:14px;overflow-x:auto;padding-bottom:3px}.stab{padding:6px 14px;border-radius:5px;cursor:pointer;font-size:10px;font-weight:600;color:var(--tx2);background:var(--sf2);border:1px solid transparent;white-space:nowrap;transition:.15s}.stab.on{background:var(--acg);color:var(--tx);border-color:var(--ac)}.stab:hover:not(.on){color:var(--tx);border-color:var(--bd)}
@@ -40,37 +42,46 @@ html{font-size:14px}body{font-family:'DM Sans',sans-serif;background:var(--bg);c
 <div class="main">
 <div class="kpis" id="kpis"></div>
 <div class="sec"><div class="sh"><div class="st">Revenue Overview</div><div class="vt" id="vt"></div></div>
-<div class="cg"><div class="cc full tall"><div class="ct">Total Revenue by Product Line</div><div class="cs2">Stacked — Readers · Strips · Reagent Kit · Reagent EA</div><div class="cw"><canvas id="c1"></canvas></div></div>
+<div class="cg"><div class="cc full tall"><div class="ct">Total Revenue</div><div class="cs2">Combined revenue across all product lines and segments</div><div class="tg" id="lg0"></div><div class="cw"><canvas id="c0"></canvas></div></div>
+<div class="cc full tall"><div class="ct">Revenue by Product Line</div><div class="cs2">Readers · Strips · Reagent Kit · Reagent EA</div><div class="tg" id="lg1"></div><div class="cw"><canvas id="c1"></canvas></div></div>
 <div class="cc"><div class="ct">Revenue by Segment</div><div class="cs2">Toggle segments</div><div class="tg" id="stg"></div><div class="cw"><canvas id="c2"></canvas></div></div>
-<div class="cc"><div class="ct">Gross Margin Analysis</div><div class="cs2">Revenue · COGS · Margin %</div><div class="cw"><canvas id="c3"></canvas></div></div></div></div>
+<div class="cc"><div class="ct">Gross Margin Analysis</div><div class="cs2">Revenue · COGS · Margin %</div><div class="tg" id="lg3"></div><div class="cw"><canvas id="c3"></canvas></div></div></div></div>
 <div class="sec"><div class="sh"><div class="st">Customers & Volumes</div></div>
-<div class="cg"><div class="cc"><div class="ct">Cumulative Customers</div><div class="cs2">All product lines</div><div class="cw"><canvas id="c4"></canvas></div></div>
-<div class="cc"><div class="ct">Units Sold</div><div class="cs2">Strips · Kits · EA · Readers</div><div class="cw"><canvas id="c5"></canvas></div></div></div></div>
+<div class="cg"><div class="cc"><div class="ct">Cumulative Customers</div><div class="cs2">All product lines</div><div class="tg" id="lg4"></div><div class="cw"><canvas id="c4"></canvas></div></div>
+<div class="cc"><div class="ct">Units Sold</div><div class="cs2">Strips · Kits · EA · Readers</div><div class="tg" id="lg5"></div><div class="cw"><canvas id="c5"></canvas></div></div></div></div>
 <div class="sec"><div class="sh"><div class="st">Annual Summary</div></div><div class="tw"><table id="at"></table></div></div>
 <div class="sec"><div class="sh"><div class="st colt op" onclick="this.classList.toggle('op');this.closest('.sec').querySelector('.colb').classList.toggle('op')">Pricing & COGS</div></div><div class="colb op"><div class="pg" id="pgr"></div></div></div>
 <div class="sec"><div class="sh"><div class="st colt op" onclick="this.classList.toggle('op');this.closest('.sec').querySelector('.colb').classList.toggle('op')">Segment Assumptions</div></div><div class="colb op"><div class="stabs" id="stb"></div><div class="ap" id="si"></div></div></div>
 </div>
 <script>
 var S={sc:"Base",pr:{Bull:[2500,25,120,1.2,400,400],Base:[2500,10,100,1,250,500],Bear:[2500,25,80,0.8,400,400]},cg:{Bull:[800,5,30,0.2,80,80],Base:[1800,5,50,0.1,12.5,250],Bear:[1200,10,50,0.4,120,120]},pl:["RUO Reader","RUO Strip","Comm Reader","Comm Strip","Reagent Kit","Reagent EA"],sg:[
-{n:"Research",sP:.4,rP:.55,eP:.05,sLm:10,sLy:2026,rLm:6,rLy:2027,eLm:10,eLy:2026,sF:21,rF:21,eF:21,rpk:100,pop:421,p12:.02,p36:.1,p60:.25},
-{n:"MSUD",sP:.7,rP:.3,eP:0,sLm:1,sLy:2030,rLm:1,rLy:2029,eLm:0,eLy:0,sF:1,rF:.23,eF:0,rpk:100,pop:2000,p12:.01,p36:.05,p60:.15},
-{n:"PKU",sP:.7,rP:.3,eP:0,sLm:1,sLy:2030,rLm:1,rLy:2029,eLm:0,eLy:0,sF:.23,rF:.23,eF:0,rpk:100,pop:13800,p12:.005,p36:.03,p60:.1},
-{n:"Sports Nutrition",sP:.9,rP:.1,eP:0,sLm:1,sLy:2028,rLm:6,rLy:2027,eLm:0,eLy:0,sF:3,rF:.12,eF:0,rpk:100,pop:35637283,p12:.0001,p36:.001,p60:.005},
-{n:"Malnutrition",sP:.5,rP:.5,eP:0,sLm:1,sLy:2029,rLm:1,rLy:2028,eLm:0,eLy:0,sF:1,rF:.5,eF:0,rpk:100,pop:3053000,p12:.0005,p36:.003,p60:.01},
-{n:"Sarcopenia",sP:.8,rP:.2,eP:0,sLm:1,sLy:2030,rLm:1,rLy:2029,eLm:0,eLy:0,sF:3,rF:.25,eF:0,rpk:100,pop:48964775,p12:.0001,p36:.0005,p60:.002},
-{n:"GLP-1",sP:.8,rP:.2,eP:0,sLm:1,sLy:2029,rLm:1,rLy:2028,eLm:0,eLy:0,sF:3,rF:.25,eF:0,rpk:100,pop:32061800,p12:.0001,p36:.0005,p60:.002},
-{n:"Healthy Aging",sP:.9,rP:.1,eP:0,sLm:1,sLy:2029,rLm:1,rLy:2028,eLm:0,eLy:0,sF:2,rF:.12,eF:0,rpk:100,pop:82973748,p12:.00005,p36:.0003,p60:.001},
-{n:"Dialysis",sP:.5,rP:.5,eP:0,sLm:1,sLy:2030,rLm:1,rLy:2029,eLm:0,eLy:0,sF:3,rF:3,eF:0,rpk:100,pop:549440,p12:.001,p36:.005,p60:.02},
-{n:"Precision Nutrition",sP:.9,rP:.1,eP:0,sLm:1,sLy:2029,rLm:1,rLy:2028,eLm:0,eLy:0,sF:2,rF:.12,eF:0,rpk:100,pop:18702720,p12:.0001,p36:.0005,p60:.002},
-{n:"Burn Injury",sP:.5,rP:.5,eP:0,sLm:1,sLy:2030,rLm:1,rLy:2029,eLm:0,eLy:0,sF:1,rF:.5,eF:0,rpk:100,pop:53220,p12:.005,p36:.02,p60:.08},
-{n:"Concierge Medicine",sP:.7,rP:.3,eP:0,sLm:1,sLy:2029,rLm:1,rLy:2028,eLm:0,eLy:0,sF:.077,rF:.077,eF:0,rpk:100,pop:2700000,p12:.005,p36:.03,p60:.1}
+{n:"Research",sP:.4,rP:.55,eP:.05,sLm:10,sLy:2026,rLm:6,rLy:2027,eLm:10,eLy:2026,sF:21,rF:21,eF:21,rpk:100,pop:421,pen:[.02,.06,.1,.175,.25,.325,.39325,.451058,.497472,.533304]},
+{n:"MSUD",sP:.7,rP:.3,eP:0,sLm:1,sLy:2030,rLm:1,rLy:2029,eLm:0,eLy:0,sF:1,rF:.23,eF:0,rpk:100,pop:2000,pen:[.01,.03,.05,.1,.15,.2025,.252112,.29535,.330807,.358606]},
+{n:"PKU",sP:.7,rP:.3,eP:0,sLm:1,sLy:2030,rLm:1,rLy:2029,eLm:0,eLy:0,sF:.23,rF:.23,eF:0,rpk:100,pop:13800,pen:[.005,.0175,.03,.065,.1,.137692,.174022,.206162,.232816,.253886]},
+{n:"Sports Nutrition",sP:.9,rP:.1,eP:0,sLm:1,sLy:2028,rLm:6,rLy:2027,eLm:0,eLy:0,sF:3,rF:.12,eF:0,rpk:100,pop:35637283,pen:[.0001,.00055,.001,.003,.005,.007333,.009729,.011954,.013867,.015421]},
+{n:"Malnutrition",sP:.5,rP:.5,eP:0,sLm:1,sLy:2029,rLm:1,rLy:2028,eLm:0,eLy:0,sF:1,rF:.5,eF:0,rpk:100,pop:3053000,pen:[.0005,.00175,.003,.0065,.01,.013769,.017402,.020616,.023282,.025389]},
+{n:"Sarcopenia",sP:.8,rP:.2,eP:0,sLm:1,sLy:2030,rLm:1,rLy:2029,eLm:0,eLy:0,sF:3,rF:.25,eF:0,rpk:100,pop:48964775,pen:[.0001,.0003,.0005,.00125,.002,.00284,.003675,.004431,.00507,.005581]},
+{n:"GLP-1",sP:.8,rP:.2,eP:0,sLm:1,sLy:2029,rLm:1,rLy:2028,eLm:0,eLy:0,sF:3,rF:.25,eF:0,rpk:100,pop:32061800,pen:[.0001,.0003,.0005,.00125,.002,.00284,.003675,.004431,.00507,.005581]},
+{n:"Healthy Aging",sP:.9,rP:.1,eP:0,sLm:1,sLy:2029,rLm:1,rLy:2028,eLm:0,eLy:0,sF:2,rF:.12,eF:0,rpk:100,pop:82973748,pen:[.00005,.000175,.0003,.00065,.001,.001377,.00174,.002062,.002328,.002539]},
+{n:"Dialysis",sP:.5,rP:.5,eP:0,sLm:1,sLy:2030,rLm:1,rLy:2029,eLm:0,eLy:0,sF:3,rF:3,eF:0,rpk:100,pop:549440,pen:[.001,.003,.005,.0125,.02,.0284,.03675,.044313,.050696,.055809]},
+{n:"Precision Nutrition",sP:.9,rP:.1,eP:0,sLm:1,sLy:2029,rLm:1,rLy:2028,eLm:0,eLy:0,sF:2,rF:.12,eF:0,rpk:100,pop:18702720,pen:[.0001,.0003,.0005,.00125,.002,.00284,.003675,.004431,.00507,.005581]},
+{n:"Burn Injury",sP:.5,rP:.5,eP:0,sLm:1,sLy:2030,rLm:1,rLy:2029,eLm:0,eLy:0,sF:1,rF:.5,eF:0,rpk:100,pop:53220,pen:[.005,.0125,.02,.05,.08,.1136,.146998,.177251,.202785,.223235]},
+{n:"Concierge Medicine",sP:.7,rP:.3,eP:0,sLm:1,sLy:2029,rLm:1,rLy:2028,eLm:0,eLy:0,sF:.077,rF:.077,eF:0,rpk:100,pop:2700000,pen:[.005,.0175,.03,.065,.1,.137692,.174022,.206162,.232816,.253886]}
 ]};
 var vm='annual',ast=0,stog={},SC=['#c5382a','#3b82f6','#8b5cf6','#22c55e','#eab308','#06b6d4','#f97316','#ec4899','#14b8a6','#a855f7','#ef4444','#64748b'];
 S.sg.forEach(function(s){stog[s.n]=true});
 var YRS=['2026','2027','2028','2029','2030','2031','2032','2033','2034','2035'];
 var ML=[];(function(){var mn=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];for(var y=2026;y<=2035;y++)for(var m=0;m<12;m++)ML.push(mn[m]+' '+(y%100))})();
 
-function gpen(msl,m12,m36,m60,pm){if(msl<=0)return 0;var b;if(msl<=12)b=m12*msl/12;else if(msl<=36)b=m12+(m36-m12)*(msl-12)/24;else if(msl<=60)b=m36+(m60-m36)*(msl-36)/24;else b=m60;return b*pm}
+function gpen(msl,pen,pm){
+  if(msl<=0)return 0;
+  if(msl<=12)return pen[0]*msl/12*pm;
+  for(var i=1;i<10;i++){
+    var mEnd=12*(i+1);
+    if(msl<=mEnd){var mStart=12*i;return(pen[i-1]+(pen[i]-pen[i-1])*(msl-mStart)/12)*pm}
+  }
+  return pen[9]*pm;
+}
 
 function calc(){
   var sc=S.sc,pr=S.pr[sc],cg=S.cg[sc],pm=sc==='Bull'?1.5:sc==='Bear'?0.5:1;
@@ -87,9 +98,9 @@ function calc(){
       var smsl=Math.max(0,(y-seg.sLy)*12+(m-seg.sLm)+1);
       var rmsl=Math.max(0,(y-seg.rLy)*12+(m-seg.rLm)+1);
       var emsl=(seg.eLm>0&&seg.eLy>0)?Math.max(0,(y-seg.eLy)*12+(m-seg.eLm)+1):0;
-      var cs=Math.round(seg.pop*seg.sP*gpen(smsl,seg.p12,seg.p36,seg.p60,pm));
-      var cr=Math.round(seg.pop*seg.rP*gpen(rmsl,seg.p12,seg.p36,seg.p60,pm));
-      var ce=Math.round(seg.pop*seg.eP*gpen(emsl,seg.p12,seg.p36,seg.p60,pm));
+      var cs=Math.round(seg.pop*seg.sP*gpen(smsl,seg.pen,pm));
+      var cr=Math.round(seg.pop*seg.rP*gpen(rmsl,seg.pen,pm));
+      var ce=Math.round(seg.pop*seg.eP*gpen(emsl,seg.pen,pm));
       var nS=Math.max(0,cs-pS),nR=Math.max(0,cr-pR),nE=Math.max(0,ce-pE);
       var strips=cs*seg.sF*52/12,kits=Math.ceil(cr*seg.rF*52/12/seg.rpk),eaks=Math.ceil(ce*seg.eF*52/12/seg.rpk);
       d.cS.push(cs);d.cR.push(cr);d.cE.push(ce);d.str.push(strips);d.kit.push(kits);d.eak.push(eaks);d.rdr.push(nS);
@@ -114,64 +125,143 @@ function fN(v){if(Math.abs(v)>=1e6)return(v/1e6).toFixed(1)+'M';if(Math.abs(v)>=
 function fP(v){return(v*100).toFixed(1)+'%'}
 
 var ch={};
-function mkO(){return{responsive:true,maintainAspectRatio:false,animation:{duration:300},plugins:{legend:{position:'top',labels:{color:'#5a6070',font:{family:'DM Sans',size:10},boxWidth:10,padding:10}},tooltip:{backgroundColor:'#1a1d26',titleColor:'#fff',bodyColor:'#c5c9d4',borderColor:'#d8dbe3',borderWidth:1,titleFont:{family:'DM Sans',weight:'600'},bodyFont:{family:'JetBrains Mono',size:10},padding:10,cornerRadius:6,callbacks:{label:function(c){return c.dataset.label+': '+f$(c.parsed.y)}}}},scales:{x:{ticks:{color:'#8a8f9e',font:{family:'DM Sans',size:9},maxRotation:0},grid:{color:'#e8eaef'}},y:{ticks:{color:'#8a8f9e',font:{family:'JetBrains Mono',size:9},callback:function(v){return f$(v)}},grid:{color:'#e8eaef'}}}}}
+// Persistent hidden state per chart legend (keyed by chart id)
+var lstate={};
+
+function mkO(){return{responsive:true,maintainAspectRatio:false,animation:{duration:400,easing:'easeOutQuart'},transitions:{active:{animation:{duration:0}}},plugins:{legend:{display:false},tooltip:{backgroundColor:'#1a1d26',titleColor:'#fff',bodyColor:'#c5c9d4',borderColor:'#d8dbe3',borderWidth:1,titleFont:{family:'DM Sans',size:12,weight:'600'},bodyFont:{family:'JetBrains Mono',size:11},padding:12,cornerRadius:6,callbacks:{label:function(c){return c.dataset.label+': '+f$(c.parsed.y)}}}},scales:{x:{ticks:{color:'#3a3f4e',font:{family:'DM Sans',size:11,weight:'500'},maxRotation:0},grid:{color:'#e8eaef'}},y:{ticks:{color:'#3a3f4e',font:{family:'JetBrains Mono',size:11,weight:'500'},callback:function(v){return f$(v)}},grid:{color:'#e8eaef'}}}}}
 
 function ag(a){return vm==='annual'?toA(a):a}
 function al2(a){return vm==='annual'?toL(a):a}
 function lb(){return vm==='annual'?YRS:ML}
 
-// Precompute a stable Y-max across ALL segments for the segment chart so toggling doesn't bounce
 function segYMax(R){
   var mx=0;S.sg.forEach(function(s){var d=ag(R.sg[s.n].totR);for(var i=0;i<d.length;i++)if(d[i]>mx)mx=d[i]});
   return mx*1.1;
 }
 
+// Compute a stable Y max across ALL datasets for a chart (even hidden ones)
+function allMax(datasets){
+  var mx=0;
+  datasets.forEach(function(ds){
+    if(ds.data)ds.data.forEach(function(v){if(v>mx)mx=v});
+  });
+  return mx*1.15||1;
+}
+
+function buildLegend(chartId, containerId, items, dynamicY){
+  var el=document.getElementById(containerId);
+  if(!el)return;
+  if(!lstate[chartId])lstate[chartId]={};
+  el.innerHTML=items.map(function(it,i){
+    var shape=it.shape||'dot';
+    var hidden=lstate[chartId][i]||false;
+    var cls=hidden?'tc':'tc on';
+    return'<div class="'+cls+'" data-i="'+i+'"><span class="'+shape+'" style="background:'+it.color+'"></span>'+it.label+'</div>';
+  }).join('');
+  // Apply persisted hidden state to chart
+  items.forEach(function(it,i){
+    if(lstate[chartId][i]&&ch[chartId]){
+      ch[chartId].getDatasetMeta(i).hidden=true;
+    }
+  });
+  if(ch[chartId])ch[chartId].update('none');
+  el.querySelectorAll('.tc').forEach(function(chip){
+    chip.onclick=function(){
+      var idx=+chip.dataset.i;
+      var isOn=chip.classList.contains('on');
+      chip.classList.toggle('on');
+      lstate[chartId][idx]=isOn;
+      if(ch[chartId]){
+        ch[chartId].getDatasetMeta(idx).hidden=isOn;
+        ch[chartId].update(dynamicY?undefined:'none');
+      }
+    };
+  });
+}
+
 function rch(R){
   var L=lb(),t=R.t;
+
+  // C0: Total Revenue (single line)
+  if(ch.c0)ch.c0.destroy();
+  var o0=mkO();o0.interaction={mode:'index',intersect:false};
+  ch.c0=new Chart(document.getElementById('c0'),{type:'line',data:{labels:L,datasets:[
+    {label:'Total Revenue',data:ag(t.totR),borderColor:'#c5382a',backgroundColor:'rgba(197,56,42,.08)',fill:true,tension:.3,borderWidth:2.5,pointRadius:0}
+  ]},options:o0});
+  buildLegend('c0','lg0',[{label:'Total Revenue',color:'#c5382a',shape:'dot'}]);
+
+  // C1: Revenue by product line
   if(ch.c1)ch.c1.destroy();
   var o1=mkO();o1.interaction={mode:'index',intersect:false};
-  ch.c1=new Chart(document.getElementById('c1'),{type:'line',data:{labels:L,datasets:[
+  var c1ds=[
     {label:'Reader Revenue',data:ag(t.rdrR),borderColor:'#c5382a',backgroundColor:'rgba(197,56,42,.12)',fill:true,tension:.3,borderWidth:2,pointRadius:0},
     {label:'Strip Revenue',data:ag(t.strR),borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,.08)',fill:true,tension:.3,borderWidth:2,pointRadius:0},
     {label:'Reagent Kit Revenue',data:ag(t.kitR),borderColor:'#7c3aed',backgroundColor:'rgba(124,58,237,.08)',fill:true,tension:.3,borderWidth:2,pointRadius:0},
     {label:'Reagent EA Revenue',data:ag(t.eaR),borderColor:'#ca8a04',backgroundColor:'rgba(202,138,4,.08)',fill:true,tension:.3,borderWidth:2,pointRadius:0}
-  ]},options:o1});
+  ];
+  // Fix Y axis to include all data so toggling doesn't rescale
+  var c1Max=allMax(c1ds);
+  o1.scales.y.max=c1Max;o1.scales.y.min=0;
+  ch.c1=new Chart(document.getElementById('c1'),{type:'line',data:{labels:L,datasets:c1ds},options:o1});
+  buildLegend('c1','lg1',c1ds.map(function(ds){return{label:ds.label,color:ds.borderColor,shape:'dot'}}));
 
-  // Segment chart: always include ALL segments as datasets, hide toggled-off ones via hidden property
-  // This keeps the Y axis stable and avoids destroy/recreate bounce
-  var syMax=segYMax(R);
+  // C2: Segment chart — dynamic Y axis, in-place toggle
   if(ch.c2)ch.c2.destroy();
   var allSds=S.sg.map(function(s,i){return{label:s.n,data:ag(R.sg[s.n].totR),borderColor:SC[i],backgroundColor:'transparent',tension:.3,borderWidth:2,pointRadius:0,hidden:!stog[s.n]}});
-  var o2=mkO();o2.animation={duration:0};o2.plugins.legend={display:false};o2.scales.y.max=syMax;o2.scales.y.min=0;
+  var o2=mkO();
+  o2.interaction={mode:'index',intersect:false};
   ch.c2=new Chart(document.getElementById('c2'),{type:'line',data:{labels:L,datasets:allSds},options:o2});
 
+  // C3: Gross Margin
   if(ch.c3)ch.c3.destroy();
   var gmD=vm==='annual'?toA(t.totR).map(function(r,i){var g=toA(t.gp);return r>0?g[i]/r:0}):t.gm;
   var o3=mkO();
-  o3.scales.y1={position:'right',ticks:{color:'#16a34a',font:{family:'JetBrains Mono',size:9},callback:function(v){return(v*100).toFixed(0)+'%'}},grid:{display:false},min:0,max:1};
+  o3.interaction={mode:'index',intersect:false};
+  var c3RevData=ag(t.totR),c3CogData=ag(t.totC);
+  var c3Max=allMax([{data:c3RevData},{data:c3CogData}]);
+  o3.scales.y.max=c3Max;o3.scales.y.min=0;
+  o3.scales.y1={position:'right',ticks:{color:'#16a34a',font:{family:'JetBrains Mono',size:11,weight:'500'},callback:function(v){return(v*100).toFixed(0)+'%'}},grid:{display:false},min:0,max:1};
   o3.plugins.tooltip.callbacks={label:function(c){return c.dataset.yAxisID==='y1'?c.dataset.label+': '+fP(c.parsed.y):c.dataset.label+': '+f$(c.parsed.y)}};
-  ch.c3=new Chart(document.getElementById('c3'),{type:'bar',data:{labels:L,datasets:[
-    {label:'Revenue',data:ag(t.totR),backgroundColor:'rgba(37,99,235,.5)',borderRadius:3,order:2},
-    {label:'COGS',data:ag(t.totC),backgroundColor:'rgba(197,56,42,.4)',borderRadius:3,order:2},
+  var c3ds=[
+    {label:'Revenue',data:c3RevData,backgroundColor:'rgba(37,99,235,.5)',borderRadius:3,order:2},
+    {label:'COGS',data:c3CogData,backgroundColor:'rgba(197,56,42,.4)',borderRadius:3,order:2},
     {label:'Gross Margin %',data:gmD,type:'line',borderColor:'#16a34a',backgroundColor:'transparent',borderWidth:2,pointRadius:2,pointBackgroundColor:'#16a34a',yAxisID:'y1',order:1,tension:.3}
-  ]},options:o3});
+  ];
+  ch.c3=new Chart(document.getElementById('c3'),{type:'bar',data:{labels:L,datasets:c3ds},options:o3});
+  buildLegend('c3','lg3',[
+    {label:'Revenue',color:'rgba(37,99,235,.7)',shape:'bar'},
+    {label:'COGS',color:'rgba(197,56,42,.6)',shape:'bar'},
+    {label:'Gross Margin %',color:'#16a34a',shape:'line'}
+  ]);
 
+  // C4: Customers
   if(ch.c4)ch.c4.destroy();
-  var o4=mkO();o4.scales.y.ticks.callback=function(v){return fN(v)};o4.plugins.tooltip.callbacks={label:function(c){return c.dataset.label+': '+fN(c.parsed.y)}};
-  ch.c4=new Chart(document.getElementById('c4'),{type:'line',data:{labels:L,datasets:[
+  var o4=mkO();o4.scales.y.ticks.callback=function(v){return fN(v)};
+  o4.interaction={mode:'index',intersect:false};
+  o4.plugins.tooltip.callbacks={label:function(c){return c.dataset.label+': '+fN(c.parsed.y)}};
+  var c4ds=[
     {label:'Sensor',data:al2(t.cS),borderColor:'#c5382a',backgroundColor:'rgba(197,56,42,.07)',fill:true,tension:.3,borderWidth:2,pointRadius:0},
     {label:'Reagent Kit',data:al2(t.cR),borderColor:'#7c3aed',backgroundColor:'rgba(124,58,237,.07)',fill:true,tension:.3,borderWidth:2,pointRadius:0},
     {label:'Reagent EA',data:al2(t.cE),borderColor:'#ca8a04',backgroundColor:'rgba(202,138,4,.07)',fill:true,tension:.3,borderWidth:2,pointRadius:0}
-  ]},options:o4});
+  ];
+  var c4Max=allMax(c4ds);
+  o4.scales.y.max=c4Max;o4.scales.y.min=0;
+  ch.c4=new Chart(document.getElementById('c4'),{type:'line',data:{labels:L,datasets:c4ds},options:o4});
+  buildLegend('c4','lg4',c4ds.map(function(ds){return{label:ds.label,color:ds.borderColor,shape:'dot'}}));
 
+  // C5: Units
   if(ch.c5)ch.c5.destroy();
-  var o5=mkO();o5.scales.x.stacked=true;o5.scales.y.stacked=true;o5.scales.y.ticks.callback=function(v){return fN(v)};o5.plugins.tooltip.callbacks={label:function(c){return c.dataset.label+': '+fN(c.parsed.y)}};
-  ch.c5=new Chart(document.getElementById('c5'),{type:'bar',data:{labels:L,datasets:[
+  var o5=mkO();o5.scales.x.stacked=true;o5.scales.y.stacked=true;o5.scales.y.ticks.callback=function(v){return fN(v)};
+  o5.interaction={mode:'index',intersect:false};
+  o5.plugins.tooltip.callbacks={label:function(c){return c.dataset.label+': '+fN(c.parsed.y)}};
+  var c5ds=[
     {label:'Strips',data:ag(t.str),backgroundColor:'rgba(37,99,235,.5)',borderRadius:2},
     {label:'Reagent Kits',data:ag(t.kit),backgroundColor:'rgba(124,58,237,.5)',borderRadius:2},
     {label:'EA Kits',data:ag(t.eak),backgroundColor:'rgba(202,138,4,.5)',borderRadius:2},
     {label:'Readers',data:ag(t.rdr),backgroundColor:'rgba(197,56,42,.5)',borderRadius:2}
-  ]},options:o5});
+  ];
+  ch.c5=new Chart(document.getElementById('c5'),{type:'bar',data:{labels:L,datasets:c5ds},options:o5});
+  buildLegend('c5','lg5',c5ds.map(function(ds){return{label:ds.label,color:ds.backgroundColor,shape:'bar'}}),true);
 }
 
 function rkpi(R){
@@ -196,15 +286,27 @@ function rtbl(R){
     h+='<tr class="'+(r.t?'tr':'')+'"><td>'+r.l+'</td>'+r.d.map(function(v){return'<td>'+(r.p?fP(v):f$(v))+'</td>'}).join('')+'</tr>';
     if(r.l==='Gross Margin %'){
       h+='<tr><td colspan="11" style="padding:3px;background:var(--sf)"></td></tr><tr class="tr"><td>Revenue by Segment</td>'+'<td></td>'.repeat(10)+'</tr>';
-      S.sg.forEach(function(s){var sd=toA(R.sg[s.n].totR);h+='<tr><td style="padding-left:20px;color:var(--tx2)">'+s.n+'</td>'+sd.map(function(v){return'<td>'+f$(v)+'</td>'}).join('')+'</tr>'});
+      S.sg.forEach(function(s){var sd=toA(R.sg[s.n].totR);h+='<tr><td style="padding-left:20px">'+s.n+'</td>'+sd.map(function(v){return'<td>'+f$(v)+'</td>'}).join('')+'</tr>'});
     }
   });
   h+='</tbody>';document.getElementById('at').innerHTML=h;
 }
 
 function rsgT(){
-  document.getElementById('stg').innerHTML=S.sg.map(function(s,i){return'<div class="tc '+(stog[s.n]?'on':'')+'" data-s="'+s.n+'"><span class="dot" style="background:'+SC[i]+'"></span>'+s.n+'</div>'}).join('');
-  document.querySelectorAll('.tc').forEach(function(el){el.onclick=function(){stog[el.dataset.s]=!stog[el.dataset.s];upd()}});
+  var el=document.getElementById('stg');
+  el.innerHTML=S.sg.map(function(s,i){return'<div class="tc '+(stog[s.n]?'on':'')+'" data-s="'+s.n+'" data-i="'+i+'"><span class="dot" style="background:'+SC[i]+'"></span>'+s.n+'</div>'}).join('');
+  el.querySelectorAll('.tc').forEach(function(chip){
+    chip.onclick=function(){
+      var name=chip.dataset.s;
+      var idx=+chip.dataset.i;
+      stog[name]=!stog[name];
+      chip.classList.toggle('on');
+      if(ch.c2){
+        ch.c2.getDatasetMeta(idx).hidden=!stog[name];
+        ch.c2.update();
+      }
+    };
+  });
 }
 
 function rpr(){
@@ -227,9 +329,19 @@ function rsi(){
   var fs=[{k:'pop',l:'Target Population',s:1},{k:'sP',l:'% Sensor',s:.01},{k:'rP',l:'% Reagent Kit',s:.01},{k:'eP',l:'% Reagent EA',s:.01},
     {k:'sLm',l:'Sensor Launch Mo',s:1},{k:'sLy',l:'Sensor Launch Yr',s:1},{k:'rLm',l:'Reagent Launch Mo',s:1},{k:'rLy',l:'Reagent Launch Yr',s:1},
     {k:'eLm',l:'EA Launch Mo',s:1},{k:'eLy',l:'EA Launch Yr',s:1},{k:'sF',l:'Sensor Tests/Wk',s:.01},{k:'rF',l:'Reagent React/Wk',s:.01},
-    {k:'eF',l:'EA React/Wk',s:.01},{k:'rpk',l:'Reactions/Kit',s:1},{k:'p12',l:'Pen M12',s:.0001},{k:'p36',l:'Pen M36',s:.0001},{k:'p60',l:'Pen M60',s:.0001}];
-  document.getElementById('si').innerHTML='<div class="ag">'+fs.map(function(f){return'<div class="ig"><label>'+f.l+'</label><input type="number" step="'+f.s+'" value="'+seg[f.k]+'" data-k="'+f.k+'"></div>'}).join('')+'</div>';
-  document.querySelectorAll('#si input').forEach(function(el){el.onchange=function(){S.sg[ast][el.dataset.k]=parseFloat(el.value)||0;upd()}});
+    {k:'eF',l:'EA React/Wk',s:.01},{k:'rpk',l:'Reactions/Kit',s:1},
+    {k:'pen0',l:'Pen M12',s:.0001},{k:'pen1',l:'Pen M24',s:.0001},{k:'pen2',l:'Pen M36',s:.0001},{k:'pen3',l:'Pen M48',s:.0001},{k:'pen4',l:'Pen M60',s:.0001},
+    {k:'pen5',l:'Pen M72',s:.0001},{k:'pen6',l:'Pen M84',s:.0001},{k:'pen7',l:'Pen M96',s:.0001},{k:'pen8',l:'Pen M108',s:.0001},{k:'pen9',l:'Pen M120',s:.0001}];
+  document.getElementById('si').innerHTML='<div class="ag">'+fs.map(function(f){
+    var val=f.k.substring(0,3)==='pen'?seg.pen[+f.k.substring(3)]:seg[f.k];
+    return'<div class="ig"><label>'+f.l+'</label><input type="number" step="'+f.s+'" value="'+val+'" data-k="'+f.k+'"></div>';
+  }).join('')+'</div>';
+  document.querySelectorAll('#si input').forEach(function(el){el.onchange=function(){
+    var k=el.dataset.k,v=parseFloat(el.value)||0;
+    if(k.substring(0,3)==='pen')S.sg[ast].pen[+k.substring(3)]=v;
+    else S.sg[ast][k]=v;
+    upd();
+  }});
 }
 
 document.getElementById('sp').innerHTML=['Bull','Base','Bear'].map(function(s){return'<button class="pill'+(s===S.sc?' on':'')+'" data-s="'+s+'">'+s+'</button>'}).join('');
