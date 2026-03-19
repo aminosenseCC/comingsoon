@@ -26,8 +26,6 @@ function loginPage(error) {
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'DM Sans',sans-serif;background:#f8f9fb;min-height:100vh;display:flex;align-items:center;justify-content:center}
 .card{background:#fff;border:1px solid #d8dbe3;border-radius:12px;padding:40px;width:100%;max-width:380px;box-shadow:0 4px 24px rgba(0,0,0,.06)}
-.logo-fallback{font-size:22px;font-weight:700;color:#1a1d26;text-align:center;margin-bottom:28px}
-.logo-fallback span{color:#c5382a}
 h2{font-size:16px;font-weight:600;color:#1a1d26;margin-bottom:6px;text-align:center}
 p{font-size:13px;color:#5a6070;margin-bottom:20px;text-align:center}
 .err{background:#fef2f2;border:1px solid #fecaca;color:#dc2626;font-size:12px;font-weight:500;padding:8px 12px;border-radius:6px;margin-bottom:16px;text-align:center}
@@ -40,7 +38,7 @@ button:hover{background:#e04535}
 </head>
 <body>
 <div class="card">
-<div class="logo-fallback">amino<span>sense</span></div>
+<img src="/Logo_Full.png" alt="AminoSense" style="width:200px;height:auto;display:block;margin:0 auto 28px">
 <h2>Revenue Dashboard</h2>
 <p>Enter the password to continue</p>
 ${error ? '<div class="err">Incorrect password. Please try again.</div>' : ''}
@@ -65,6 +63,16 @@ function getCookie(request, name) {
   return match ? match[1] : null;
 }
 
+function fetchAsset(env, request, pathname) {
+  var url = new URL(request.url);
+  if (pathname === "/" || pathname === "") {
+    url.pathname = "/index.html";
+  } else {
+    url.pathname = pathname;
+  }
+  return env.ASSETS.fetch(new Request(url.toString(), request));
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -72,7 +80,7 @@ export default {
     const ext = url.pathname.split(".").pop().toLowerCase();
     const publicExts = ["png", "jpg", "jpeg", "svg", "ico", "woff", "woff2", "ttf", "css", "js"];
     if (publicExts.includes(ext) && !url.pathname.endsWith(".html")) {
-      return env.ASSETS.fetch(request);
+      return fetchAsset(env, request, url.pathname);
     }
 
     const password = (env && env.DASHBOARD_PASSWORD) ? env.DASHBOARD_PASSWORD : PASSWORD;
@@ -80,7 +88,7 @@ export default {
 
     const token = getCookie(request, COOKIE_NAME);
     if (token === expectedToken) {
-      return env.ASSETS.fetch(request);
+      return fetchAsset(env, request, url.pathname);
     }
 
     if (request.method === "POST") {
