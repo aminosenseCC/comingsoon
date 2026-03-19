@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AminoSense Revenue Model</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -464,239 +464,125 @@ window.addEventListener('beforeunload',function(e){
   e.returnValue='';
 });
 
-document.getElementById('dlBtn').onclick=function(){
-  if(typeof XLSX==='undefined'){alert('SheetJS library not loaded. Check internet connection.');return}
-  var R=calc();
-  var wb=XLSX.utils.book_new();
-  var sc=S.sc,pr=S.pr[sc],cg=S.cg[sc],pm=sc==='Bull'?1.5:sc==='Bear'?0.5:1;
+document.getElementById('dlBtn').onclick=async function(){
+  if(typeof ExcelJS==='undefined'){alert('ExcelJS library not loaded.');return}
+  var wb=new ExcelJS.Workbook();
   var mn=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   var mLabels=[];for(var y=2026;y<=2035;y++)for(var m=0;m<12;m++)mLabels.push(mn[m]+' '+y);
   var fyLabels=YRS.map(function(y){return'FY '+y});
+  var titleFont={name:'Arial',size:14,bold:true,color:{argb:'FF000000'}};
+  var sectionFont={name:'Arial',size:11,bold:true,color:{argb:'FF8B0000'}};
+  var headerFont={name:'Arial',size:10,bold:true,color:{argb:'FFFFFFFF'}};
+  var headerFill={type:'pattern',pattern:'solid',fgColor:{argb:'FF4B0082'}};
+  var fyFill={type:'pattern',pattern:'solid',fgColor:{argb:'FF2F4F4F'}};
+  var blueFont={name:'Arial',size:10,color:{argb:'FF0000FF'}};
+  var blackFont={name:'Arial',size:10,color:{argb:'FF000000'}};
+  var blackBold={name:'Arial',size:10,bold:true,color:{argb:'FF000000'}};
+  var greenFont={name:'Arial',size:10,color:{argb:'FF008000'}};
+  var grayFill={type:'pattern',pattern:'solid',fgColor:{argb:'FFF2F2F2'}};
+  var yellowFill={type:'pattern',pattern:'solid',fgColor:{argb:'FFFFFF00'}};
+  var dollarFmt='$#,##0;($#,##0);"-"';
+  var pctFmt='0.000%';
+  var pctFmt2='0.0%';
+  var numFmt='#,##0';
+  function sc2(ws,r,c,val,font,fill,fmt){var cell=ws.getCell(r,c);cell.value=val;if(font)cell.font=font;if(fill)cell.fill=fill;if(fmt)cell.numFmt=fmt}
+  function setHeaders(ws,r,vals){vals.forEach(function(v,i){sc2(ws,r,i+1,v,headerFont,headerFill)})}
+  function writeMH(ws,row){sc2(ws,row,1,'Section',headerFont,headerFill);sc2(ws,row,2,'Segment / Line',headerFont,headerFill);mLabels.forEach(function(l,i){sc2(ws,row,3+i,l,headerFont,headerFill)});fyLabels.forEach(function(l,i){sc2(ws,row,123+i,l,headerFont,fyFill)})}
+  function setColWidths(ws){ws.getColumn(1).width=5;ws.getColumn(2).width=30;for(var c=3;c<=132;c++)ws.getColumn(c).width=13}
 
-  // ── Tab 1: Assumptions ──
-  var a=[];
-  a.push(['AminoSense Revenue Model — Assumptions']);
-  a.push(['All blue values are editable inputs. Black values are calculated.']);
-  a.push([]);
-  a.push(['SCENARIO SELECTION']);
-  a.push(['Active Scenario',sc]);
-  a.push([]);
-  a.push(['PRICING BY SCENARIO']);
-  a.push(['','Bull','Base','Bear']);
-  S.pl.forEach(function(l,i){a.push([l,S.pr.Bull[i],S.pr.Base[i],S.pr.Bear[i]])});
-  a.push([]);
-  a.push(['COGS PER UNIT BY SCENARIO']);
-  a.push(['','Bull','Base','Bear']);
-  S.pl.forEach(function(l,i){a.push([l,S.cg.Bull[i],S.cg.Base[i],S.cg.Bear[i]])});
-  a.push([]);
-  a.push(['ACTIVE PRICING (from scenario selection)']);
-  S.pl.forEach(function(l,i){a.push([l,pr[i]])});
-  a.push([]);
-  a.push(['ACTIVE COGS PER UNIT (from scenario selection)']);
-  S.pl.forEach(function(l,i){a.push([l,cg[i]])});
-  a.push([]);
-  a.push(['PENETRATION RATE MULTIPLIER (from scenario)']);
-  a.push(['Multiplier',pm]);
-  a.push([]);
-  a.push(['SEGMENT ASSUMPTIONS']);
-  var segH=['Segment','Sensor TAM ($)','Reagent Kit TAM ($)','% Using Sensor','% Using Reagent Kit','% Using Reagent EA',
-    'Sensor Launch Month','Sensor Launch Year','Reagent Kit Launch Month','Reagent Kit Launch Year',
-    'Reagent EA Launch Month','Reagent EA Launch Year','Sensor Tests/User/Week','Reagent Reactions/User/Wk',
-    'Reagent EA React/User/Wk','Reactions per Kit','Target Population'];
-  for(var p=0;p<10;p++)segH.push('Pen M'+(12*(p+1))+' (%)');
-  a.push(segH);
+  // ── Assumptions tab ──
+  var wa=wb.addWorksheet('Assumptions');
+  wa.getColumn(1).width=35;for(var c=2;c<=27;c++)wa.getColumn(c).width=18;
+  sc2(wa,1,1,'AminoSense Revenue Model — Assumptions',titleFont);
+  sc2(wa,2,1,'All blue values are editable inputs.',{name:'Arial',size:9,italic:true});
+  sc2(wa,4,1,'SCENARIO SELECTION',sectionFont);
+  sc2(wa,5,1,'Active Scenario',blackBold);sc2(wa,5,2,S.sc,{name:'Arial',size:10,bold:true,color:{argb:'FF0000FF'}},yellowFill);
+  sc2(wa,7,1,'PRICING BY SCENARIO',sectionFont);
+  setHeaders(wa,8,['','Bull','Base','Bear']);
+  S.pl.forEach(function(l,i){sc2(wa,9+i,1,l,blackFont);['Bull','Base','Bear'].forEach(function(s,si){sc2(wa,9+i,2+si,S.pr[s][i],blueFont,null,dollarFmt)})});
+  sc2(wa,16,1,'COGS PER UNIT BY SCENARIO',sectionFont);
+  setHeaders(wa,17,['','Bull','Base','Bear']);
+  S.pl.forEach(function(l,i){sc2(wa,18+i,1,l,blackFont);['Bull','Base','Bear'].forEach(function(s,si){sc2(wa,18+i,2+si,S.cg[s][i],blueFont,null,dollarFmt)})});
+  // Active pricing/COGS per scenario
+  var arw=25;
+  ['Bull','Base','Bear'].forEach(function(s){
+    sc2(wa,arw,1,'ACTIVE PRICING — '+s,sectionFont);arw++;
+    S.pl.forEach(function(l,i){sc2(wa,arw,1,l,blackFont);sc2(wa,arw,2,S.pr[s][i],blackFont,null,dollarFmt);arw++});arw++;
+    sc2(wa,arw,1,'ACTIVE COGS — '+s,sectionFont);arw++;
+    S.pl.forEach(function(l,i){sc2(wa,arw,1,l,blackFont);sc2(wa,arw,2,S.cg[s][i],blackFont,null,dollarFmt);arw++});arw+=2;
+  });
+  sc2(wa,arw,1,'PEN RATE MULTIPLIERS',sectionFont);arw++;
+  ['Bull','Base','Bear'].forEach(function(s){var pm2=s==='Bull'?1.5:s==='Bear'?0.5:1;sc2(wa,arw,1,s,blackFont);sc2(wa,arw,2,pm2,blackFont);arw++});arw+=2;
+  sc2(wa,arw,1,'SEGMENT ASSUMPTIONS',sectionFont);arw++;
+  var segH=['Segment','Sensor TAM ($)','Reagent Kit TAM ($)','% Using Sensor','% Using Reagent Kit','% Using Reagent EA','Sensor Launch Mo','Sensor Launch Yr','Reagent Launch Mo','Reagent Launch Yr','EA Launch Mo','EA Launch Yr','Sensor Tests/Wk','Reagent React/Wk','EA React/Wk','Reactions/Kit','Population'];
+  for(var p=0;p<10;p++)segH.push('Pen M'+(12*(p+1)));
+  setHeaders(wa,arw,segH);arw++;
   S.sg.forEach(function(s){
-    var row=[s.n,0,0,s.sP,s.rP,s.eP,s.sLm,s.sLy,s.rLm,s.rLy,s.eLm,s.eLy,s.sF,s.rF,s.eF,s.rpk,s.pop];
-    s.pen.forEach(function(p){row.push(p)});
-    a.push(row);
+    sc2(wa,arw,1,s.n,blackBold);sc2(wa,arw,4,s.sP,blueFont,null,pctFmt2);sc2(wa,arw,5,s.rP,blueFont,null,pctFmt2);sc2(wa,arw,6,s.eP,blueFont,null,pctFmt2);
+    sc2(wa,arw,7,s.sLm,blueFont);sc2(wa,arw,8,s.sLy,blueFont);sc2(wa,arw,9,s.rLm,blueFont);sc2(wa,arw,10,s.rLy,blueFont);
+    sc2(wa,arw,11,s.eLm,blueFont);sc2(wa,arw,12,s.eLy,blueFont);sc2(wa,arw,13,s.sF,blueFont);sc2(wa,arw,14,s.rF,blueFont);sc2(wa,arw,15,s.eF,blueFont);
+    sc2(wa,arw,16,s.rpk,blueFont);sc2(wa,arw,17,s.pop,blueFont,null,numFmt);
+    s.pen.forEach(function(p2,pi){sc2(wa,arw,18+pi,p2,blueFont,null,pctFmt)});arw++;
   });
-  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(a),'Assumptions');
 
-  // ── Helper: build monthly tab with segment sections ──
-  function buildMonthlyTab(title,segBuilder,grandTotalBuilder){
-    var d=[];
-    d.push([title]);d.push([]);
-    var hdr=['Section','Segment / Line'].concat(mLabels).concat(fyLabels);
-    d.push(hdr);
-    S.sg.forEach(function(seg,si){
-      var rows=segBuilder(seg,si,R);
-      rows.forEach(function(r){d.push(r)});
-    });
-    if(grandTotalBuilder){
-      var gt=grandTotalBuilder(R);
-      gt.forEach(function(r){d.push(r)});
-    }
-    return XLSX.utils.aoa_to_sheet(d);
-  }
+  // ── Generate all 3 scenarios ──
+  var origSc=S.sc;
+  ['Bull','Base','Bear'].forEach(function(scenario){
+    S.sc=scenario;var R=calc();var t=R.t;
+    var pr=S.pr[scenario],cgs=S.cg[scenario];
 
-  // ── Tab 2: Unit Volumes ──
-  XLSX.utils.book_append_sheet(wb,buildMonthlyTab('AminoSense — Unit Volumes',function(seg,si,R){
-    var d=R.sg[seg.n];
-    var rows=[];
-    rows.push([seg.n]);
-    var labels=['Months Since Sensor Launch','Sensor Penetration %','Cumulative Sensor Customers','New Sensor Customers',
-      'Months Since Reagent Kit Launch','Reagent Kit Penetration %','Cumulative Reagent Kit Customers','New Reagent Kit Customers',
-      'Months Since Reagent EA Launch','Reagent EA Penetration %','Cumulative Reagent EA Customers','New Reagent EA Customers',
-      'Strips Consumed (Monthly)','Reagent Kits Consumed (Monthly)','Reagent EA Kits Consumed (Monthly)','Readers Sold (Monthly)'];
-    // Compute months since launch and penetration for each month
-    var mos=[];for(var y=2026;y<=2035;y++)for(var m=1;m<=12;m++)mos.push([m,y]);
-    labels.forEach(function(lbl,li){
-      var row=['',lbl];
-      var annual=new Array(10).fill(0);
-      for(var mi=0;mi<120;mi++){
-        var mo=mos[mi],m=mo[0],y=mo[1],yi=Math.floor(mi/12);
-        var v=0;
-        if(li===0)v=Math.max(0,(y-seg.sLy)*12+(m-seg.sLm)+1);
-        else if(li===1){var msl=Math.max(0,(y-seg.sLy)*12+(m-seg.sLm)+1);v=gpen(msl,seg.pen,pm)}
-        else if(li===2)v=d.cS[mi];
-        else if(li===3)v=mi===0?d.cS[0]:Math.max(0,d.cS[mi]-d.cS[mi-1]);
-        else if(li===4)v=Math.max(0,(y-seg.rLy)*12+(m-seg.rLm)+1);
-        else if(li===5){var msl2=Math.max(0,(y-seg.rLy)*12+(m-seg.rLm)+1);v=gpen(msl2,seg.pen,pm)}
-        else if(li===6)v=d.cR[mi];
-        else if(li===7)v=mi===0?d.cR[0]:Math.max(0,d.cR[mi]-d.cR[mi-1]);
-        else if(li===8)v=(seg.eLm>0&&seg.eLy>0)?Math.max(0,(y-seg.eLy)*12+(m-seg.eLm)+1):0;
-        else if(li===9){var msl3=(seg.eLm>0&&seg.eLy>0)?Math.max(0,(y-seg.eLy)*12+(m-seg.eLm)+1):0;v=gpen(msl3,seg.pen,pm)}
-        else if(li===10)v=d.cE[mi];
-        else if(li===11)v=mi===0?d.cE[0]:Math.max(0,d.cE[mi]-d.cE[mi-1]);
-        else if(li===12)v=d.str[mi];
-        else if(li===13)v=d.kit[mi];
-        else if(li===14)v=d.eak[mi];
-        else if(li===15)v=d.rdr[mi];
-        row.push(v);
-        if([2,6,10].indexOf(li)>=0){annual[yi]=v}
-        else{annual[yi]+=v}
-      }
-      row=row.concat(annual);
-      rows.push(row);
+    // Summary
+    var ws=wb.addWorksheet('Summary — '+scenario);setColWidths(ws);
+    sc2(ws,1,1,'Summary ('+scenario+')',titleFont);sc2(ws,2,1,'Scenario: '+scenario,sectionFont);
+    writeMH(ws,4);var sr=5;
+    [{l:'Total Sensor Revenue',d:t.rdrR.map(function(v,i){return v+t.strR[i]})},{l:'Total Reagent Kit Revenue',d:t.kitR},{l:'Total Reagent EA Revenue',d:t.eaR},
+     {l:'TOTAL REVENUE',d:t.totR,g:1},{l:'Total COGS',d:t.totC},{l:'GROSS PROFIT',d:t.gp,g:1},{l:'Gross Margin %',d:t.gm,pct:1}].forEach(function(item){
+      var f=blackBold;var fl=item.g?grayFill:null;sc2(ws,sr,2,item.l,f,fl);
+      for(var mi=0;mi<120;mi++)sc2(ws,sr,3+mi,item.d[mi],f,null,item.pct?pctFmt2:dollarFmt);
+      if(item.pct){var a1=toA(t.totR),a2=toA(t.gp);a1.map(function(r,i){return r>0?a2[i]/r:0}).forEach(function(v,i){sc2(ws,sr,123+i,v,blackBold,null,pctFmt2)})}
+      else{toA(item.d).forEach(function(v,i){sc2(ws,sr,123+i,v,blackBold,null,dollarFmt)})}
+      sr++;
     });
-    return rows;
-  }),'Unit Volumes');
+    sr++;sc2(ws,sr,2,'REVENUE BY SEGMENT',sectionFont);sr++;
+    S.sg.forEach(function(s){var d=R.sg[s.n];sc2(ws,sr,2,s.n,blackFont);for(var mi=0;mi<120;mi++)sc2(ws,sr,3+mi,d.totR[mi],blackFont,null,dollarFmt);toA(d.totR).forEach(function(v,i){sc2(ws,sr,123+i,v,blackBold,null,dollarFmt)});sr++});
 
-  // ── Tab 3: Sensor Revenue ──
-  XLSX.utils.book_append_sheet(wb,buildMonthlyTab('AminoSense — Sensor Revenue ($)',function(seg,si,R){
-    var d=R.sg[seg.n];var rows=[];rows.push([seg.n]);
-    ['Reader Revenue','Strip Revenue','Total Sensor Revenue'].forEach(function(lbl,li){
-      var row=['',lbl];var annual=new Array(10).fill(0);
-      for(var mi=0;mi<120;mi++){
-        var v=li===0?d.rdrR[mi]:li===1?d.strR[mi]:(d.rdrR[mi]+d.strR[mi]);
-        row.push(v);annual[Math.floor(mi/12)]+=v;
-      }
-      row=row.concat(annual);rows.push(row);
-    });
-    return rows;
-  },function(R){
-    var t=R.t;var row=['','TOTAL SENSOR REVENUE'];var annual=new Array(10).fill(0);
-    for(var mi=0;mi<120;mi++){var v=t.rdrR[mi]+t.strR[mi];row.push(v);annual[Math.floor(mi/12)]+=v}
-    row=row.concat(annual);return[row];
-  }),'Sensor Revenue');
+    // Sensor Revenue
+    var wsr=wb.addWorksheet('Sensor — '+scenario);setColWidths(wsr);
+    sc2(wsr,1,1,'Sensor Revenue ('+scenario+')',titleFont);writeMH(wsr,3);var rr=4;
+    S.sg.forEach(function(s){var d=R.sg[s.n];sc2(wsr,rr,1,s.n,sectionFont);rr++;
+      [{l:'Reader Revenue',d:d.rdrR,f:greenFont},{l:'Strip Revenue',d:d.strR,f:greenFont},{l:'Total Sensor Revenue',d:d.rdrR.map(function(v,i){return v+d.strR[i]}),f:blackBold}].forEach(function(item){
+        sc2(wsr,rr,2,item.l,item.f===greenFont?blackFont:blackBold);for(var mi=0;mi<120;mi++)sc2(wsr,rr,3+mi,item.d[mi],item.f,null,dollarFmt);toA(item.d).forEach(function(v,i){sc2(wsr,rr,123+i,v,blackBold,null,dollarFmt)});rr++})});
+    rr++;sc2(wsr,rr,2,'TOTAL SENSOR REVENUE',blackBold,grayFill);var tSen=t.rdrR.map(function(v,i){return v+t.strR[i]});for(var mi=0;mi<120;mi++)sc2(wsr,rr,3+mi,tSen[mi],blackBold,null,dollarFmt);toA(tSen).forEach(function(v,i){sc2(wsr,rr,123+i,v,blackBold,null,dollarFmt)});
 
-  // ── Tab 4: Reagent Kit Revenue ──
-  XLSX.utils.book_append_sheet(wb,buildMonthlyTab('AminoSense — Reagent Kit & EA Revenue ($)',function(seg,si,R){
-    var d=R.sg[seg.n];var rows=[];rows.push([seg.n]);
-    ['Reagent Kit Revenue','Reagent EA Revenue','Total Reagent Revenue'].forEach(function(lbl,li){
-      var row=['',lbl];var annual=new Array(10).fill(0);
-      for(var mi=0;mi<120;mi++){
-        var v=li===0?d.kitR[mi]:li===1?d.eaR[mi]:(d.kitR[mi]+d.eaR[mi]);
-        row.push(v);annual[Math.floor(mi/12)]+=v;
-      }
-      row=row.concat(annual);rows.push(row);
-    });
-    return rows;
-  },function(R){
-    var t=R.t;var rows=[];
-    [['TOTAL REAGENT KIT REVENUE','kitR'],['TOTAL REAGENT EA REVENUE','eaR'],['TOTAL ALL REAGENT REVENUE',null]].forEach(function(x){
-      var row=['',x[0]];var annual=new Array(10).fill(0);
-      for(var mi=0;mi<120;mi++){var v=x[1]?t[x[1]][mi]:(t.kitR[mi]+t.eaR[mi]);row.push(v);annual[Math.floor(mi/12)]+=v}
-      row=row.concat(annual);rows.push(row);
-    });
-    return rows;
-  }),'Reagent Kit Revenue');
+    // Reagent Revenue
+    var wrr=wb.addWorksheet('Reagent — '+scenario);setColWidths(wrr);
+    sc2(wrr,1,1,'Reagent Revenue ('+scenario+')',titleFont);writeMH(wrr,3);rr=4;
+    S.sg.forEach(function(s){var d=R.sg[s.n];sc2(wrr,rr,1,s.n,sectionFont);rr++;
+      [{l:'Reagent Kit Revenue',d:d.kitR},{l:'Reagent EA Revenue',d:d.eaR},{l:'Total Reagent Revenue',d:d.kitR.map(function(v,i){return v+d.eaR[i]}),b:1}].forEach(function(item){
+        sc2(wrr,rr,2,item.l,item.b?blackBold:blackFont);for(var mi=0;mi<120;mi++)sc2(wrr,rr,3+mi,item.d[mi],item.b?blackBold:greenFont,null,dollarFmt);toA(item.d).forEach(function(v,i){sc2(wrr,rr,123+i,v,blackBold,null,dollarFmt)});rr++})});
+    rr++;[['TOTAL REAGENT KIT REV',t.kitR],['TOTAL REAGENT EA REV',t.eaR],['TOTAL ALL REAGENT REV',t.kitR.map(function(v,i){return v+t.eaR[i]})]].forEach(function(x){
+      sc2(wrr,rr,2,x[0],blackBold,grayFill);for(var mi=0;mi<120;mi++)sc2(wrr,rr,3+mi,x[1][mi],blackBold,null,dollarFmt);toA(x[1]).forEach(function(v,i){sc2(wrr,rr,123+i,v,blackBold,null,dollarFmt)});rr++});
 
-  // ── Tab 5: COGS & Gross Margin ──
-  XLSX.utils.book_append_sheet(wb,buildMonthlyTab('AminoSense — COGS & Gross Margin ($)',function(seg,si,R){
-    var d=R.sg[seg.n];var rows=[];rows.push([seg.n]);
-    var isRuo=si===0;
-    ['Reader COGS','Strip COGS','Reagent Kit COGS','Reagent EA COGS','Total COGS','Total Revenue','Gross Profit','Gross Margin %'].forEach(function(lbl,li){
-      var row=['',lbl];var annual=new Array(10).fill(0);
-      for(var mi=0;mi<120;mi++){
-        var v=0;
-        if(li===0)v=d.rdr[mi]*(isRuo?cg[0]:cg[2]);
-        else if(li===1)v=d.str[mi]*(isRuo?cg[1]:cg[3]);
-        else if(li===2)v=d.kit[mi]*cg[4];
-        else if(li===3)v=d.eak[mi]*cg[5];
-        else if(li===4)v=d.totC[mi];
-        else if(li===5)v=d.totR[mi];
-        else if(li===6)v=d.gp[mi];
-        else if(li===7)v=d.gm[mi];
-        row.push(v);
-        if(li===7){var rev=annual[Math.floor(mi/12)];/*skip*/}
-        else{annual[Math.floor(mi/12)]+=v}
-      }
-      if(li===7){
-        // Recalc annual GM%
-        var aRev=new Array(10).fill(0),aGP=new Array(10).fill(0);
-        for(var mi2=0;mi2<120;mi2++){aRev[Math.floor(mi2/12)]+=d.totR[mi2];aGP[Math.floor(mi2/12)]+=d.gp[mi2]}
-        annual=aRev.map(function(r,i){return r>0?aGP[i]/r:0});
-      }
-      row=row.concat(annual);rows.push(row);
-    });
-    return rows;
-  },function(R){
-    var t=R.t;var rows=[];
-    ['TOTAL COGS','TOTAL REVENUE','TOTAL GROSS PROFIT','TOTAL GROSS MARGIN %'].forEach(function(lbl,li){
-      var row=['',lbl];var annual=new Array(10).fill(0);
-      for(var mi=0;mi<120;mi++){
-        var v=li===0?t.totC[mi]:li===1?t.totR[mi]:li===2?t.gp[mi]:t.gm[mi];
-        row.push(v);
-        if(li<3)annual[Math.floor(mi/12)]+=v;
-      }
-      if(li===3){
-        var aR2=toA(t.totR),aG2=toA(t.gp);
-        annual=aR2.map(function(r,i){return r>0?aG2[i]/r:0});
-      }
-      row=row.concat(annual);rows.push(row);
-    });
-    return rows;
-  }),'COGS & Gross Margin');
-
-  // ── Tab 6: Summary ──
-  var sd=[];
-  sd.push(['AminoSense — Revenue Model Summary']);
-  sd.push(['Active Scenario: '+sc]);
-  sd.push([]);
-  var sHdr=['Section','Segment / Line'].concat(mLabels).concat(fyLabels);
-  sd.push(sHdr);
-  var t=R.t;
-  var sumRows=[
-    ['','Total Sensor Revenue',t.rdrR.map(function(v,i){return v+t.strR[i]})],
-    ['','Total Reagent Kit Revenue',t.kitR],
-    ['','Total Reagent EA Revenue',t.eaR],
-    ['','TOTAL REVENUE',t.totR],
-    ['','Total COGS',t.totC],
-    ['','GROSS PROFIT',t.gp],
-    ['','Gross Margin %',t.gm]
-  ];
-  sumRows.forEach(function(sr){
-    var row=[sr[0],sr[1]].concat(sr[2]);
-    var isGM=sr[1]==='Gross Margin %';
-    if(isGM){
-      var aR3=toA(t.totR),aG3=toA(t.gp);
-      row=row.concat(aR3.map(function(r,i){return r>0?aG3[i]/r:0}));
-    }else{
-      row=row.concat(toA(sr[2]));
-    }
-    sd.push(row);
+    // COGS & Gross Margin
+    var wcg=wb.addWorksheet('COGS & GM — '+scenario);setColWidths(wcg);
+    sc2(wcg,1,1,'COGS & Gross Margin ('+scenario+')',titleFont);writeMH(wcg,3);rr=4;
+    S.sg.forEach(function(s,si){var d=R.sg[s.n];var isR=si===0;sc2(wcg,rr,1,s.n,sectionFont);rr++;
+      [{l:'Reader COGS',d:d.rdr.map(function(v){return v*(isR?cgs[0]:cgs[2])})},{l:'Strip COGS',d:d.str.map(function(v){return v*(isR?cgs[1]:cgs[3])})},
+       {l:'Reagent Kit COGS',d:d.kit.map(function(v){return v*cgs[4]})},{l:'Reagent EA COGS',d:d.eak.map(function(v){return v*cgs[5]})},
+       {l:'Total COGS',d:d.totC,b:1},{l:'Total Revenue',d:d.totR,b:1},{l:'Gross Profit',d:d.gp,b:1},{l:'Gross Margin %',d:d.gm,pct:1}].forEach(function(item){
+        sc2(wcg,rr,2,item.l,item.b?blackBold:blackFont);for(var mi=0;mi<120;mi++)sc2(wcg,rr,3+mi,item.d[mi],item.b?blackBold:greenFont,null,item.pct?pctFmt2:dollarFmt);
+        if(item.pct){var a1=toA(d.totR),a2=toA(d.gp);a1.map(function(r,i){return r>0?a2[i]/r:0}).forEach(function(v,i){sc2(wcg,rr,123+i,v,blackBold,null,pctFmt2)})}
+        else{toA(item.d).forEach(function(v,i){sc2(wcg,rr,123+i,v,blackBold,null,dollarFmt)})}rr++})});
+    rr++;[['TOTAL COGS',t.totC],['TOTAL REVENUE',t.totR],['TOTAL GROSS PROFIT',t.gp]].forEach(function(x){
+      sc2(wcg,rr,2,x[0],blackBold,grayFill);for(var mi=0;mi<120;mi++)sc2(wcg,rr,3+mi,x[1][mi],blackBold,null,dollarFmt);toA(x[1]).forEach(function(v,i){sc2(wcg,rr,123+i,v,blackBold,null,dollarFmt)});rr++});
+    sc2(wcg,rr,2,'TOTAL GROSS MARGIN %',blackBold,grayFill);for(var mi=0;mi<120;mi++)sc2(wcg,rr,3+mi,t.gm[mi],blackBold,null,pctFmt2);
+    var a3=toA(t.totR),a4=toA(t.gp);a3.map(function(r,i){return r>0?a4[i]/r:0}).forEach(function(v,i){sc2(wcg,rr,123+i,v,blackBold,null,pctFmt2)});
   });
-  sd.push([]);
-  sd.push(['','REVENUE BY SEGMENT']);
-  S.sg.forEach(function(s){
-    var d2=R.sg[s.n];
-    var row=['',s.n].concat(d2.totR).concat(toA(d2.totR));
-    sd.push(row);
-  });
-  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(sd),'Summary');
+  S.sc=origSc;
 
-  XLSX.writeFile(wb,'AminoSense_Revenue_Model_'+sc+'.xlsx');
+  var buf=await wb.xlsx.writeBuffer();
+  var blob=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.format'});
+  var url2=URL.createObjectURL(blob);var a2=document.createElement('a');a2.href=url2;a2.download='AminoSense_Revenue_Model.xlsx';a2.click();URL.revokeObjectURL(url2);
 };
 
 function rro(){
