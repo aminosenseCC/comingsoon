@@ -65,6 +65,7 @@ html{font-size:14px}body{font-family:'DM Sans',sans-serif;background:var(--bg);c
 <div class="logo"><img src="Logo_Full.png" alt="AminoSense" style="width:200px;height:auto"></div>
 <div class="pills" id="sp"></div>
 <div class="hdr-right">
+<label class="btn" style="cursor:pointer"><input type="file" id="ulFile" accept=".xlsx" style="display:none">Upload Excel</label>
 <button class="btn" id="dlBtn">Download Excel</button>
 <button class="btn btn-ac" id="adminBtn">Admin Panel</button>
 </div>
@@ -456,6 +457,60 @@ document.querySelectorAll('.vb').forEach(function(el){el.onclick=function(){docu
 document.getElementById('adminBtn').onclick=function(){document.getElementById('adminOverlay').classList.add('open');initAdminPills();rpr();rsi()};
 document.getElementById('adminClose').onclick=function(){document.getElementById('adminOverlay').classList.remove('open')};
 document.getElementById('adminOverlay').onclick=function(e){if(e.target===this)this.classList.remove('open')};
+
+// Excel upload
+document.getElementById('ulFile').onchange=async function(evt){
+  var file=evt.target.files[0];if(!file)return;
+  if(typeof ExcelJS==='undefined'){alert('ExcelJS library not loaded.');return}
+  try{
+    var buf=await file.arrayBuffer();
+    var wb2=new ExcelJS.Workbook();
+    await wb2.xlsx.load(buf);
+    var wa=wb2.getWorksheet('Assumptions');
+    if(!wa){alert('No "Assumptions" sheet found in uploaded file.');return}
+    // Read scenario
+    var scVal=wa.getCell(5,2).value;
+    if(scVal&&['Bull','Base','Bear'].indexOf(scVal)>=0)S.sc=scVal;
+    // Read pricing: rows 9-14, cols 2(Bull) 3(Base) 4(Bear)
+    ['Bull','Base','Bear'].forEach(function(sc,si){
+      for(var i=0;i<6;i++){
+        var v=wa.getCell(9+i,2+si).value;
+        if(v!==null&&v!==undefined)S.pr[sc][i]=typeof v==='object'&&v.result!==undefined?v.result:+v||0;
+      }
+    });
+    // Read COGS: rows 18-23, cols 2-4
+    ['Bull','Base','Bear'].forEach(function(sc,si){
+      for(var i=0;i<6;i++){
+        var v=wa.getCell(18+i,2+si).value;
+        if(v!==null&&v!==undefined)S.cg[sc][i]=typeof v==='object'&&v.result!==undefined?v.result:+v||0;
+      }
+    });
+    // Find segment data by scanning for segment names in col 1
+    var segNames=S.sg.map(function(s){return s.n});
+    var segRows={};
+    wa.eachRow(function(row,rn){
+      var v1=row.getCell(1).value;
+      if(v1&&segNames.indexOf(v1)>=0)segRows[v1]=rn;
+    });
+    // Read segment data
+    S.sg.forEach(function(seg){
+      var rn=segRows[seg.n];if(!rn)return;
+      function gv(c){var v=wa.getCell(rn,c).value;if(v===null||v===undefined)return 0;return typeof v==='object'&&v.result!==undefined?+v.result:+v||0}
+      seg.sP=gv(4);seg.rP=gv(5);seg.eP=gv(6);
+      seg.sLm=gv(7);seg.sLy=gv(8);seg.rLm=gv(9);seg.rLy=gv(10);
+      seg.eLm=gv(11);seg.eLy=gv(12);seg.sF=gv(13);seg.rF=gv(14);seg.eF=gv(15);
+      seg.rpk=gv(16)||100;seg.pop=gv(17);
+      for(var pi=0;pi<10;pi++){var pv=gv(18+pi);seg.pen[pi]=pv}
+    });
+    initHeaderPills();
+    upd();
+    alert('Model loaded successfully from "'+file.name+'"');
+  }catch(e){
+    alert('Error reading file: '+e.message);
+    console.error(e);
+  }
+  evt.target.value='';
+};
 
 // Excel download
 // Warn before closing tab
