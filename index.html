@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AminoSense Revenue Model</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -29,6 +30,31 @@ html{font-size:14px}body{font-family:'DM Sans',sans-serif;background:var(--bg);c
 .stabs{display:flex;gap:2px;margin-bottom:14px;overflow-x:auto;padding-bottom:3px}.stab{padding:6px 14px;border-radius:5px;cursor:pointer;font-size:10px;font-weight:600;color:var(--tx2);background:var(--sf2);border:1px solid transparent;white-space:nowrap;transition:.15s}.stab.on{background:var(--acg);color:var(--tx);border-color:var(--ac)}.stab:hover:not(.on){color:var(--tx);border-color:var(--bd)}
 .ap{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);padding:18px}
 .colt{cursor:pointer;display:flex;align-items:center;gap:6px}.colt::before{content:'▸';font-size:11px;color:var(--tx3);transition:transform .2s}.colt.op::before{transform:rotate(90deg)}.colb{overflow:hidden;max-height:0;transition:max-height .3s}.colb.op{max-height:5000px}
+.hdr-right{display:flex;align-items:center;gap:10px}
+.btn{padding:8px 18px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--bd);background:var(--sf2);color:var(--tx);transition:.15s;white-space:nowrap}
+.btn:hover{border-color:var(--ac);background:var(--acg)}
+.btn-ac{background:var(--ac);color:#fff;border-color:var(--ac)}.btn-ac:hover{background:var(--ac2)}
+.overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:200;justify-content:center;align-items:flex-start;padding:40px 20px;overflow-y:auto}
+.overlay.open{display:flex}
+.panel{background:var(--bg);border:1px solid var(--bd);border-radius:var(--rl);width:100%;max-width:1200px;padding:28px;position:relative;box-shadow:0 16px 48px rgba(0,0,0,.15)}
+.panel-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.panel-title{font-size:18px;font-weight:700}
+.panel-close{width:32px;height:32px;border-radius:6px;border:1px solid var(--bd);background:var(--sf2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--tx2);transition:.15s}
+.panel-close:hover{border-color:var(--ac);color:var(--ac)}
+.panel-sec{margin-bottom:24px}
+.panel-sec-title{font-size:14px;font-weight:700;margin-bottom:12px;color:var(--tx)}
+.ro-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.ro-card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);padding:16px}
+.ro-card h3{font-size:13px;font-weight:700;margin-bottom:10px}
+.ro-item{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--sf2);font-size:12px}
+.ro-item:last-child{border-bottom:none}
+.ro-item .ro-label{color:var(--tx2);font-weight:500}
+.ro-item .ro-val{font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--tx)}
+.ro-seg-table{width:100%;border-collapse:collapse;font-size:12px}
+.ro-seg-table th{background:var(--sf2);color:var(--tx);font-weight:600;font-size:11px;padding:8px 10px;text-align:left;border-bottom:1px solid var(--bd)}
+.ro-seg-table td{padding:7px 10px;border-bottom:1px solid var(--sf2);font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--tx)}
+.ro-seg-table td:first-child{font-family:'DM Sans',sans-serif;font-weight:600}
+.ro-seg-table tr:hover{background:var(--sf)}
 @media(max-width:1200px){.kpis{grid-template-columns:repeat(3,1fr)}.cg{grid-template-columns:1fr}}
 @media(max-width:768px){.kpis{grid-template-columns:1fr 1fr}.hdr{flex-direction:column;align-items:flex-start;gap:12px}.main{padding:14px}}
 ::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:var(--sf2)}::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:3px}
@@ -38,6 +64,19 @@ html{font-size:14px}body{font-family:'DM Sans',sans-serif;background:var(--bg);c
 <div class="hdr">
 <div class="logo"><img src="Logo_Full.png" alt="AminoSense" style="width:200px;height:auto"></div>
 <div class="pills" id="sp"></div>
+<div class="hdr-right">
+<button class="btn" id="dlBtn">Download Excel</button>
+<button class="btn btn-ac" id="adminBtn">Admin Panel</button>
+</div>
+</div>
+<!-- Admin Panel Overlay -->
+<div class="overlay" id="adminOverlay">
+<div class="panel">
+<div class="panel-hdr"><div class="panel-title">Admin Panel</div><button class="panel-close" id="adminClose">&times;</button></div>
+<div class="panel-sec"><div class="panel-sec-title">Scenario</div><div class="pills" id="sp2"></div></div>
+<div class="panel-sec"><div class="panel-sec-title">Pricing & COGS</div><div class="pg" id="pgr"></div></div>
+<div class="panel-sec"><div class="panel-sec-title">Segment Assumptions</div><div class="stabs" id="stb"></div><div class="ap" id="si"></div></div>
+</div>
 </div>
 <div class="main">
 <div class="kpis" id="kpis"></div>
@@ -49,9 +88,11 @@ html{font-size:14px}body{font-family:'DM Sans',sans-serif;background:var(--bg);c
 <div class="sec"><div class="sh"><div class="st">Customers & Volumes</div></div>
 <div class="cg"><div class="cc"><div class="ct">Cumulative Customers</div><div class="cs2">All product lines</div><div class="tg" id="lg4"></div><div class="cw"><canvas id="c4"></canvas></div></div>
 <div class="cc"><div class="ct">Units Sold</div><div class="cs2">Strips · Kits · EA · Readers</div><div class="tg" id="lg5"></div><div class="cw"><canvas id="c5"></canvas></div></div></div></div>
+<div class="sec"><div class="sh"><div class="st">Market Penetration by Segment</div></div>
+<div class="cg"><div class="cc full tall"><div class="cs2">Effective penetration % at year-end, by segment (sensor launch basis)</div><div class="tg" id="lg6"></div><div class="cw"><canvas id="c6"></canvas></div></div></div></div>
 <div class="sec"><div class="sh"><div class="st">Annual Summary</div></div><div class="tw"><table id="at"></table></div></div>
-<div class="sec"><div class="sh"><div class="st colt op" onclick="this.classList.toggle('op');this.closest('.sec').querySelector('.colb').classList.toggle('op')">Pricing & COGS</div></div><div class="colb op"><div class="pg" id="pgr"></div></div></div>
-<div class="sec"><div class="sh"><div class="st colt op" onclick="this.classList.toggle('op');this.closest('.sec').querySelector('.colb').classList.toggle('op')">Segment Assumptions</div></div><div class="colb op"><div class="stabs" id="stb"></div><div class="ap" id="si"></div></div></div>
+<div class="sec"><div class="sh"><div class="st">Pricing & COGS Assumptions</div></div><div id="roPricing"></div></div>
+<div class="sec"><div class="sh"><div class="st">Segment Assumptions</div></div><div class="tw" id="roSegments"></div></div>
 </div>
 <script>
 var S={sc:"Base",pr:{Bull:[2500,25,120,1.2,400,400],Base:[2500,10,100,1,250,500],Bear:[2500,25,80,0.8,400,400]},cg:{Bull:[800,5,30,0.2,80,80],Base:[1800,5,50,0.1,12.5,250],Bear:[1200,10,50,0.4,120,120]},pl:["RUO Reader","RUO Strip","Comm Reader","Comm Strip","Reagent Kit","Reagent EA"],sg:[
@@ -262,6 +303,37 @@ function rch(R){
   ];
   ch.c5=new Chart(document.getElementById('c5'),{type:'bar',data:{labels:L,datasets:c5ds},options:o5});
   buildLegend('c5','lg5',c5ds.map(function(ds){return{label:ds.label,color:ds.backgroundColor,shape:'bar'}}),true);
+
+  // C6: Market Penetration by Segment (% at year-end)
+  if(ch.c6)ch.c6.destroy();
+  var o6=mkO();
+  o6.interaction={mode:'index',intersect:false};
+  o6.scales.y.ticks.callback=function(v){return(v*100).toFixed(1)+'%'};
+  o6.scales.y.min=0;
+  o6.plugins.tooltip.callbacks={label:function(c){return c.dataset.label+': '+(c.parsed.y*100).toFixed(2)+'%'}};
+  // Compute effective penetration at year-end for each segment (based on sensor launch, using the same gpen logic)
+  var pm=S.sc==='Bull'?1.5:S.sc==='Bear'?0.5:1;
+  var c6ds=S.sg.map(function(seg,i){
+    var data;
+    if(vm==='annual'){
+      data=[];
+      for(var yi=0;yi<10;yi++){
+        var y=2026+yi;
+        var msl=Math.max(0,(y-seg.sLy)*12+(12-seg.sLm)+1);
+        data.push(gpen(msl,seg.pen,pm));
+      }
+    }else{
+      data=[];
+      for(var mi=0;mi<120;mi++){
+        var mo_m=mi%12+1,mo_y=2026+Math.floor(mi/12);
+        var msl=Math.max(0,(mo_y-seg.sLy)*12+(mo_m-seg.sLm)+1);
+        data.push(gpen(msl,seg.pen,pm));
+      }
+    }
+    return{label:seg.n,data:data,borderColor:SC[i],backgroundColor:'transparent',tension:.3,borderWidth:2,pointRadius:0,hidden:!stog[seg.n]};
+  });
+  ch.c6=new Chart(document.getElementById('c6'),{type:'line',data:{labels:L,datasets:c6ds},options:o6});
+  buildLegend('c6','lg6',c6ds.map(function(ds,i){return{label:ds.label,color:SC[i],shape:'dot'}}),true);
 }
 
 function rkpi(R){
@@ -301,10 +373,8 @@ function rsgT(){
       var idx=+chip.dataset.i;
       stog[name]=!stog[name];
       chip.classList.toggle('on');
-      if(ch.c2){
-        ch.c2.getDatasetMeta(idx).hidden=!stog[name];
-        ch.c2.update();
-      }
+      if(ch.c2){ch.c2.getDatasetMeta(idx).hidden=!stog[name];ch.c2.update()}
+      if(ch.c6){ch.c6.getDatasetMeta(idx).hidden=!stog[name];ch.c6.update()}
     };
   });
 }
@@ -344,12 +414,107 @@ function rsi(){
   }});
 }
 
-document.getElementById('sp').innerHTML=['Bull','Base','Bear'].map(function(s){return'<button class="pill'+(s===S.sc?' on':'')+'" data-s="'+s+'">'+s+'</button>'}).join('');
-document.querySelectorAll('.pill').forEach(function(el){el.onclick=function(){document.querySelectorAll('.pill').forEach(function(p){p.classList.remove('on')});el.classList.add('on');S.sc=el.dataset.s;upd()}});
+// Scenario pills — main header (read-only display) and admin panel (functional)
+function rscPills(){
+  ['sp','sp2'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(!el)return;
+    el.innerHTML=['Bull','Base','Bear'].map(function(s){return'<button class="pill'+(s===S.sc?' on':'')+'" data-s="'+s+'">'+s+'</button>'}).join('');
+    if(id==='sp2'){
+      el.querySelectorAll('.pill').forEach(function(p){p.onclick=function(){S.sc=p.dataset.s;rscPills();upd()}});
+    }
+  });
+}
+rscPills();
+
 document.getElementById('vt').innerHTML='<button class="vb on" data-v="annual">Annual</button><button class="vb" data-v="monthly">Monthly</button>';
 document.querySelectorAll('.vb').forEach(function(el){el.onclick=function(){document.querySelectorAll('.vb').forEach(function(b){b.classList.remove('on')});el.classList.add('on');vm=el.dataset.v;rch(calc())}});
 
-function upd(){var R=calc();rkpi(R);rch(R);rtbl(R);rsgT();rpr();rsi()}
+// Admin panel open/close
+document.getElementById('adminBtn').onclick=function(){document.getElementById('adminOverlay').classList.add('open');rpr();rsi()};
+document.getElementById('adminClose').onclick=function(){document.getElementById('adminOverlay').classList.remove('open')};
+document.getElementById('adminOverlay').onclick=function(e){if(e.target===this)this.classList.remove('open')};
+
+// Excel download
+document.getElementById('dlBtn').onclick=function(){
+  if(typeof XLSX==='undefined'){alert('SheetJS library not loaded. Check internet connection.');return}
+  var R=calc();
+  var wb=XLSX.utils.book_new();
+
+  // Assumptions sheet
+  var aData=[['AminoSense Revenue Model — Assumptions'],['Scenario',S.sc],[''],
+    ['PRICING ('+S.sc+')']];
+  S.pl.forEach(function(l,i){aData.push([l,S.pr[S.sc][i]])});
+  aData.push([''],['COGS ('+S.sc+')']);
+  S.pl.forEach(function(l,i){aData.push([l,S.cg[S.sc][i]])});
+  aData.push([''],['SEGMENT ASSUMPTIONS']);
+  var segH=['Segment','Population','% Sensor','% Reagent Kit','% Reagent EA','Sensor Launch','Reagent Launch','EA Launch',
+    'Sensor Freq','Reagent Freq','EA Freq','RPK'];
+  for(var p=0;p<10;p++)segH.push('Pen M'+(12*(p+1)));
+  aData.push(segH);
+  S.sg.forEach(function(s){
+    var row=[s.n,s.pop,s.sP,s.rP,s.eP,s.sLm+'/'+s.sLy,s.rLm+'/'+s.rLy,s.eLm+'/'+s.eLy,s.sF,s.rF,s.eF,s.rpk];
+    s.pen.forEach(function(p){row.push(p)});
+    aData.push(row);
+  });
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(aData),'Assumptions');
+
+  // Annual Summary sheet
+  var t=R.t;
+  var aR=toA(t.totR),aS=toA(t.rdrR.map(function(r,i){return r+t.strR[i]})),aK=toA(t.kitR),aE=toA(t.eaR),aC=toA(t.totC),aG=toA(t.gp);
+  var aGM=aR.map(function(r,i){return r>0?aG[i]/r:0});
+  var sData=[['Annual Summary'],['Metric'].concat(YRS.map(function(y){return'FY '+y})),
+    ['Sensor Revenue'].concat(aS),['Reagent Kit Revenue'].concat(aK),['Reagent EA Revenue'].concat(aE),
+    ['Total Revenue'].concat(aR),['Total COGS'].concat(aC),['Gross Profit'].concat(aG),
+    ['Gross Margin %'].concat(aGM.map(function(v){return(v*100).toFixed(1)+'%'})),
+    [''],['Revenue by Segment']];
+  S.sg.forEach(function(s){sData.push([s.n].concat(toA(R.sg[s.n].totR)))});
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(sData),'Summary');
+
+  // Monthly Revenue sheet
+  var mH=['Month'].concat(S.sg.map(function(s){return s.n})).concat(['Total']);
+  var mData=[['Monthly Revenue'],mH];
+  var mn=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  for(var i=0;i<120;i++){
+    var y=2026+Math.floor(i/12),m=i%12;
+    var row=[mn[m]+' '+y];
+    var tot=0;
+    S.sg.forEach(function(s){var v=R.sg[s.n].totR[i];row.push(v);tot+=v});
+    row.push(tot);mData.push(row);
+  }
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(mData),'Monthly Revenue');
+
+  XLSX.writeFile(wb,'AminoSense_Model_'+S.sc+'.xlsx');
+};
+
+function rro(){
+  var sc=S.sc,pr=S.pr[sc],cg=S.cg[sc],ls=S.pl;
+  var h='<div class="ro-grid"><div class="ro-card"><h3>Pricing ('+sc+')</h3>';
+  ls.forEach(function(l,i){h+='<div class="ro-item"><span class="ro-label">'+l+'</span><span class="ro-val">$'+pr[i]+'</span></div>'});
+  h+='</div><div class="ro-card"><h3>COGS per Unit ('+sc+')</h3>';
+  ls.forEach(function(l,i){h+='<div class="ro-item"><span class="ro-label">'+l+'</span><span class="ro-val">$'+cg[i]+'</span></div>'});
+  h+='</div></div>';
+  document.getElementById('roPricing').innerHTML=h;
+
+  var mn=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var sh='<table class="ro-seg-table"><thead><tr><th>Segment</th><th>Population</th><th>Sensor %</th><th>Kit %</th><th>EA %</th><th>Sensor Launch</th><th>Reagent Launch</th><th>EA Launch</th><th>Sensor Freq</th><th>Reagent Freq</th><th>EA Freq</th>';
+  for(var p=0;p<10;p++)sh+='<th>Pen M'+(12*(p+1))+'</th>';
+  sh+='</tr></thead><tbody>';
+  S.sg.forEach(function(s){
+    var sL=s.sLy>0?(mn[s.sLm-1]+' '+s.sLy):'—';
+    var rL=s.rLy>0?(mn[s.rLm-1]+' '+s.rLy):'—';
+    var eL=(s.eLy>0&&s.eLm>0)?(mn[s.eLm-1]+' '+s.eLy):'—';
+    sh+='<tr><td>'+s.n+'</td><td>'+fN(s.pop)+'</td><td>'+(s.sP*100).toFixed(0)+'%</td><td>'+(s.rP*100).toFixed(0)+'%</td><td>'+(s.eP*100).toFixed(0)+'%</td>';
+    sh+='<td>'+sL+'</td><td>'+rL+'</td><td>'+eL+'</td>';
+    sh+='<td>'+s.sF+'</td><td>'+s.rF+'</td><td>'+s.eF+'</td>';
+    s.pen.forEach(function(p){sh+='<td>'+(p*100).toFixed(2)+'%</td>'});
+    sh+='</tr>';
+  });
+  sh+='</tbody></table>';
+  document.getElementById('roSegments').innerHTML=sh;
+}
+
+function upd(){var R=calc();rkpi(R);rch(R);rtbl(R);rsgT();rscPills();rro()}
 upd();
 </script>
 </body>
