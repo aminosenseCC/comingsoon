@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aminosense Web Reader</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; }
+        button { background-color: #007ACC; color: white; border: none; padding: 10px 20px; font-size: 16px; font-weight: bold; cursor: pointer; border-radius: 5px; margin-right: 10px; }
+        button:disabled { background-color: #cccccc; cursor: not-allowed; }
+        #log { background-color: #f9f9f9; border: 1px solid #ddd; padding: 10px; height: 200px; overflow-y: scroll; font-size: 12px; font-family: monospace; margin-top: 20px; }
+        .status { margin-top: 10px; font-weight: bold; color: #555; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <h2>Aminosense Web Reader v1.0</h2>
+    
+    <div style="margin-bottom: 15px; padding: 15px; background-color: #f0f0f0; border-radius: 5px; border: 1px solid #ccc;">
+        <label for="inputDelay"><strong>Equilibration Delay (s):</strong></label>
+        <input type="number" id="inputDelay" value="1" min="0" style="width: 60px; margin-right: 20px;">
+        
+        <label for="inputRunTime"><strong>Run Time (s):</strong></label>
+        <input type="number" id="inputRunTime" value="60" min="1" style="width: 60px;">
+    </div>
+
+    <div>
+        <button id="btnConnect">1. Connect to Sensit BT</button>
+        <button id="btnMeasure" disabled>2. Start Test</button>
+        <button id="btnDownload" disabled style="background-color: #28a745;">3. Download CSV</button>
+    </div>
+
+    <div class="status" id="statusText">Status: Disconnected</div>
+
+    <div id="log"></div>
+    <div style="width: 100%; height: 300px; margin-top: 20px; border: 1px solid #ccc; background-color: white;">
+        <canvas id="myChart"></canvas>
+    </div>
+
+    <script>
+        // --- BLUETOOTH CONFIGURATION ---
+        // PalmSens often uses standard Virtual Serial Port (VSP) UUIDs for their Laird Bluetooth chips.
+        // If these UUIDs fail to find the device, we may need to grab the exact ones from your PalmSens documentation!
+        const SERVICE_UUID = '569a1101-b87f-490c-92cb-11ba5ea5167c'; // Standard Laird VSP Service
+        const RX_UUID      = '569a2001-b87f-490c-92cb-11ba5ea5167c'; // Write to device (TX from browser)
+        const TX_UUID      = '569a2000-b87f-490c-92cb-11ba5ea5167c'; // Read from device (RX to browser)
+
+        let bleDevice;
+        let bleServer;
+        let rxCharacteristic; // For sending commands
+        let txCharacteristic; // For receiving data
+
+        const btnConnect = document.getElementById('btnConnect');
+        const btnMeasure = document.getElementById('btnMeasure');
+        const btnDownload = document.getElementById('btnDownload');
+        const inputDelay = document.getElementById('inputDelay');
+        const inputRunTime = document.getElementById('inputRunTime');
+        const statusText = document.getElementById('statusText');
+        const logDiv = document.getElementById('log');
+
+        // --- CHART SETUP ---
+        const ctx = document.getElementById('myChart').getContext('2d');
+        const liveChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [], // This will be our Time (X-axis)
+                datasets: [{
+                    label: 'Current (µA)',
+                    data: [], // This will be our Current (Y-axis)
+                    borderColor: '#007ACC', // Matches your Aminosense blue!
+                    borderWidth: 2,
+                    pointRadius: 0, // Hides the dots to make a smooth line like OxyPlot
+                    fill: false,
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: false, // Turned off so live-streaming doesn't lag
+                scales: {
+                    x: { title: { display: true, text: 'Time (s)' } },
+                    y: { title: { display: true, text: 'Current (µA)' } }
+                }
+            }
+        });
+
+        function log(message) {
+            logDiv.innerHTML += `<div>${message}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight; // Auto-scroll to bottom
+        }
+
+        // --- 1. THE CONNECTION LOGIC ---
+        btnConnect.addEventListener('click', async () => {
+            try {
+                log("Requesting Bluetooth Device...");
+                // This pops up the Chrome Bluetooth menu!
+                bleDevice = await navigator.bluetooth.requestDevice({
+                    filters: [{ namePrefix: 'PS-' }], 
+                    optionalServices: [SERVICE_UUID]
+                });
+
+                log(`Found Device: ${bleDevice.name}. Connecting...`);
+                bleServer = await bleDevice.gatt.connect();
+                
+                log("Getting VSP Service...");
+                const service = await bleServer.getPrimaryService(SERVICE_UUID);
+                
+                log("Getting Characteristics (Folders)...");
+                rxCharacteristic = await service.getCharacteristic(RX_UUID);
+                txCharacteristic = await service.getCharacteristic(TX_UUID);
+
+                // Start listening for data coming back from the sensor
+                txCharacteristic.addEventListener('characteristicvaluechanged', handleIncomingData);
+                await txCharacteristic.startNotifications();
+
+                statusText.innerText = `Status: Connected to ${bleDevice.name}`;
+                statusText.style.color = "green";
+                btnConnect.disabled = true;
+                btnMeasure.disabled = false;
+                log("Hardware Ready! You can now start the test.");
+
+            } catch (error) {
+                log(`Connection Error: ${error.message}`);
+            }
+        });
+
+        // --- 2. THE MEASUREMENT LOGIC ---
+        btnMeasure.addEventListener('click', async () => {
+            if (!rxCharacteristic) return;
+            
+            // NEW: Clear our data array right when a new test begins!
+            currentDataPoints = []; 
+
+            // Clear the chart for the new test
+            liveChart.data.labels = [];
+            liveChart.data.datasets[0].data = [];
+            liveChart.update();
+
+           // 1. Read the user's inputs
+            const delaySecs = inputDelay.value;
+            const runSecs = inputRunTime.value;
+
+            // 2. Inject them directly into the MethodSCRIPT!
+            // Notice the ${delaySecs} and ${runSecs} variables inside the text
+            const myMeasurementScript = `e
+var p
+var c
+set_pgstat_chan 0
+set_pgstat_mode 2
+cell_on
+wait ${delaySecs}
+meas_loop_ca p c 500m 500m ${runSecs}
+pck_start
+pck_add p
+pck_add c
+pck_end
+endloop
+cell_off
+\n`; // The \n at the end acts like hitting 'Enter' to execute the script
+
+            try {
+                log("Sending MethodSCRIPT to sensor...");
+                // Clear the chart for the new test
+                liveChart.data.labels = [];
+                liveChart.data.datasets[0].data = [];
+                liveChart.update();
+                btnMeasure.disabled = true;
+                btnDownload.disabled = true;
+
+               // We have to convert the text script into raw bytes before sending it over Bluetooth
+                const encoder = new TextEncoder();
+                const scriptBytes = encoder.encode(myMeasurementScript);
+                
+                // BLE can only handle 20 bytes at a time. We must chop it into chunks!
+                const CHUNK_SIZE = 20;
+                for (let i = 0; i < scriptBytes.length; i += CHUNK_SIZE) {
+                    const chunk = scriptBytes.slice(i, i + CHUNK_SIZE);
+                    await rxCharacteristic.writeValue(chunk);
+                    
+                    // Give the Sensit BT 20 milliseconds to digest the chunk before sending the next one
+                    await new Promise(resolve => setTimeout(resolve, 20));
+                }
+
+                log("Test Started! Listening for data...");
+                
+            } catch (error) {
+                log(`Send Error: ${error.message}`);
+                btnMeasure.disabled = false;
+            }
+        });
+
+       // --- 3. THE DATA STITCHER & MATH LOGIC ---
+        let dataBuffer = "";
+        let currentDataPoints = []; // Array to hold the raw current readings
+
+        function handleIncomingData(event) {
+            const decoder = new TextDecoder('utf-8');
+            const chunk = decoder.decode(event.target.value);
+            dataBuffer += chunk; // Stitch the 20-byte chunks together
+
+            // Check if our buffer has a complete line (they end with a newline character)
+            if (dataBuffer.includes('\n')) {
+                let lines = dataBuffer.split('\n');
+                // The last item might be an incomplete chunk, so we keep it in the buffer for next time
+                dataBuffer = lines.pop();
+
+                for (let line of lines) {
+                    line = line.trim();
+                    
+                    if (line === "*") {
+                        log("Test Complete! Calculating Leucine...");
+                        calculateFinalResult();
+                    } 
+                   else if (line.startsWith("P")) {
+                        // It's a data package! Let's extract the Current (variable 'ba')
+                        if (line.includes("ba")) {
+                            let baIndex = line.indexOf("ba");
+                            
+                            // The hex value is the 7 characters immediately after 'ba'
+                            let hexString = line.substring(baIndex + 2, baIndex + 9);
+                            
+                            // The 8th character is the SI Prefix! (p=pico, n=nano, u=micro, m=milli)
+                            let prefix = line.charAt(baIndex + 9);
+                            
+                            // 1. Convert PalmSens Hex to raw integer
+                            let rawInt = parseInt(hexString, 16) - 134217728; 
+                            
+                            // 2. Translate the SI prefix into a math multiplier
+                            let multiplier = 1;
+                            if (prefix === 'p') multiplier = 1e-12; // Picoamps
+                            else if (prefix === 'n') multiplier = 1e-9;  // Nanoamps
+                            else if (prefix === 'u') multiplier = 1e-6;  // Microamps
+                            else if (prefix === 'm') multiplier = 1e-3;  // Milliamps
+                            
+                            // Apply the multiplier to get standard Amperes (A)
+                            let currentAmps = rawInt * multiplier;
+
+                            // 3. Convert to Microamps (uA) to match your old C# app
+                            let currentMicroamps = currentAmps * 1e6;
+                            
+                            currentDataPoints.push(currentMicroamps);
+                            // --- NEW CHART UPDATE LOGIC ---
+                            // Since we take a reading every 500ms, we can calculate the current time (X-axis)
+                            let timeInSeconds = currentDataPoints.length * 0.5;
+                            
+                            // Push the X and Y coordinates to the chart
+                            liveChart.data.labels.push(timeInSeconds);
+                            liveChart.data.datasets[0].data.push(currentMicroamps);
+                            liveChart.update(); // Redraw the graph instantly!
+                            log(`Reading #${currentDataPoints.length}: ${currentMicroamps.toFixed(4)} uA`);
+                        }
+                    }
+                }
+            }
+        }
+
+        function calculateFinalResult() {
+            if (currentDataPoints.length < 3) {
+                log("Error: Not enough data points to calculate.");
+                return;
+            }
+
+            // 1. Grab the last 3 points (just like your C# app: Skip(Count - 3))
+            let last3 = currentDataPoints.slice(-3);
+            
+            // 2. Average them
+            let sum = last3.reduce((a, b) => a + b, 0);
+            let averageRaw = sum / 3;
+
+            // 3. Apply Calibration Factor (Default 1.0)
+            let calibrationFactor = 1.0; 
+            let finalConcentration = averageRaw * calibrationFactor;
+
+            // 4. Update the UI
+            statusText.innerText = `Result: ${finalConcentration.toFixed(2)} (Raw Units)`;
+            statusText.style.color = "#007ACC";
+            btnMeasure.disabled = false;
+            btnDownload.disabled = false;
+            
+            log(`<strong>FINAL RESULT: ${finalConcentration.toFixed(2)}</strong>`);
+            
+        }
+        // --- 4. CSV EXPORT LOGIC ---
+        btnDownload.addEventListener('click', () => {
+            if (currentDataPoints.length === 0) {
+                log("No data available to download.");
+                return;
+            }
+
+            log("Generating CSV file...");
+
+            // 1. Create the CSV Headers
+            let csvContent = "Aminosense Raw Data Report\n";
+            csvContent += `Timestamp:,${new Date().toLocaleString()}\n`;
+            csvContent += "Time (s),Current (uA)\n\n";
+
+            // 2. Loop through the data and add rows
+            for (let i = 0; i < currentDataPoints.length; i++) {
+                let timeInSeconds = (i * 0.5).toFixed(1);
+                let currentMicroamps = currentDataPoints[i].toFixed(4);
+                
+                csvContent += `${timeInSeconds},${currentMicroamps}\n`;
+            }
+
+            // 3. Create a "Blob" (a temporary file in the browser's memory)
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            
+            // 4. Create an invisible HTML link, click it to trigger download, and remove it
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            
+            // Generate a clean filename with a timestamp
+            const fileName = `Aminosense_Data_${new Date().getTime()}.csv`;
+            link.setAttribute("download", fileName);
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            log(`File saved: ${fileName}`);
+        });
+    </script>
+</body>
+</html>
