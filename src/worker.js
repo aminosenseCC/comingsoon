@@ -39,7 +39,7 @@ button:hover{background:#e04535}
 <body>
 <div class="card">
 <img src="/Logo_Full.png" alt="AminoSense" style="width:200px;height:auto;display:block;margin:0 auto 28px">
-<h2>Revenue Dashboard</h2>
+<h2>Research Portal</h2>
 <p>Enter the password to continue</p>
 ${error ? '<div class="err">Incorrect password. Please try again.</div>' : ''}
 <form method="POST">
