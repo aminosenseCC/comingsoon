@@ -1,675 +1,487 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AminoSense Revenue Model</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#ffffff;--sf:#f8f9fb;--sf2:#f0f1f5;--sf3:#e8eaef;--bd:#d8dbe3;--bd2:#c5c9d4;--tx:#1a1d26;--tx2:#5a6070;--tx3:#8a8f9e;--ac:#c5382a;--ac2:#e04535;--acg:rgba(197,56,42,0.08);--gn:#16a34a;--bl:#2563eb;--yl:#ca8a04;--pu:#7c3aed;--cy:#0891b2;--or:#ea580c;--r:8px;--rl:12px}
-html{font-size:14px}body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh}
-.hdr{background:var(--sf);border-bottom:1px solid var(--bd);padding:18px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-.logo{display:flex;align-items:center;gap:12px}.logo-m{width:34px;height:34px;background:var(--ac);border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:15px}
-.logo-t{font-size:17px;font-weight:700}.logo-t span{color:var(--ac2)}.logo-s{font-size:10px;color:var(--tx2);font-weight:600;letter-spacing:.6px;text-transform:uppercase;margin-top:1px}
-.pills{display:inline-flex;gap:3px;background:var(--sf3);border-radius:var(--r);padding:3px}.pill{padding:7px 18px;border-radius:5px;cursor:pointer;font-size:12px;font-weight:600;color:var(--tx2);border:none;background:none;transition:.15s}.pill.on{background:var(--ac);color:#fff;box-shadow:0 2px 8px rgba(197,56,42,.3)}.pill:hover:not(.on){color:var(--tx);background:var(--bd)}
-.main{padding:22px 28px;max-width:1580px;margin:0 auto}
-.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:22px}.kpi{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);padding:18px 20px;position:relative;overflow:hidden}.kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:2px}.kpi:nth-child(1)::after{background:var(--ac)}.kpi:nth-child(2)::after{background:var(--bl)}.kpi:nth-child(3)::after{background:var(--pu)}.kpi:nth-child(4)::after{background:var(--gn)}.kpi:nth-child(5)::after{background:var(--yl)}
-.kl{font-size:10px;color:var(--tx2);font-weight:600;text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px}.kv{font-family:'JetBrains Mono',monospace;font-size:21px;font-weight:700;letter-spacing:-.4px}.ks{font-size:10px;color:var(--tx3);margin-top:4px;font-weight:500}
-.sec{margin-bottom:24px}.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.st{font-size:14px;font-weight:700}
-.cg{display:grid;grid-template-columns:1fr 1fr;gap:14px}.cc{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);padding:18px}.cc.full{grid-column:1/-1}.ct{font-size:12px;font-weight:600;margin-bottom:2px}.cs2{font-size:10px;color:var(--tx2);margin-bottom:12px}.cw{position:relative;height:270px}.cc.tall .cw{height:340px}
-.tg{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}.tc{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:18px;font-size:10px;font-weight:600;cursor:pointer;border:1px solid var(--bd);background:var(--sf2);color:var(--tx2);user-select:none;transition:.15s}.tc.on{border-color:var(--ac);color:var(--tx);background:var(--acg)}.tc .dot{width:7px;height:7px;border-radius:50%}
-.tc .line{width:16px;height:2px;border-radius:1px}
-.tc .bar{width:10px;height:7px;border-radius:2px}
-.vt{display:flex;gap:2px;background:var(--sf3);border-radius:5px;padding:2px}.vb{padding:5px 13px;border-radius:3px;font-size:11px;font-weight:600;cursor:pointer;color:var(--tx2);background:none;border:none;transition:.15s}.vb.on{background:var(--sf);color:var(--tx)}
-.tw{overflow-x:auto;border-radius:var(--rl);border:1px solid var(--bd)}table{width:100%;border-collapse:collapse;font-size:13px}thead th{background:var(--sf2);color:var(--tx);font-weight:600;text-transform:uppercase;letter-spacing:.4px;font-size:12px;padding:10px 14px;text-align:right;border-bottom:1px solid var(--bd);position:sticky;top:0}thead th:first-child{text-align:left}tbody td{padding:9px 14px;text-align:right;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--tx);border-bottom:1px solid var(--bd)}tbody td:first-child{text-align:left;font-family:'DM Sans',sans-serif;font-weight:600;font-size:13px;color:var(--tx)}tbody tr:hover{background:var(--sf2)}tbody tr.tr{background:var(--sf2);font-weight:700}tbody tr.tr td{border-top:2px solid var(--bd2)}
-.pg{display:grid;grid-template-columns:1fr 1fr;gap:14px}.pc{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);padding:14px}.pc h3{font-size:12px;font-weight:700;margin-bottom:10px}.pc h3 .b{font-size:9px;padding:2px 7px;border-radius:9px;background:var(--acg);color:var(--ac2);font-weight:700;margin-left:6px}
-.ag{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}.ig{display:flex;flex-direction:column;gap:3px}.ig label{font-size:10px;color:var(--tx2);font-weight:600;text-transform:uppercase;letter-spacing:.4px}.ig input{background:var(--sf3);border:1px solid var(--bd);border-radius:5px;padding:7px 10px;color:var(--tx);font-family:'JetBrains Mono',monospace;font-size:11px;outline:none;transition:.15s;width:100%}.ig input:focus{border-color:var(--ac)}
-.stabs{display:flex;gap:2px;margin-bottom:14px;overflow-x:auto;padding-bottom:3px}.stab{padding:6px 14px;border-radius:5px;cursor:pointer;font-size:10px;font-weight:600;color:var(--tx2);background:var(--sf2);border:1px solid transparent;white-space:nowrap;transition:.15s}.stab.on{background:var(--acg);color:var(--tx);border-color:var(--ac)}.stab:hover:not(.on){color:var(--tx);border-color:var(--bd)}
-.ap{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);padding:18px}
-.colt{cursor:pointer;display:flex;align-items:center;gap:6px}.colt::before{content:'▸';font-size:11px;color:var(--tx3);transition:transform .2s}.colt.op::before{transform:rotate(90deg)}.colb{overflow:hidden;max-height:0;transition:max-height .3s}.colb.op{max-height:5000px}
-.hdr-right{display:flex;align-items:center;gap:10px}
-.btn{padding:8px 18px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--bd);background:var(--sf2);color:var(--tx);transition:.15s;white-space:nowrap}
-.btn:hover{border-color:var(--ac);background:var(--acg)}
-.btn-ac{background:var(--ac);color:#fff;border-color:var(--ac)}.btn-ac:hover{background:var(--ac2)}
-.overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:200;justify-content:center;align-items:flex-start;padding:40px 20px;overflow-y:auto}
-.overlay.open{display:flex}
-.panel{background:var(--bg);border:1px solid var(--bd);border-radius:var(--rl);width:100%;max-width:1200px;padding:28px;position:relative;box-shadow:0 16px 48px rgba(0,0,0,.15)}
-.panel-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
-.panel-title{font-size:18px;font-weight:700}
-.panel-close{width:32px;height:32px;border-radius:6px;border:1px solid var(--bd);background:var(--sf2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--tx2);transition:.15s}
-.panel-close:hover{border-color:var(--ac);color:var(--ac)}
-.panel-sec{margin-bottom:24px}
-.panel-sec-title{font-size:14px;font-weight:700;margin-bottom:12px;color:var(--tx)}
-.ro-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.ro-card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);padding:16px}
-.ro-card h3{font-size:13px;font-weight:700;margin-bottom:10px}
-.ro-item{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--sf2);font-size:12px}
-.ro-item:last-child{border-bottom:none}
-.ro-item .ro-label{color:var(--tx2);font-weight:500}
-.ro-item .ro-val{font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--tx)}
-.ro-seg-table{width:100%;border-collapse:collapse;font-size:12px}
-.ro-seg-table th{background:var(--sf2);color:var(--tx);font-weight:600;font-size:11px;padding:8px 10px;text-align:left;border-bottom:1px solid var(--bd)}
-.ro-seg-table td{padding:7px 10px;border-bottom:1px solid var(--sf2);font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--tx)}
-.ro-seg-table td:first-child{font-family:'DM Sans',sans-serif;font-weight:600}
-.ro-seg-table tr:hover{background:var(--sf)}
-@media(max-width:1200px){.kpis{grid-template-columns:repeat(3,1fr)}.cg{grid-template-columns:1fr}}
-@media(max-width:768px){.kpis{grid-template-columns:1fr 1fr}.hdr{flex-direction:column;align-items:flex-start;gap:12px}.main{padding:14px}}
-::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:var(--sf2)}::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:3px}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aminosense Web Reader v4.2</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; background-color: #f9f9f9;}
+        
+        .btn-primary { background-color: #003366; }        
+        .btn-secondary { background-color: #007ACC; }        
+        .btn-success { background-color: #28a745; }       
+        .btn-warning { background-color: #ff9900; } 
+        .btn-danger { background-color: #dc3545; }
+
+        button { color: white; border: none; padding: 10px 15px; font-size: 14px; font-weight: bold; cursor: pointer; border-radius: 5px; margin-right: 5px; margin-bottom: 5px; transition: opacity 0.2s;}
+        button:hover { opacity: 0.9; }
+        button:disabled { background-color: #cccccc !important; color: #777 !important; cursor: not-allowed; }
+        
+        .header-container { padding-bottom: 15px; border-bottom: 2px solid #eaeaea; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;}
+        .logo-area { display: flex; align-items: center; }
+        .logo { max-height: 45px; margin-right: 15px; }
+        
+        .nav-tabs { display: flex; margin-bottom: 20px; border-bottom: 2px solid #ddd; }
+        .nav-tab { background: none; border: none; color: #555; padding: 10px 20px; font-size: 16px; font-weight: bold; border-radius: 5px 5px 0 0; margin-bottom: -2px; cursor: pointer; }
+        .nav-tab.active { color: #007ACC; border-bottom: 3px solid #007ACC; }
+        .nav-tab:hover:not(.active) { background-color: #eee; }
+
+        .panel { background-color: white; padding: 15px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);}
+        #log { background-color: #333; color: #0f0; border: 1px solid #222; padding: 10px; height: 150px; overflow-y: scroll; font-size: 12px; font-family: monospace; border-radius: 5px; margin-top: 15px;}
+        .status { margin-top: 10px; font-weight: bold; font-size: 18px; color: #555; text-align: center; }
+        label { font-size: 13px; font-weight: 600; color: #444;}
+        input[type="text"], input[type="number"] { padding: 4px; border: 1px solid #ccc; border-radius: 4px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #003366; color: white; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+        .editable { cursor: pointer; color: #007ACC; font-weight: 600; text-decoration: underline dotted; }
+        .editable:hover { background-color: #eef7ff; }
+        
+        .footer-container { margin-top: 30px; padding-top: 15px; border-top: 1px solid #eaeaea; display: flex; justify-content: space-between; color: #888; font-size: 11px; }
+    </style>
 </head>
 <body>
-<div class="hdr">
-<div class="logo"><img src="Logo_Full.png" alt="AminoSense" style="width:200px;height:auto"></div>
-<div class="pills" id="sp"></div>
-<div class="hdr-right">
-<label class="btn" style="cursor:pointer"><input type="file" id="ulFile" accept=".xlsx" style="display:none">Upload Excel</label>
-<button class="btn" id="dlBtn">Download Excel</button>
-<button class="btn btn-ac" id="adminBtn">Admin Panel</button>
-<a href="portal.html" class="btn" style="background:var(--bl);color:#fff;border-color:var(--bl);text-decoration:none">Research Portal</a>
-</div>
-</div>
-<!-- Admin Panel Overlay -->
-<div class="overlay" id="adminOverlay">
-<div class="panel">
-<div class="panel-hdr"><div class="panel-title">Admin Panel</div><button class="panel-close" id="adminClose">&times;</button></div>
-<div class="panel-sec"><div class="panel-sec-title">Scenario</div><div class="pills" id="sp2"></div></div>
-<div class="panel-sec"><div class="panel-sec-title">Pricing & COGS</div><div class="pg" id="pgr"></div></div>
-<div class="panel-sec"><div class="panel-sec-title">Segment Assumptions</div><div class="stabs" id="stb"></div><div class="ap" id="si"></div></div>
-</div>
-</div>
-<div class="main">
-<div class="kpis" id="kpis"></div>
-<div class="sec"><div class="sh"><div class="st">Revenue Overview</div><div class="vt" id="vt"></div></div>
-<div class="cg"><div class="cc full tall"><div class="ct">Total Revenue</div><div class="cs2">Combined revenue across all product lines and segments</div><div class="tg" id="lg0"></div><div class="cw"><canvas id="c0"></canvas></div></div>
-<div class="cc full tall"><div class="ct">Revenue by Product Line</div><div class="cs2">Readers · Strips · Reagent Kit · Reagent EA</div><div class="tg" id="lg1"></div><div class="cw"><canvas id="c1"></canvas></div></div>
-<div class="cc"><div class="ct">Revenue by Segment</div><div class="cs2">Toggle segments</div><div class="tg" id="stg"></div><div class="cw"><canvas id="c2"></canvas></div></div>
-<div class="cc"><div class="ct">Gross Margin Analysis</div><div class="cs2">Revenue · COGS · Margin %</div><div class="tg" id="lg3"></div><div class="cw"><canvas id="c3"></canvas></div></div></div></div>
-<div class="sec"><div class="sh"><div class="st">Customers & Volumes</div></div>
-<div class="cg"><div class="cc"><div class="ct">Cumulative Customers</div><div class="cs2">All product lines</div><div class="tg" id="lg4"></div><div class="cw"><canvas id="c4"></canvas></div></div>
-<div class="cc"><div class="ct">Units Sold</div><div class="cs2">Strips · Kits · EA · Readers</div><div class="tg" id="lg5"></div><div class="cw"><canvas id="c5"></canvas></div></div></div></div>
-<div class="sec"><div class="sh"><div class="st">Market Penetration by Segment</div></div>
-<div class="cg"><div class="cc full tall"><div class="cs2">Effective penetration % at year-end, by segment (sensor launch basis)</div><div class="tg" id="lg6"></div><div class="cw"><canvas id="c6"></canvas></div></div></div></div>
-<div class="sec"><div class="sh"><div class="st">Annual Summary</div></div><div class="tw"><table id="at"></table></div></div>
-<div class="sec"><div class="sh"><div class="st">Pricing & COGS Assumptions</div></div><div id="roPricing"></div></div>
-<div class="sec"><div class="sh"><div class="st">Segment Assumptions</div></div><div class="tw" id="roSegments"></div></div>
-</div>
-<script>
-var S={sc:"Base",pr:{Bull:[2500,25,120,1.2,400,400],Base:[2500,10,100,1,250,500],Bear:[2500,25,80,0.8,400,400]},cg:{Bull:[800,5,30,0.2,80,80],Base:[1800,5,50,0.1,12.5,250],Bear:[1200,10,50,0.4,120,120]},pl:["RUO Reader","RUO Strip","Comm Reader","Comm Strip","Reagent Kit","Reagent EA"],sg:[
-{n:"Research",sP:.4,rP:.55,eP:.05,sLm:10,sLy:2026,rLm:6,rLy:2027,eLm:10,eLy:2026,sF:21,rF:21,eF:21,rpk:100,pop:421,pen:[.02,.06,.1,.175,.25,.325,.39325,.451058,.497472,.533304]},
-{n:"MSUD",sP:.7,rP:.3,eP:0,sLm:1,sLy:2030,rLm:1,rLy:2029,eLm:0,eLy:0,sF:1,rF:.23,eF:0,rpk:100,pop:2000,pen:[.01,.03,.05,.1,.15,.2025,.252112,.29535,.330807,.358606]},
-{n:"PKU",sP:.7,rP:.3,eP:0,sLm:1,sLy:2030,rLm:1,rLy:2029,eLm:0,eLy:0,sF:.23,rF:.23,eF:0,rpk:100,pop:13800,pen:[.005,.0175,.03,.065,.1,.137692,.174022,.206162,.232816,.253886]},
-{n:"Sports Nutrition",sP:.9,rP:.1,eP:0,sLm:1,sLy:2028,rLm:6,rLy:2027,eLm:0,eLy:0,sF:3,rF:.12,eF:0,rpk:100,pop:35637283,pen:[.0001,.00055,.001,.003,.005,.007333,.009729,.011954,.013867,.015421]},
-{n:"Malnutrition",sP:.5,rP:.5,eP:0,sLm:1,sLy:2029,rLm:1,rLy:2028,eLm:0,eLy:0,sF:1,rF:.5,eF:0,rpk:100,pop:3053000,pen:[.0005,.00175,.003,.0065,.01,.013769,.017402,.020616,.023282,.025389]},
-{n:"Sarcopenia",sP:.8,rP:.2,eP:0,sLm:1,sLy:2030,rLm:1,rLy:2029,eLm:0,eLy:0,sF:3,rF:.25,eF:0,rpk:100,pop:48964775,pen:[.0001,.0003,.0005,.00125,.002,.00284,.003675,.004431,.00507,.005581]},
-{n:"GLP-1",sP:.8,rP:.2,eP:0,sLm:1,sLy:2029,rLm:1,rLy:2028,eLm:0,eLy:0,sF:3,rF:.25,eF:0,rpk:100,pop:32061800,pen:[.0001,.0003,.0005,.00125,.002,.00284,.003675,.004431,.00507,.005581]},
-{n:"Healthy Aging",sP:.9,rP:.1,eP:0,sLm:1,sLy:2029,rLm:1,rLy:2028,eLm:0,eLy:0,sF:2,rF:.12,eF:0,rpk:100,pop:82973748,pen:[.00005,.000175,.0003,.00065,.001,.001377,.00174,.002062,.002328,.002539]},
-{n:"Dialysis",sP:.5,rP:.5,eP:0,sLm:1,sLy:2030,rLm:1,rLy:2029,eLm:0,eLy:0,sF:3,rF:3,eF:0,rpk:100,pop:549440,pen:[.001,.003,.005,.0125,.02,.0284,.03675,.044313,.050696,.055809]},
-{n:"Precision Nutrition",sP:.9,rP:.1,eP:0,sLm:1,sLy:2029,rLm:1,rLy:2028,eLm:0,eLy:0,sF:2,rF:.12,eF:0,rpk:100,pop:18702720,pen:[.0001,.0003,.0005,.00125,.002,.00284,.003675,.004431,.00507,.005581]},
-{n:"Burn Injury",sP:.5,rP:.5,eP:0,sLm:1,sLy:2030,rLm:1,rLy:2029,eLm:0,eLy:0,sF:1,rF:.5,eF:0,rpk:100,pop:53220,pen:[.005,.0125,.02,.05,.08,.1136,.146998,.177251,.202785,.223235]},
-{n:"Concierge Medicine",sP:.7,rP:.3,eP:0,sLm:1,sLy:2029,rLm:1,rLy:2028,eLm:0,eLy:0,sF:.077,rF:.077,eF:0,rpk:100,pop:2700000,pen:[.005,.0175,.03,.065,.1,.137692,.174022,.206162,.232816,.253886]}
-]};
-var vm='annual',ast=0,stog={},SC=['#c5382a','#3b82f6','#8b5cf6','#22c55e','#eab308','#06b6d4','#f97316','#ec4899','#14b8a6','#a855f7','#ef4444','#64748b'];
-S.sg.forEach(function(s){stog[s.n]=true});
-var YRS=['2026','2027','2028','2029','2030','2031','2032','2033','2034','2035'];
-var ML=[];(function(){var mn=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];for(var y=2026;y<=2035;y++)for(var m=0;m<12;m++)ML.push(mn[m]+' '+(y%100))})();
 
-function gpen(msl,pen,pm){
-  if(msl<=0)return 0;
-  if(msl<=12)return pen[0]*msl/12*pm;
-  for(var i=1;i<10;i++){
-    var mEnd=12*(i+1);
-    if(msl<=mEnd){var mStart=12*i;return(pen[i-1]+(pen[i]-pen[i-1])*(msl-mStart)/12)*pm}
-  }
-  return pen[9]*pm;
-}
+    <div class="header-container">
+        <div class="logo-area">
+            <img src="Logo_Full.png" alt="AminoSense Logo" class="logo" onerror="this.style.display='none'">
+            <h2 style="color: #333; margin: 0;">Aminosense Cloud</h2>
+        </div>
+    </div>
 
-function calc(){
-  var sc=S.sc,pr=S.pr[sc],cg=S.cg[sc],pm=sc==='Bull'?1.5:sc==='Bear'?0.5:1;
-  var R={sg:{},t:{}},mos=[];
-  for(var y=2026;y<=2035;y++)for(var m=1;m<=12;m++)mos.push([m,y]);
-  S.sg.forEach(function(seg,si){
-    var ruo=si===0;
-    var rP=ruo?pr[0]:pr[2],sP=ruo?pr[1]:pr[3],kP=pr[4],eP=pr[5];
-    var rC=ruo?cg[0]:cg[2],sC=ruo?cg[1]:cg[3],kC=cg[4],eC=cg[5];
-    var d={cS:[],cR:[],cE:[],str:[],kit:[],eak:[],rdr:[],rdrR:[],strR:[],kitR:[],eaR:[],totR:[],totC:[],gp:[],gm:[]};
-    var pS=0,pR=0,pE=0;
-    for(var i=0;i<120;i++){
-      var mo=mos[i],m=mo[0],y=mo[1];
-      var smsl=Math.max(0,(y-seg.sLy)*12+(m-seg.sLm)+1);
-      var rmsl=Math.max(0,(y-seg.rLy)*12+(m-seg.rLm)+1);
-      var emsl=(seg.eLm>0&&seg.eLy>0)?Math.max(0,(y-seg.eLy)*12+(m-seg.eLm)+1):0;
-      var cs=Math.round(seg.pop*seg.sP*gpen(smsl,seg.pen,pm));
-      var cr=Math.round(seg.pop*seg.rP*gpen(rmsl,seg.pen,pm));
-      var ce=Math.round(seg.pop*seg.eP*gpen(emsl,seg.pen,pm));
-      var nS=Math.max(0,cs-pS),nR=Math.max(0,cr-pR),nE=Math.max(0,ce-pE);
-      var strips=cs*seg.sF*52/12,kits=Math.ceil(cr*seg.rF*52/12/seg.rpk),eaks=Math.ceil(ce*seg.eF*52/12/seg.rpk);
-      d.cS.push(cs);d.cR.push(cr);d.cE.push(ce);d.str.push(strips);d.kit.push(kits);d.eak.push(eaks);d.rdr.push(nS);
-      var rv1=nS*rP,rv2=strips*sP,rv3=kits*kP,rv4=eaks*eP,tr=rv1+rv2+rv3+rv4;
-      var cg1=nS*rC,cg2=strips*sC,cg3=kits*kC,cg4=eaks*eC,tc=cg1+cg2+cg3+cg4;
-      d.rdrR.push(rv1);d.strR.push(rv2);d.kitR.push(rv3);d.eaR.push(rv4);d.totR.push(tr);d.totC.push(tc);d.gp.push(tr-tc);d.gm.push(tr>0?(tr-tc)/tr:0);
-      pS=cs;pR=cr;pE=ce;
-    }
-    R.sg[seg.n]=d;
-  });
-  var ks=['rdrR','strR','kitR','eaR','totR','totC','gp','str','kit','eak','rdr','cS','cR','cE'];
-  var t={};ks.forEach(function(k){t[k]=new Array(120).fill(0)});
-  S.sg.forEach(function(seg){var d=R.sg[seg.n];ks.forEach(function(k){for(var i=0;i<120;i++)t[k][i]+=d[k][i]})});
-  t.gm=t.totR.map(function(r,i){return r>0?t.gp[i]/r:0});
-  R.t=t;return R;
-}
+    <div class="nav-tabs">
+        <button class="nav-tab active" id="tabAcquisition">Data Acquisition</button>
+        <button class="nav-tab" id="tabDashboard">Analysis Dashboard</button>
+    </div>
+    
+    <div id="view-acquisition">
+        <div class="panel" style="background-color: #eef7ff; border-color: #bce8f1;">
+            <div style="margin-bottom: 10px;">
+                <label>Subject ID: <input type="text" id="tbSubjectID" value="Subj_001"></label>
+                <label style="margin-left: 15px;">Condition: <input type="text" id="tbCondition" value="Control"></label>
+            </div>
+            <div>
+                <label>Variable Value: <input type="number" id="tbVarValue" value="0" style="width: 60px;"></label>
+                <label style="margin-left: 20px;"><input type="checkbox" id="chkAutoIncrement"> Auto-Increment by:</label>
+                <input type="number" id="tbStepValue" value="30" style="width: 50px;">
+            </div>
+        </div>
 
-function toA(a){var r=[];for(var y=0;y<10;y++){var s=0;for(var m=0;m<12;m++)s+=a[y*12+m];r.push(s)}return r}
-function toL(a){return Array.from({length:10},function(_,y){return a[y*12+11]})}
-function f$(v){if(Math.abs(v)>=1e9)return'$'+(v/1e9).toFixed(1)+'B';if(Math.abs(v)>=1e6)return'$'+(v/1e6).toFixed(1)+'M';if(Math.abs(v)>=1e3)return'$'+(v/1e3).toFixed(0)+'K';return'$'+Math.round(v).toLocaleString()}
-function fN(v){if(Math.abs(v)>=1e6)return(v/1e6).toFixed(1)+'M';if(Math.abs(v)>=1e3)return(v/1e3).toFixed(0)+'K';return Math.round(v).toLocaleString()}
-function fP(v){return(v*100).toFixed(1)+'%'}
+        <div class="panel">
+            <label>Equil. Delay (s): <input type="number" id="inputDelay" value="1" min="0" style="width: 60px;"></label>
+            <label style="margin-left: 15px;">Run Time (s): <input type="number" id="inputRunTime" value="60" min="1" style="width: 60px;"></label>
+            <label style="margin-left: 15px; color: #007ACC;"><strong>Cal Factor:</strong> <input type="number" id="inputCalFactor" value="1.0" step="0.1" style="width: 60px;"></label>
+        </div>
 
-var ch={};
-// Persistent hidden state per chart legend (keyed by chart id)
-var lstate={};
+        <div class="panel">
+            <button id="btnConnect" class="btn-primary">1. Connect Sensor</button>
+            <button id="btnMeasure" class="btn-secondary" disabled>2. Start Test</button>
+            <button id="btnDownload" class="btn-success" disabled>3. Export / Share Run</button>
+        </div>
 
-function mkO(){return{responsive:true,maintainAspectRatio:false,animation:{duration:400,easing:'easeOutQuart'},transitions:{active:{animation:{duration:0}}},plugins:{legend:{display:false},tooltip:{backgroundColor:'#1a1d26',titleColor:'#fff',bodyColor:'#c5c9d4',borderColor:'#d8dbe3',borderWidth:1,titleFont:{family:'DM Sans',size:12,weight:'600'},bodyFont:{family:'JetBrains Mono',size:11},padding:12,cornerRadius:6,callbacks:{label:function(c){return c.dataset.label+': '+f$(c.parsed.y)}}}},scales:{x:{ticks:{color:'#3a3f4e',font:{family:'DM Sans',size:11,weight:'500'},maxRotation:0},grid:{color:'#e8eaef'}},y:{ticks:{color:'#3a3f4e',font:{family:'JetBrains Mono',size:11,weight:'500'},callback:function(v){return f$(v)}},grid:{color:'#e8eaef'}}}}}
+        <div class="status" id="statusText">Result: -- uM</div>
 
-function ag(a){return vm==='annual'?toA(a):a}
-function al2(a){return vm==='annual'?toL(a):a}
-function lb(){return vm==='annual'?YRS:ML}
+        <div class="panel" style="height: 300px;">
+            <canvas id="liveChart"></canvas>
+        </div>
 
-function segYMax(R){
-  var mx=0;S.sg.forEach(function(s){var d=ag(R.sg[s.n].totR);for(var i=0;i<d.length;i++)if(d[i]>mx)mx=d[i]});
-  return mx*1.1;
-}
+        <div id="log">System Ready... Waiting for hardware connection.</div>
+    </div>
 
-// Compute a stable Y max across ALL datasets for a chart (even hidden ones)
-function allMax(datasets){
-  var mx=0;
-  datasets.forEach(function(ds){
-    if(ds.data)ds.data.forEach(function(v){if(v>mx)mx=v});
-  });
-  return mx*1.15||1;
-}
+    <div id="view-dashboard" style="display: none;">
+        
+        <div class="panel" style="height: 300px;">
+            <h4 style="margin-top: 0; margin-bottom: 10px; color: #444;">Raw Decay Curves (Time vs. Current)</h4>
+            <div style="height: 250px;">
+                <canvas id="dashboardChart"></canvas>
+            </div>
+        </div>
 
-function buildLegend(chartId, containerId, items, dynamicY){
-  var el=document.getElementById(containerId);
-  if(!el)return;
-  if(!lstate[chartId])lstate[chartId]={};
-  el.innerHTML=items.map(function(it,i){
-    var shape=it.shape||'dot';
-    var hidden=lstate[chartId][i]||false;
-    var cls=hidden?'tc':'tc on';
-    return'<div class="'+cls+'" data-i="'+i+'"><span class="'+shape+'" style="background:'+it.color+'"></span>'+it.label+'</div>';
-  }).join('');
-  // Apply persisted hidden state to chart
-  items.forEach(function(it,i){
-    if(lstate[chartId][i]&&ch[chartId]){
-      ch[chartId].getDatasetMeta(i).hidden=true;
-    }
-  });
-  if(ch[chartId])ch[chartId].update('none');
-  el.querySelectorAll('.tc').forEach(function(chip){
-    chip.onclick=function(){
-      var idx=+chip.dataset.i;
-      var isOn=chip.classList.contains('on');
-      chip.classList.toggle('on');
-      lstate[chartId][idx]=isOn;
-      if(ch[chartId]){
-        ch[chartId].getDatasetMeta(idx).hidden=isOn;
-        ch[chartId].update(dynamicY?undefined:'none');
-      }
-    };
-  });
-}
+        <div class="panel" style="height: 300px;">
+            <h4 style="margin-top: 0; margin-bottom: 10px; color: #444;">Trend Analysis (Variable vs. Result)</h4>
+            <div style="height: 250px;">
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
 
-function rch(R){
-  var L=lb(),t=R.t;
+        <div class="panel">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h3 style="margin: 0; color: #003366;">Run Library</h3>
+                <div>
+                    <button id="btnDownloadMaster" class="btn-warning">Export / Share Master Log</button>
+                    <button id="btnClearMaster" class="btn-danger">Reset Log</button>
+                </div>
+            </div>
+            <p style="font-size: 12px; color: #666; margin-top: 0;"><em>Click on a Subject ID or Condition below to edit it. Check boxes to plot runs on the graphs above.</em></p>
+            
+            <div id="statsPanel" style="display: none; background-color: #eef7ff; border: 1px solid #bce8f1; padding: 10px 15px; border-radius: 5px; margin-bottom: 15px; justify-content: space-around; font-size: 14px; color: #003366;">
+                <span><strong>Selected Replicates:</strong> <span id="statCount">0</span></span>
+                <span><strong>Mean:</strong> <span id="statMean">0.00</span> µM</span>
+                <span><strong>Std Dev:</strong> <span id="statSD">0.00</span></span>
+                <span><strong>% CV:</strong> <span id="statCV">0.00</span>%</span>
+            </div>
+            
+            <div style="overflow-x: auto; max-height: 300px; overflow-y: scroll;">
+                <table id="runTable">
+                    <thead>
+                        <tr>
+                            <th>Plot</th>
+                            <th>Time/Date</th>
+                            <th>Subject ID</th>
+                            <th>Condition</th>
+                            <th>Variable</th>
+                            <th>Cal Factor</th>
+                            <th>Result (uM)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="runTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
-  // C0: Total Revenue (single line)
-  if(ch.c0)ch.c0.destroy();
-  var o0=mkO();o0.interaction={mode:'index',intersect:false};
-  ch.c0=new Chart(document.getElementById('c0'),{type:'line',data:{labels:L,datasets:[
-    {label:'Total Revenue',data:ag(t.totR),borderColor:'#c5382a',backgroundColor:'rgba(197,56,42,.08)',fill:true,tension:.3,borderWidth:2.5,pointRadius:0}
-  ]},options:o0});
-  buildLegend('c0','lg0',[{label:'Total Revenue',color:'#c5382a',shape:'dot'}]);
+    <div class="footer-container">
+        <span>For Research Use Only. Not for diagnostic use.</span>
+        <span>v4.2</span>
+    </div>
 
-  // C1: Revenue by product line
-  if(ch.c1)ch.c1.destroy();
-  var o1=mkO();o1.interaction={mode:'index',intersect:false};
-  var c1ds=[
-    {label:'Reader Revenue',data:ag(t.rdrR),borderColor:'#c5382a',backgroundColor:'rgba(197,56,42,.12)',fill:true,tension:.3,borderWidth:2,pointRadius:0},
-    {label:'Strip Revenue',data:ag(t.strR),borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,.08)',fill:true,tension:.3,borderWidth:2,pointRadius:0},
-    {label:'Reagent Kit Revenue',data:ag(t.kitR),borderColor:'#7c3aed',backgroundColor:'rgba(124,58,237,.08)',fill:true,tension:.3,borderWidth:2,pointRadius:0},
-    {label:'Reagent EA Revenue',data:ag(t.eaR),borderColor:'#ca8a04',backgroundColor:'rgba(202,138,4,.08)',fill:true,tension:.3,borderWidth:2,pointRadius:0}
-  ];
-  // Fix Y axis to include all data so toggling doesn't rescale
-  var c1Max=allMax(c1ds);
-  o1.scales.y.max=c1Max;o1.scales.y.min=0;
-  ch.c1=new Chart(document.getElementById('c1'),{type:'line',data:{labels:L,datasets:c1ds},options:o1});
-  buildLegend('c1','lg1',c1ds.map(function(ds){return{label:ds.label,color:ds.borderColor,shape:'dot'}}));
+    <script>
+        // ==========================================
+        // 1. TAB SWITCHING LOGIC
+        // ==========================================
+        const tabAcquisition = document.getElementById('tabAcquisition');
+        const tabDashboard = document.getElementById('tabDashboard');
+        const viewAcquisition = document.getElementById('view-acquisition');
+        const viewDashboard = document.getElementById('view-dashboard');
 
-  // C2: Segment chart — dynamic Y axis, in-place toggle
-  if(ch.c2)ch.c2.destroy();
-  var allSds=S.sg.map(function(s,i){return{label:s.n,data:ag(R.sg[s.n].totR),borderColor:SC[i],backgroundColor:'transparent',tension:.3,borderWidth:2,pointRadius:0,hidden:!stog[s.n]}});
-  var o2=mkO();
-  o2.interaction={mode:'index',intersect:false};
-  ch.c2=new Chart(document.getElementById('c2'),{type:'line',data:{labels:L,datasets:allSds},options:o2});
+        tabAcquisition.addEventListener('click', () => {
+            tabAcquisition.classList.add('active');
+            tabDashboard.classList.remove('active');
+            viewAcquisition.style.display = 'block';
+            viewDashboard.style.display = 'none';
+        });
 
-  // C3: Gross Margin
-  if(ch.c3)ch.c3.destroy();
-  var gmD=vm==='annual'?toA(t.totR).map(function(r,i){var g=toA(t.gp);return r>0?g[i]/r:0}):t.gm;
-  var o3=mkO();
-  o3.interaction={mode:'index',intersect:false};
-  var c3RevData=ag(t.totR),c3CogData=ag(t.totC);
-  var c3Max=allMax([{data:c3RevData},{data:c3CogData}]);
-  o3.scales.y.max=c3Max;o3.scales.y.min=0;
-  o3.scales.y1={position:'right',ticks:{color:'#16a34a',font:{family:'JetBrains Mono',size:11,weight:'500'},callback:function(v){return(v*100).toFixed(0)+'%'}},grid:{display:false},min:0,max:1};
-  o3.plugins.tooltip.callbacks={label:function(c){return c.dataset.yAxisID==='y1'?c.dataset.label+': '+fP(c.parsed.y):c.dataset.label+': '+f$(c.parsed.y)}};
-  var c3ds=[
-    {label:'Revenue',data:c3RevData,backgroundColor:'rgba(37,99,235,.5)',borderRadius:3,order:2},
-    {label:'COGS',data:c3CogData,backgroundColor:'rgba(197,56,42,.4)',borderRadius:3,order:2},
-    {label:'Gross Margin %',data:gmD,type:'line',borderColor:'#16a34a',backgroundColor:'transparent',borderWidth:2,pointRadius:2,pointBackgroundColor:'#16a34a',yAxisID:'y1',order:1,tension:.3}
-  ];
-  ch.c3=new Chart(document.getElementById('c3'),{type:'bar',data:{labels:L,datasets:c3ds},options:o3});
-  buildLegend('c3','lg3',[
-    {label:'Revenue',color:'rgba(37,99,235,.7)',shape:'bar'},
-    {label:'COGS',color:'rgba(197,56,42,.6)',shape:'bar'},
-    {label:'Gross Margin %',color:'#16a34a',shape:'line'}
-  ]);
+        tabDashboard.addEventListener('click', () => {
+            tabDashboard.classList.add('active');
+            tabAcquisition.classList.remove('active');
+            viewDashboard.style.display = 'block';
+            viewAcquisition.style.display = 'none';
+            refreshDashboard(); 
+        });
 
-  // C4: Customers
-  if(ch.c4)ch.c4.destroy();
-  var o4=mkO();o4.scales.y.ticks.callback=function(v){return fN(v)};
-  o4.interaction={mode:'index',intersect:false};
-  o4.plugins.tooltip.callbacks={label:function(c){return c.dataset.label+': '+fN(c.parsed.y)}};
-  var c4ds=[
-    {label:'Sensor',data:al2(t.cS),borderColor:'#c5382a',backgroundColor:'rgba(197,56,42,.07)',fill:true,tension:.3,borderWidth:2,pointRadius:0},
-    {label:'Reagent Kit',data:al2(t.cR),borderColor:'#7c3aed',backgroundColor:'rgba(124,58,237,.07)',fill:true,tension:.3,borderWidth:2,pointRadius:0},
-    {label:'Reagent EA',data:al2(t.cE),borderColor:'#ca8a04',backgroundColor:'rgba(202,138,4,.07)',fill:true,tension:.3,borderWidth:2,pointRadius:0}
-  ];
-  var c4Max=allMax(c4ds);
-  o4.scales.y.max=c4Max;o4.scales.y.min=0;
-  ch.c4=new Chart(document.getElementById('c4'),{type:'line',data:{labels:L,datasets:c4ds},options:o4});
-  buildLegend('c4','lg4',c4ds.map(function(ds){return{label:ds.label,color:ds.borderColor,shape:'dot'}}));
+        // ==========================================
+        // 2. DASHBOARD LOGIC (With Math & AUC)
+        // ==========================================
+        const ctxDash = document.getElementById('dashboardChart').getContext('2d');
+        const dashboardChart = new Chart(ctxDash, {
+            type: 'line',
+            data: { labels: [], datasets: [] },
+            options: { responsive: true, maintainAspectRatio: false, animation: false, scales: { x: { title: { display: true, text: 'Time (s)' } }, y: { title: { display: true, text: 'Current (µA)' } } } }
+        });
 
-  // C5: Units
-  if(ch.c5)ch.c5.destroy();
-  var o5=mkO();o5.scales.x.stacked=true;o5.scales.y.stacked=true;o5.scales.y.ticks.callback=function(v){return fN(v)};
-  o5.interaction={mode:'index',intersect:false};
-  o5.plugins.tooltip.callbacks={label:function(c){return c.dataset.label+': '+fN(c.parsed.y)}};
-  var c5ds=[
-    {label:'Strips',data:ag(t.str),backgroundColor:'rgba(37,99,235,.5)',borderRadius:2},
-    {label:'Reagent Kits',data:ag(t.kit),backgroundColor:'rgba(124,58,237,.5)',borderRadius:2},
-    {label:'EA Kits',data:ag(t.eak),backgroundColor:'rgba(202,138,4,.5)',borderRadius:2},
-    {label:'Readers',data:ag(t.rdr),backgroundColor:'rgba(197,56,42,.5)',borderRadius:2}
-  ];
-  ch.c5=new Chart(document.getElementById('c5'),{type:'bar',data:{labels:L,datasets:c5ds},options:o5});
-  buildLegend('c5','lg5',c5ds.map(function(ds){return{label:ds.label,color:ds.backgroundColor,shape:'bar'}}),true);
+        const ctxTrend = document.getElementById('trendChart').getContext('2d');
+        const trendChart = new Chart(ctxTrend, {
+            type: 'scatter', 
+            data: { datasets: [] },
+            options: { 
+                responsive: true, maintainAspectRatio: false, animation: false, 
+                scales: { x: { type: 'linear', title: { display: true, text: 'Variable Value' } }, y: { title: { display: true, text: 'Final Result (µM)' } } } 
+            }
+        });
 
-  // C6: Market Penetration by Segment (% at year-end)
-  if(ch.c6)ch.c6.destroy();
-  var o6=mkO();
-  o6.interaction={mode:'index',intersect:false};
-  o6.scales.y.ticks.callback=function(v){return(v*100).toFixed(1)+'%'};
-  o6.scales.y.min=0;
-  o6.plugins.tooltip.callbacks={label:function(c){return c.dataset.label+': '+(c.parsed.y*100).toFixed(2)+'%'}};
-  // Compute effective penetration at year-end for each segment (based on sensor launch, using the same gpen logic)
-  var pm=S.sc==='Bull'?1.5:S.sc==='Bear'?0.5:1;
-  var c6ds=S.sg.map(function(seg,i){
-    var data;
-    if(vm==='annual'){
-      data=[];
-      for(var yi=0;yi<10;yi++){
-        var y=2026+yi;
-        var msl=Math.max(0,(y-seg.sLy)*12+(12-seg.sLm)+1);
-        data.push(gpen(msl,seg.pen,pm));
-      }
-    }else{
-      data=[];
-      for(var mi=0;mi<120;mi++){
-        var mo_m=mi%12+1,mo_y=2026+Math.floor(mi/12);
-        var msl=Math.max(0,(mo_y-seg.sLy)*12+(mo_m-seg.sLm)+1);
-        data.push(gpen(msl,seg.pen,pm));
-      }
-    }
-    return{label:seg.n,data:data,borderColor:SC[i],backgroundColor:'transparent',tension:.3,borderWidth:2,pointRadius:0,hidden:!stog[seg.n]};
-  });
-  ch.c6=new Chart(document.getElementById('c6'),{type:'line',data:{labels:L,datasets:c6ds},options:o6});
-  buildLegend('c6','lg6',c6ds.map(function(ds,i){return{label:ds.label,color:SC[i],shape:'dot'}}),true);
-}
+        const chartColors = ['#007ACC', '#dc3545', '#28a745', '#ff9900', '#6f42c1', '#17a2b8', '#e83e8c', '#fd7e14'];
 
-function rkpi(R){
-  var t=R.t,tr=0;for(var i=0;i<120;i++)tr+=t.totR[i];
-  var r30=toA(t.totR)[4],r35=toA(t.totR)[9],gm=t.gm[119],pk=0;
-  for(var i=0;i<120;i++){var v=t.cS[i]+t.cR[i]+t.cE[i];if(v>pk)pk=v}
-  document.getElementById('kpis').innerHTML=[
-    {l:'10-Year Revenue',v:f$(tr),s:'2026–2035',c:'var(--ac)'},
-    {l:'FY 2030 Revenue',v:f$(r30),s:'Year 5',c:'var(--bl)'},
-    {l:'FY 2035 Revenue',v:f$(r35),s:'Year 10',c:'var(--pu)'},
-    {l:'Gross Margin (Dec 2035)',v:fP(gm),s:'End of period',c:'var(--gn)'},
-    {l:'Peak Customers',v:fN(pk),s:'All products',c:'var(--yl)'}
-  ].map(function(k){return'<div class="kpi"><div class="kl">'+k.l+'</div><div class="kv" style="color:'+k.c+'">'+k.v+'</div><div class="ks">'+k.s+'</div></div>'}).join('');
-}
+        function refreshDashboard() {
+            let masterLog = JSON.parse(localStorage.getItem('aminosenseMasterLog')) || [];
+            const tbody = document.getElementById('runTableBody');
+            tbody.innerHTML = ""; 
 
-function rtbl(R){
-  var t=R.t,aR=toA(t.totR),aS=toA(t.rdrR.map(function(r,i){return r+t.strR[i]})),aK=toA(t.kitR),aE=toA(t.eaR),aC=toA(t.totC),aG=toA(t.gp);
-  var aGM=aR.map(function(r,i){return r>0?aG[i]/r:0});
-  var rows=[{l:'Sensor Revenue',d:aS},{l:'Reagent Kit Revenue',d:aK},{l:'Reagent EA Revenue',d:aE},{l:'Total Revenue',d:aR,t:1},{l:'Total COGS',d:aC},{l:'Gross Profit',d:aG,t:1},{l:'Gross Margin %',d:aGM,p:1}];
-  var h='<thead><tr><th>Metric</th>'+YRS.map(function(y){return'<th>FY '+y+'</th>'}).join('')+'</tr></thead><tbody>';
-  rows.forEach(function(r){
-    h+='<tr class="'+(r.t?'tr':'')+'"><td>'+r.l+'</td>'+r.d.map(function(v){return'<td>'+(r.p?fP(v):f$(v))+'</td>'}).join('')+'</tr>';
-    if(r.l==='Gross Margin %'){
-      h+='<tr><td colspan="11" style="padding:3px;background:var(--sf)"></td></tr><tr class="tr"><td>Revenue by Segment</td>'+'<td></td>'.repeat(10)+'</tr>';
-      S.sg.forEach(function(s){var sd=toA(R.sg[s.n].totR);h+='<tr><td style="padding-left:20px">'+s.n+'</td>'+sd.map(function(v){return'<td>'+f$(v)+'</td>'}).join('')+'</tr>'});
-    }
-  });
-  h+='</tbody>';document.getElementById('at').innerHTML=h;
-}
+            if(masterLog.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='7' style='text-align:center;'>No runs saved yet.</td></tr>";
+                updateDashboardChart();
+                return;
+            }
 
-function rsgT(){
-  var el=document.getElementById('stg');
-  el.innerHTML=S.sg.map(function(s,i){return'<div class="tc '+(stog[s.n]?'on':'')+'" data-s="'+s.n+'" data-i="'+i+'"><span class="dot" style="background:'+SC[i]+'"></span>'+s.n+'</div>'}).join('');
-  el.querySelectorAll('.tc').forEach(function(chip){
-    chip.onclick=function(){
-      var name=chip.dataset.s;
-      var idx=+chip.dataset.i;
-      stog[name]=!stog[name];
-      chip.classList.toggle('on');
-      if(ch.c2){ch.c2.getDatasetMeta(idx).hidden=!stog[name];ch.c2.update()}
-      if(ch.c6){ch.c6.getDatasetMeta(idx).hidden=!stog[name];ch.c6.update()}
-    };
-  });
-}
+            for (let i = masterLog.length - 1; i >= 0; i--) {
+                const run = masterLog[i];
+                const tr = document.createElement('tr');
+                let currentCal = run.cal_factor !== undefined ? run.cal_factor : "1.0";
+                
+                tr.innerHTML = `
+                    <td style="text-align:center;"><input type="checkbox" class="plot-check" data-index="${i}" onchange="updateDashboardChart()"></td>
+                    <td>${run.timestamp}</td>
+                    <td class="editable" contenteditable="true" onblur="saveEdit(${i}, 'subject', this.innerText)">${run.subject}</td>
+                    <td class="editable" contenteditable="true" onblur="saveEdit(${i}, 'condition', this.innerText)">${run.condition}</td>
+                    <td class="editable" contenteditable="true" onblur="saveEdit(${i}, 'variable', this.innerText)">${run.variable}</td>
+                    <td class="editable" contenteditable="true" onblur="saveEdit(${i}, 'cal_factor', this.innerText)">${currentCal}</td>
+                    <td><strong>${run.result_uM}</strong></td>
+                `;
+                tbody.appendChild(tr);
+            }
+            updateDashboardChart();
+        }
 
-function rpr(){
-  var sc=adminSc2,ls=S.pl;
-  var h='<div class="pc"><h3>Pricing<span class="b">'+sc+'</span></h3><div class="ag">';
-  ls.forEach(function(l,i){h+='<div class="ig"><label>'+l+'</label><input type="number" step="any" value="'+S.pr[sc][i]+'" data-t="pr" data-i="'+i+'"></div>'});
-  h+='</div></div><div class="pc"><h3>COGS per Unit<span class="b">'+sc+'</span></h3><div class="ag">';
-  ls.forEach(function(l,i){h+='<div class="ig"><label>'+l+'</label><input type="number" step="any" value="'+S.cg[sc][i]+'" data-t="cg" data-i="'+i+'"></div>'});
-  h+='</div></div>';document.getElementById('pgr').innerHTML=h;
-  document.querySelectorAll('#pgr input').forEach(function(el){el.onchange=function(){S[el.dataset.t][adminSc2][+el.dataset.i]=parseFloat(el.value)||0;upd()}});
-}
+        window.saveEdit = function(index, field, newValue) {
+            let masterLog = JSON.parse(localStorage.getItem('aminosenseMasterLog')) || [];
+            if (masterLog[index]) {
+                masterLog[index][field] = newValue.trim();
+                
+                if (field === 'cal_factor') {
+                    let newCal = parseFloat(newValue) || 1.0;
+                    let rawMicroamps = parseFloat(masterLog[index].result_uA) || 0;
+                    masterLog[index].result_uM = (rawMicroamps * newCal).toFixed(2);
+                }
 
-function rst(){
-  document.getElementById('stb').innerHTML=S.sg.map(function(s,i){return'<div class="stab '+(i===ast?'on':'')+'" data-i="'+i+'">'+s.n+'</div>'}).join('');
-  document.querySelectorAll('.stab').forEach(function(el){el.onclick=function(){ast=+el.dataset.i;rsi()}});
-}
+                localStorage.setItem('aminosenseMasterLog', JSON.stringify(masterLog));
+                
+                if (field === 'cal_factor') {
+                    refreshDashboard(); 
+                } else if (field === 'condition' || field === 'variable') {
+                    updateDashboardChart(); 
+                }
+            }
+        };
 
-function rsi(){
-  rst();var seg=S.sg[ast];
-  var fs=[{k:'pop',l:'Target Population',s:1},{k:'sP',l:'% Sensor',s:.01},{k:'rP',l:'% Reagent Kit',s:.01},{k:'eP',l:'% Reagent EA',s:.01},
-    {k:'sLm',l:'Sensor Launch Mo',s:1},{k:'sLy',l:'Sensor Launch Yr',s:1},{k:'rLm',l:'Reagent Launch Mo',s:1},{k:'rLy',l:'Reagent Launch Yr',s:1},
-    {k:'eLm',l:'EA Launch Mo',s:1},{k:'eLy',l:'EA Launch Yr',s:1},{k:'sF',l:'Sensor Tests/Wk',s:.01},{k:'rF',l:'Reagent React/Wk',s:.01},
-    {k:'eF',l:'EA React/Wk',s:.01},{k:'rpk',l:'Reactions/Kit',s:1},
-    {k:'pen0',l:'Pen M12',s:.0001},{k:'pen1',l:'Pen M24',s:.0001},{k:'pen2',l:'Pen M36',s:.0001},{k:'pen3',l:'Pen M48',s:.0001},{k:'pen4',l:'Pen M60',s:.0001},
-    {k:'pen5',l:'Pen M72',s:.0001},{k:'pen6',l:'Pen M84',s:.0001},{k:'pen7',l:'Pen M96',s:.0001},{k:'pen8',l:'Pen M108',s:.0001},{k:'pen9',l:'Pen M120',s:.0001}];
-  document.getElementById('si').innerHTML='<div class="ag">'+fs.map(function(f){
-    var val=f.k.substring(0,3)==='pen'?seg.pen[+f.k.substring(3)]:seg[f.k];
-    return'<div class="ig"><label>'+f.l+'</label><input type="number" step="'+f.s+'" value="'+val+'" data-k="'+f.k+'"></div>';
-  }).join('')+'</div>';
-  document.querySelectorAll('#si input').forEach(function(el){el.onchange=function(){
-    var k=el.dataset.k,v=parseFloat(el.value)||0;
-    if(k.substring(0,3)==='pen')S.sg[ast].pen[+k.substring(3)]=v;
-    else S.sg[ast][k]=v;
-    upd();
-  }});
-}
+        window.updateDashboardChart = function() {
+            let masterLog = JSON.parse(localStorage.getItem('aminosenseMasterLog')) || [];
+            const checkboxes = document.querySelectorAll('.plot-check');
+            
+            dashboardChart.data.datasets = [];
+            let maxLabels = 0; 
+            let trendDatasets = {};
+            let tColorIndex = 0;
+            let dColorIndex = 0;
+            let selectedResults = []; 
 
-// Scenario pills — header changes dashboard view, admin panel changes editing context
-var adminSc2=S.sc; // track which scenario admin is editing (separate from display)
-function initHeaderPills(){
-  var el=document.getElementById('sp');
-  el.innerHTML=['Bull','Base','Bear'].map(function(s){return'<button class="pill'+(s===S.sc?' on':'')+'" data-s="'+s+'">'+s+'</button>'}).join('');
-  el.querySelectorAll('.pill').forEach(function(p){
-    p.onclick=function(){
-      S.sc=p.dataset.s;
-      el.querySelectorAll('.pill').forEach(function(b){b.classList.remove('on')});
-      p.classList.add('on');
-      upd();
-    };
-  });
-}
-function updateHeaderPills(){
-  var el=document.getElementById('sp');
-  el.querySelectorAll('.pill').forEach(function(b){
-    if(b.dataset.s===S.sc)b.classList.add('on');else b.classList.remove('on');
-  });
-}
-function initAdminPills(){
-  var el=document.getElementById('sp2');
-  if(!el)return;
-  el.innerHTML=['Bull','Base','Bear'].map(function(s){return'<button class="pill'+(s===adminSc2?' on':'')+'" data-s="'+s+'">'+s+'</button>'}).join('');
-  el.querySelectorAll('.pill').forEach(function(p){
-    p.onclick=function(){
-      adminSc2=p.dataset.s;
-      el.querySelectorAll('.pill').forEach(function(b){b.classList.remove('on')});
-      p.classList.add('on');
-      rpr();
-    };
-  });
-}
-initHeaderPills();
+            checkboxes.forEach(chk => {
+                if (chk.checked) {
+                    const run = masterLog[chk.getAttribute('data-index')];
+                    if (run) {
+                        selectedResults.push(parseFloat(run.result_uM));
 
-document.getElementById('vt').innerHTML='<button class="vb on" data-v="annual">Annual</button><button class="vb" data-v="monthly">Monthly</button>';
-document.querySelectorAll('.vb').forEach(function(el){el.onclick=function(){document.querySelectorAll('.vb').forEach(function(b){b.classList.remove('on')});el.classList.add('on');vm=el.dataset.v;rch(calc())}});
+                        // 1. Raw Decay Chart
+                        if (run.rawData) {
+                            if (run.rawData.length > maxLabels) maxLabels = run.rawData.length;
+                            dashboardChart.data.datasets.push({
+                                label: `${run.subject} (Var: ${run.variable})`,
+                                data: run.rawData, borderColor: chartColors[dColorIndex % chartColors.length], borderWidth: 2, pointRadius: 0, fill: false, tension: 0.1
+                            });
+                            dColorIndex++;
+                        }
 
-// Admin panel open/close
-document.getElementById('adminBtn').onclick=function(){document.getElementById('adminOverlay').classList.add('open');initAdminPills();rpr();rsi()};
-document.getElementById('adminClose').onclick=function(){document.getElementById('adminOverlay').classList.remove('open')};
-document.getElementById('adminOverlay').onclick=function(e){if(e.target===this)this.classList.remove('open')};
+                        // 2. Trend Chart Grouping
+                        let groupName = run.condition || "Unknown Condition";
+                        if (!trendDatasets[groupName]) {
+                            trendDatasets[groupName] = {
+                                label: groupName, data: [], backgroundColor: chartColors[tColorIndex % chartColors.length], borderColor: chartColors[tColorIndex % chartColors.length], showLine: true, tension: 0.1
+                            };
+                            tColorIndex++;
+                        }
+                        
+                        trendDatasets[groupName].data.push({ x: parseFloat(run.variable), y: parseFloat(run.result_uM) });
+                    }
+                }
+            });
 
-// Excel upload
-document.getElementById('ulFile').onchange=async function(evt){
-  var file=evt.target.files[0];if(!file)return;
-  if(typeof ExcelJS==='undefined'){alert('ExcelJS library not loaded.');return}
-  try{
-    var buf=await file.arrayBuffer();
-    var wb2=new ExcelJS.Workbook();
-    await wb2.xlsx.load(buf);
-    var wa=wb2.getWorksheet('Assumptions');
-    if(!wa){alert('No "Assumptions" sheet found in uploaded file.');return}
-    // Read scenario
-    var scVal=wa.getCell(5,2).value;
-    if(scVal&&['Bull','Base','Bear'].indexOf(scVal)>=0)S.sc=scVal;
-    // Read pricing: rows 9-14, cols 2(Bull) 3(Base) 4(Bear)
-    ['Bull','Base','Bear'].forEach(function(sc,si){
-      for(var i=0;i<6;i++){
-        var v=wa.getCell(9+i,2+si).value;
-        if(v!==null&&v!==undefined)S.pr[sc][i]=typeof v==='object'&&v.result!==undefined?v.result:+v||0;
-      }
-    });
-    // Read COGS: rows 18-23, cols 2-4
-    ['Bull','Base','Bear'].forEach(function(sc,si){
-      for(var i=0;i<6;i++){
-        var v=wa.getCell(18+i,2+si).value;
-        if(v!==null&&v!==undefined)S.cg[sc][i]=typeof v==='object'&&v.result!==undefined?v.result:+v||0;
-      }
-    });
-    // Find segment data by scanning for segment names in col 1
-    var segNames=S.sg.map(function(s){return s.n});
-    var segRows={};
-    wa.eachRow(function(row,rn){
-      var v1=row.getCell(1).value;
-      if(v1&&segNames.indexOf(v1)>=0)segRows[v1]=rn;
-    });
-    // Read segment data
-    S.sg.forEach(function(seg){
-      var rn=segRows[seg.n];if(!rn)return;
-      function gv(c){var v=wa.getCell(rn,c).value;if(v===null||v===undefined)return 0;return typeof v==='object'&&v.result!==undefined?+v.result:+v||0}
-      seg.sP=gv(4);seg.rP=gv(5);seg.eP=gv(6);
-      seg.sLm=gv(7);seg.sLy=gv(8);seg.rLm=gv(9);seg.rLy=gv(10);
-      seg.eLm=gv(11);seg.eLy=gv(12);seg.sF=gv(13);seg.rF=gv(14);seg.eF=gv(15);
-      seg.rpk=gv(16)||100;seg.pop=gv(17);
-      for(var pi=0;pi<10;pi++){var pv=gv(18+pi);seg.pen[pi]=pv}
-    });
-    initHeaderPills();
-    upd();
-    alert('Model loaded successfully from "'+file.name+'"');
-  }catch(e){
-    alert('Error reading file: '+e.message);
-    console.error(e);
-  }
-  evt.target.value='';
-};
+            dashboardChart.data.labels = Array.from({length: maxLabels}, (_, i) => (i * 0.5).toFixed(1));
+            dashboardChart.update();
 
-// Excel download
-// Warn before closing tab
-window.addEventListener('beforeunload',function(e){
-  e.preventDefault();
-  e.returnValue='';
-});
+            // --- THE NEW AUC MATH LOGIC ---
+            Object.values(trendDatasets).forEach(ds => {
+                // Sort the points left-to-right based on the Variable (X-axis)
+                ds.data.sort((a, b) => a.x - b.x);
+                
+                let auc = 0;
+                for (let i = 0; i < ds.data.length - 1; i++) {
+                    let x1 = ds.data[i].x;
+                    let y1 = ds.data[i].y;
+                    let x2 = ds.data[i+1].x;
+                    let y2 = ds.data[i+1].y;
+                    
+                    // Trapezoidal Rule
+                    auc += ((y1 + y2) / 2) * (x2 - x1);
+                }
 
-document.getElementById('dlBtn').onclick=async function(){
-  if(typeof ExcelJS==='undefined'){alert('ExcelJS library not loaded.');return}
-  var wb=new ExcelJS.Workbook();
-  var mn=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  var mLabels=[];for(var y=2026;y<=2035;y++)for(var m=0;m<12;m++)mLabels.push(mn[m]+' '+y);
-  var fyLabels=YRS.map(function(y){return'FY '+y});
-  var titleFont={name:'Arial',size:14,bold:true,color:{argb:'FF000000'}};
-  var sectionFont={name:'Arial',size:11,bold:true,color:{argb:'FF8B0000'}};
-  var headerFont={name:'Arial',size:10,bold:true,color:{argb:'FFFFFFFF'}};
-  var headerFill={type:'pattern',pattern:'solid',fgColor:{argb:'FF4B0082'}};
-  var fyFill={type:'pattern',pattern:'solid',fgColor:{argb:'FF2F4F4F'}};
-  var blueFont={name:'Arial',size:10,color:{argb:'FF0000FF'}};
-  var blackFont={name:'Arial',size:10,color:{argb:'FF000000'}};
-  var blackBold={name:'Arial',size:10,bold:true,color:{argb:'FF000000'}};
-  var greenFont={name:'Arial',size:10,color:{argb:'FF008000'}};
-  var grayFill={type:'pattern',pattern:'solid',fgColor:{argb:'FFF2F2F2'}};
-  var yellowFill={type:'pattern',pattern:'solid',fgColor:{argb:'FFFFFF00'}};
-  var dollarFmt='$#,##0;($#,##0);"-"';
-  var pctFmt='0.000%';
-  var pctFmt2='0.0%';
-  var numFmt='#,##0';
-  function sc2(ws,r,c,val,font,fill,fmt){var cell=ws.getCell(r,c);cell.value=val;if(font)cell.font=font;if(fill)cell.fill=fill;if(fmt)cell.numFmt=fmt}
-  function setHeaders(ws,r,vals){vals.forEach(function(v,i){sc2(ws,r,i+1,v,headerFont,headerFill)})}
-  function writeMH(ws,row){sc2(ws,row,1,'Section',headerFont,headerFill);sc2(ws,row,2,'Segment / Line',headerFont,headerFill);mLabels.forEach(function(l,i){sc2(ws,row,3+i,l,headerFont,headerFill)});fyLabels.forEach(function(l,i){sc2(ws,row,123+i,l,headerFont,fyFill)})}
-  function setColWidths(ws){ws.getColumn(1).width=5;ws.getColumn(2).width=30;for(var c=3;c<=132;c++)ws.getColumn(c).width=13}
+                if (ds.data.length > 1) {
+                    ds.label = `${ds.label} (AUC: ${auc.toFixed(1)})`;
+                }
+            });
 
-  // ── Assumptions tab ──
-  var wa=wb.addWorksheet('Assumptions');
-  wa.getColumn(1).width=35;for(var c=2;c<=27;c++)wa.getColumn(c).width=18;
-  sc2(wa,1,1,'AminoSense Revenue Model — Assumptions',titleFont);
-  sc2(wa,2,1,'All blue values are editable inputs.',{name:'Arial',size:9,italic:true});
-  sc2(wa,4,1,'SCENARIO SELECTION',sectionFont);
-  sc2(wa,5,1,'Active Scenario',blackBold);sc2(wa,5,2,S.sc,{name:'Arial',size:10,bold:true,color:{argb:'FF0000FF'}},yellowFill);
-  sc2(wa,7,1,'PRICING BY SCENARIO',sectionFont);
-  setHeaders(wa,8,['','Bull','Base','Bear']);
-  S.pl.forEach(function(l,i){sc2(wa,9+i,1,l,blackFont);['Bull','Base','Bear'].forEach(function(s,si){sc2(wa,9+i,2+si,S.pr[s][i],blueFont,null,dollarFmt)})});
-  sc2(wa,16,1,'COGS PER UNIT BY SCENARIO',sectionFont);
-  setHeaders(wa,17,['','Bull','Base','Bear']);
-  S.pl.forEach(function(l,i){sc2(wa,18+i,1,l,blackFont);['Bull','Base','Bear'].forEach(function(s,si){sc2(wa,18+i,2+si,S.cg[s][i],blueFont,null,dollarFmt)})});
-  // Active pricing/COGS per scenario
-  var arw=25;
-  ['Bull','Base','Bear'].forEach(function(s){
-    sc2(wa,arw,1,'ACTIVE PRICING — '+s,sectionFont);arw++;
-    S.pl.forEach(function(l,i){sc2(wa,arw,1,l,blackFont);sc2(wa,arw,2,S.pr[s][i],blackFont,null,dollarFmt);arw++});arw++;
-    sc2(wa,arw,1,'ACTIVE COGS — '+s,sectionFont);arw++;
-    S.pl.forEach(function(l,i){sc2(wa,arw,1,l,blackFont);sc2(wa,arw,2,S.cg[s][i],blackFont,null,dollarFmt);arw++});arw+=2;
-  });
-  sc2(wa,arw,1,'PEN RATE MULTIPLIERS',sectionFont);arw++;
-  ['Bull','Base','Bear'].forEach(function(s){var pm2=s==='Bull'?1.5:s==='Bear'?0.5:1;sc2(wa,arw,1,s,blackFont);sc2(wa,arw,2,pm2,blackFont);arw++});arw+=2;
-  sc2(wa,arw,1,'SEGMENT ASSUMPTIONS',sectionFont);arw++;
-  var segH=['Segment','Sensor TAM ($)','Reagent Kit TAM ($)','% Using Sensor','% Using Reagent Kit','% Using Reagent EA','Sensor Launch Mo','Sensor Launch Yr','Reagent Launch Mo','Reagent Launch Yr','EA Launch Mo','EA Launch Yr','Sensor Tests/Wk','Reagent React/Wk','EA React/Wk','Reactions/Kit','Population'];
-  for(var p=0;p<10;p++)segH.push('Pen M'+(12*(p+1)));
-  setHeaders(wa,arw,segH);arw++;
-  S.sg.forEach(function(s){
-    sc2(wa,arw,1,s.n,blackBold);sc2(wa,arw,4,s.sP,blueFont,null,pctFmt2);sc2(wa,arw,5,s.rP,blueFont,null,pctFmt2);sc2(wa,arw,6,s.eP,blueFont,null,pctFmt2);
-    sc2(wa,arw,7,s.sLm,blueFont);sc2(wa,arw,8,s.sLy,blueFont);sc2(wa,arw,9,s.rLm,blueFont);sc2(wa,arw,10,s.rLy,blueFont);
-    sc2(wa,arw,11,s.eLm,blueFont);sc2(wa,arw,12,s.eLy,blueFont);sc2(wa,arw,13,s.sF,blueFont);sc2(wa,arw,14,s.rF,blueFont);sc2(wa,arw,15,s.eF,blueFont);
-    sc2(wa,arw,16,s.rpk,blueFont);sc2(wa,arw,17,s.pop,blueFont,null,numFmt);
-    s.pen.forEach(function(p2,pi){sc2(wa,arw,18+pi,p2,blueFont,null,pctFmt)});arw++;
-  });
+            trendChart.data.datasets = Object.values(trendDatasets);
+            trendChart.update();
 
-  // ── Generate all 3 scenarios ──
-  var origSc=S.sc;
-  ['Bull','Base','Bear'].forEach(function(scenario){
-    S.sc=scenario;var R=calc();var t=R.t;
-    var pr=S.pr[scenario],cgs=S.cg[scenario];
+            // --- AUTO-STATS PANEL ---
+            const statsPanel = document.getElementById('statsPanel');
+            if (selectedResults.length >= 2) {
+                let n = selectedResults.length;
+                let sum = selectedResults.reduce((a, b) => a + b, 0);
+                let mean = sum / n;
+                let varianceSum = selectedResults.reduce((a, b) => a + Math.pow(b - mean, 2), 0);
+                let sd = Math.sqrt(varianceSum / (n - 1));
+                let cv = (mean === 0) ? 0 : (sd / mean) * 100;
 
-    // Summary
-    var ws=wb.addWorksheet('Summary — '+scenario);setColWidths(ws);
-    sc2(ws,1,1,'Summary ('+scenario+')',titleFont);sc2(ws,2,1,'Scenario: '+scenario,sectionFont);
-    writeMH(ws,4);var sr=5;
-    [{l:'Total Sensor Revenue',d:t.rdrR.map(function(v,i){return v+t.strR[i]})},{l:'Total Reagent Kit Revenue',d:t.kitR},{l:'Total Reagent EA Revenue',d:t.eaR},
-     {l:'TOTAL REVENUE',d:t.totR,g:1},{l:'Total COGS',d:t.totC},{l:'GROSS PROFIT',d:t.gp,g:1},{l:'Gross Margin %',d:t.gm,pct:1}].forEach(function(item){
-      var f=blackBold;var fl=item.g?grayFill:null;sc2(ws,sr,2,item.l,f,fl);
-      for(var mi=0;mi<120;mi++)sc2(ws,sr,3+mi,item.d[mi],f,null,item.pct?pctFmt2:dollarFmt);
-      if(item.pct){var a1=toA(t.totR),a2=toA(t.gp);a1.map(function(r,i){return r>0?a2[i]/r:0}).forEach(function(v,i){sc2(ws,sr,123+i,v,blackBold,null,pctFmt2)})}
-      else{toA(item.d).forEach(function(v,i){sc2(ws,sr,123+i,v,blackBold,null,dollarFmt)})}
-      sr++;
-    });
-    sr++;sc2(ws,sr,2,'REVENUE BY SEGMENT',sectionFont);sr++;
-    S.sg.forEach(function(s){var d=R.sg[s.n];sc2(ws,sr,2,s.n,blackFont);for(var mi=0;mi<120;mi++)sc2(ws,sr,3+mi,d.totR[mi],blackFont,null,dollarFmt);toA(d.totR).forEach(function(v,i){sc2(ws,sr,123+i,v,blackBold,null,dollarFmt)});sr++});
+                document.getElementById('statCount').innerText = n;
+                document.getElementById('statMean').innerText = mean.toFixed(2);
+                document.getElementById('statSD').innerText = sd.toFixed(2);
+                document.getElementById('statCV').innerText = cv.toFixed(2);
+                statsPanel.style.display = 'flex';
+            } else {
+                if (statsPanel) statsPanel.style.display = 'none';
+            }
+        };
 
-    // Sensor Revenue
-    var wsr=wb.addWorksheet('Sensor — '+scenario);setColWidths(wsr);
-    sc2(wsr,1,1,'Sensor Revenue ('+scenario+')',titleFont);writeMH(wsr,3);var rr=4;
-    S.sg.forEach(function(s){var d=R.sg[s.n];sc2(wsr,rr,1,s.n,sectionFont);rr++;
-      [{l:'Reader Revenue',d:d.rdrR,f:greenFont},{l:'Strip Revenue',d:d.strR,f:greenFont},{l:'Total Sensor Revenue',d:d.rdrR.map(function(v,i){return v+d.strR[i]}),f:blackBold}].forEach(function(item){
-        sc2(wsr,rr,2,item.l,item.f===greenFont?blackFont:blackBold);for(var mi=0;mi<120;mi++)sc2(wsr,rr,3+mi,item.d[mi],item.f,null,dollarFmt);toA(item.d).forEach(function(v,i){sc2(wsr,rr,123+i,v,blackBold,null,dollarFmt)});rr++})});
-    rr++;sc2(wsr,rr,2,'TOTAL SENSOR REVENUE',blackBold,grayFill);var tSen=t.rdrR.map(function(v,i){return v+t.strR[i]});for(var mi=0;mi<120;mi++)sc2(wsr,rr,3+mi,tSen[mi],blackBold,null,dollarFmt);toA(tSen).forEach(function(v,i){sc2(wsr,rr,123+i,v,blackBold,null,dollarFmt)});
+        // ==========================================
+        // 3. HARDWARE & ACQUISITION LOGIC
+        // ==========================================
+        const SERVICE_UUID = '569a1101-b87f-490c-92cb-11ba5ea5167c'; 
+        const RX_UUID      = '569a2001-b87f-490c-92cb-11ba5ea5167c'; 
+        const TX_UUID      = '569a2000-b87f-490c-92cb-11ba5ea5167c'; 
 
-    // Reagent Revenue
-    var wrr=wb.addWorksheet('Reagent — '+scenario);setColWidths(wrr);
-    sc2(wrr,1,1,'Reagent Revenue ('+scenario+')',titleFont);writeMH(wrr,3);rr=4;
-    S.sg.forEach(function(s){var d=R.sg[s.n];sc2(wrr,rr,1,s.n,sectionFont);rr++;
-      [{l:'Reagent Kit Revenue',d:d.kitR},{l:'Reagent EA Revenue',d:d.eaR},{l:'Total Reagent Revenue',d:d.kitR.map(function(v,i){return v+d.eaR[i]}),b:1}].forEach(function(item){
-        sc2(wrr,rr,2,item.l,item.b?blackBold:blackFont);for(var mi=0;mi<120;mi++)sc2(wrr,rr,3+mi,item.d[mi],item.b?blackBold:greenFont,null,dollarFmt);toA(item.d).forEach(function(v,i){sc2(wrr,rr,123+i,v,blackBold,null,dollarFmt)});rr++})});
-    rr++;[['TOTAL REAGENT KIT REV',t.kitR],['TOTAL REAGENT EA REV',t.eaR],['TOTAL ALL REAGENT REV',t.kitR.map(function(v,i){return v+t.eaR[i]})]].forEach(function(x){
-      sc2(wrr,rr,2,x[0],blackBold,grayFill);for(var mi=0;mi<120;mi++)sc2(wrr,rr,3+mi,x[1][mi],blackBold,null,dollarFmt);toA(x[1]).forEach(function(v,i){sc2(wrr,rr,123+i,v,blackBold,null,dollarFmt)});rr++});
+        let bleDevice, bleServer, rxCharacteristic, txCharacteristic;
+        let dataBuffer = "", currentDataPoints = []; 
 
-    // COGS & Gross Margin
-    var wcg=wb.addWorksheet('COGS & GM — '+scenario);setColWidths(wcg);
-    sc2(wcg,1,1,'COGS & Gross Margin ('+scenario+')',titleFont);writeMH(wcg,3);rr=4;
-    S.sg.forEach(function(s,si){var d=R.sg[s.n];var isR=si===0;sc2(wcg,rr,1,s.n,sectionFont);rr++;
-      [{l:'Reader COGS',d:d.rdr.map(function(v){return v*(isR?cgs[0]:cgs[2])})},{l:'Strip COGS',d:d.str.map(function(v){return v*(isR?cgs[1]:cgs[3])})},
-       {l:'Reagent Kit COGS',d:d.kit.map(function(v){return v*cgs[4]})},{l:'Reagent EA COGS',d:d.eak.map(function(v){return v*cgs[5]})},
-       {l:'Total COGS',d:d.totC,b:1},{l:'Total Revenue',d:d.totR,b:1},{l:'Gross Profit',d:d.gp,b:1},{l:'Gross Margin %',d:d.gm,pct:1}].forEach(function(item){
-        sc2(wcg,rr,2,item.l,item.b?blackBold:blackFont);for(var mi=0;mi<120;mi++)sc2(wcg,rr,3+mi,item.d[mi],item.b?blackBold:greenFont,null,item.pct?pctFmt2:dollarFmt);
-        if(item.pct){var a1=toA(d.totR),a2=toA(d.gp);a1.map(function(r,i){return r>0?a2[i]/r:0}).forEach(function(v,i){sc2(wcg,rr,123+i,v,blackBold,null,pctFmt2)})}
-        else{toA(item.d).forEach(function(v,i){sc2(wcg,rr,123+i,v,blackBold,null,dollarFmt)})}rr++})});
-    rr++;[['TOTAL COGS',t.totC],['TOTAL REVENUE',t.totR],['TOTAL GROSS PROFIT',t.gp]].forEach(function(x){
-      sc2(wcg,rr,2,x[0],blackBold,grayFill);for(var mi=0;mi<120;mi++)sc2(wcg,rr,3+mi,x[1][mi],blackBold,null,dollarFmt);toA(x[1]).forEach(function(v,i){sc2(wcg,rr,123+i,v,blackBold,null,dollarFmt)});rr++});
-    sc2(wcg,rr,2,'TOTAL GROSS MARGIN %',blackBold,grayFill);for(var mi=0;mi<120;mi++)sc2(wcg,rr,3+mi,t.gm[mi],blackBold,null,pctFmt2);
-    var a3=toA(t.totR),a4=toA(t.gp);a3.map(function(r,i){return r>0?a4[i]/r:0}).forEach(function(v,i){sc2(wcg,rr,123+i,v,blackBold,null,pctFmt2)});
-  });
-  S.sc=origSc;
+        const btnConnect = document.getElementById('btnConnect');
+        const btnMeasure = document.getElementById('btnMeasure');
+        const btnDownload = document.getElementById('btnDownload');
+        const btnDownloadMaster = document.getElementById('btnDownloadMaster');
+        const btnClearMaster = document.getElementById('btnClearMaster');
+        const statusText = document.getElementById('statusText');
+        const logDiv = document.getElementById('log');
 
-  var buf=await wb.xlsx.writeBuffer();
-  var blob=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.format'});
-  var url2=URL.createObjectURL(blob);var a2=document.createElement('a');a2.href=url2;a2.download='AminoSense_Revenue_Model.xlsx';a2.click();URL.revokeObjectURL(url2);
-};
+        const ctxLive = document.getElementById('liveChart').getContext('2d');
+        const liveChart = new Chart(ctxLive, {
+            type: 'line', data: { labels: [], datasets: [{ label: 'Current (µA)', data: [], borderColor: '#003366', borderWidth: 2, pointRadius: 0, fill: false, tension: 0.1 }] },
+            options: { responsive: true, maintainAspectRatio: false, animation: false, scales: { x: { title: { display: true, text: 'Time (s)' } }, y: { title: { display: true, text: 'Current (µA)' } } } }
+        });
 
-function rro(){
-  var sc=S.sc,pr=S.pr[sc],cg=S.cg[sc],ls=S.pl;
-  var h='<div class="ro-grid"><div class="ro-card"><h3>Pricing ('+sc+')</h3>';
-  ls.forEach(function(l,i){h+='<div class="ro-item"><span class="ro-label">'+l+'</span><span class="ro-val">$'+pr[i]+'</span></div>'});
-  h+='</div><div class="ro-card"><h3>COGS per Unit ('+sc+')</h3>';
-  ls.forEach(function(l,i){h+='<div class="ro-item"><span class="ro-label">'+l+'</span><span class="ro-val">$'+cg[i]+'</span></div>'});
-  h+='</div></div>';
-  document.getElementById('roPricing').innerHTML=h;
+        function log(message) { logDiv.innerHTML += `<div>> ${message}</div>`; logDiv.scrollTop = logDiv.scrollHeight; }
 
-  var mn=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  var sh='<table class="ro-seg-table"><thead><tr><th>Segment</th><th>Population</th><th>Sensor %</th><th>Kit %</th><th>EA %</th><th>Sensor Launch</th><th>Reagent Launch</th><th>EA Launch</th><th>Sensor Freq</th><th>Reagent Freq</th><th>EA Freq</th>';
-  for(var p=0;p<10;p++)sh+='<th>Pen M'+(12*(p+1))+'</th>';
-  sh+='</tr></thead><tbody>';
-  S.sg.forEach(function(s){
-    var sL=s.sLy>0?(mn[s.sLm-1]+' '+s.sLy):'—';
-    var rL=s.rLy>0?(mn[s.rLm-1]+' '+s.rLy):'—';
-    var eL=(s.eLy>0&&s.eLm>0)?(mn[s.eLm-1]+' '+s.eLy):'—';
-    sh+='<tr><td>'+s.n+'</td><td>'+fN(s.pop)+'</td><td>'+(s.sP*100).toFixed(0)+'%</td><td>'+(s.rP*100).toFixed(0)+'%</td><td>'+(s.eP*100).toFixed(0)+'%</td>';
-    sh+='<td>'+sL+'</td><td>'+rL+'</td><td>'+eL+'</td>';
-    sh+='<td>'+s.sF+'</td><td>'+s.rF+'</td><td>'+s.eF+'</td>';
-    s.pen.forEach(function(p){sh+='<td>'+(p*100).toFixed(2)+'%</td>'});
-    sh+='</tr>';
-  });
-  sh+='</tbody></table>';
-  document.getElementById('roSegments').innerHTML=sh;
-}
+        btnConnect.addEventListener('click', async () => {
+            try {
+                log("Requesting Bluetooth Device...");
+                bleDevice = await navigator.bluetooth.requestDevice({ filters: [{ namePrefix: 'PS-' }], optionalServices: [SERVICE_UUID] });
+                log(`Connecting to ${bleDevice.name}...`);
+                bleServer = await bleDevice.gatt.connect();
+                const service = await bleServer.getPrimaryService(SERVICE_UUID);
+                rxCharacteristic = await service.getCharacteristic(RX_UUID);
+                txCharacteristic = await service.getCharacteristic(TX_UUID);
+                txCharacteristic.addEventListener('characteristicvaluechanged', handleIncomingData);
+                await txCharacteristic.startNotifications();
+                btnConnect.disabled = true; btnMeasure.disabled = false;
+                log("Hardware Ready!");
+            } catch (error) { log(`Connection Error: ${error.message}`); }
+        });
 
-function upd(){var R=calc();rkpi(R);rch(R);rtbl(R);rsgT();updateHeaderPills();rro()}
-upd();
-</script>
+        btnMeasure.addEventListener('click', async () => {
+            if (!rxCharacteristic) return;
+            currentDataPoints = []; liveChart.data.labels = []; liveChart.data.datasets[0].data = []; liveChart.update();
+            btnMeasure.disabled = true; btnDownload.disabled = true; statusText.innerText = `Result: Testing...`;
+
+            let delaySecs = parseFloat(document.getElementById('inputDelay').value);
+            let runSecs = parseFloat(document.getElementById('inputRunTime').value);
+            let waitCommand = delaySecs > 0 ? `wait ${delaySecs}\n` : "";
+            const script = `e\nvar p\nvar c\nset_pgstat_chan 0\nset_pgstat_mode 2\ncell_on\n${waitCommand}meas_loop_ca p c 500m 500m ${runSecs}\npck_start\npck_add p\npck_add c\npck_end\nendloop\ncell_off\n\n`;
+
+            try {
+                log("Sending parameters to hardware...");
+                const scriptBytes = new TextEncoder().encode(script);
+                for (let i = 0; i < scriptBytes.length; i += 20) {
+                    await rxCharacteristic.writeValue(scriptBytes.slice(i, i + 20));
+                    await new Promise(resolve => setTimeout(resolve, 20));
+                }
+                log("Test Started!");
+            } catch (error) { log(`Send Error: ${error.message}`); btnMeasure.disabled = false; }
+        });
+
+        function handleIncomingData(event) {
+            dataBuffer += new TextDecoder('utf-8').decode(event.target.value);
+            if (dataBuffer.includes('\n')) {
+                let lines = dataBuffer.split('\n'); dataBuffer = lines.pop(); 
+                for (let line of lines) {
+                    line = line.trim();
+                    if (line === "*") calculateFinalResult();
+                    else if (line.startsWith("P") && line.includes("ba")) {
+                        let baIndex = line.indexOf("ba"), hexStr = line.substring(baIndex + 2, baIndex + 9), prefix = line.charAt(baIndex + 9);
+                        let rawInt = parseInt(hexStr, 16) - 134217728; 
+                        let mult = prefix === 'p' ? 1e-12 : prefix === 'n' ? 1e-9 : prefix === 'u' ? 1e-6 : prefix === 'm' ? 1e-3 : 1;
+                        let uA = (rawInt * mult) * 1e6;
+                        currentDataPoints.push(uA);
+                        liveChart.data.labels.push((currentDataPoints.length * 0.5).toFixed(1));
+                        liveChart.data.datasets[0].data.push(uA); liveChart.update();
+                    }
+                }
+            }
+        }
+
+        function calculateFinalResult() {
+            if (currentDataPoints.length === 0) { log("Error: No data."); btnMeasure.disabled = false; return; }
+            let pointsToTake = Math.min(3, currentDataPoints.length);
+            let averageRaw = currentDataPoints.slice(-pointsToTake).reduce((a, b) => a + b, 0) / pointsToTake;
+            let calFactor = parseFloat(document.getElementById('inputCalFactor').value) || 1.0; 
+            let finalConc = averageRaw * calFactor;
+
+            statusText.innerText = `Result: ${finalConc.toFixed(2)} uM`;
+            btnMeasure.disabled = false; btnDownload.disabled = false;
+            log(`Test Complete! Result: ${finalConc.toFixed(2)} uM`);
+
+            let masterLog = JSON.parse(localStorage.getItem('aminosenseMasterLog')) || [];
+            masterLog.push({
+                id: Date.now(), timestamp: new Date().toLocaleString(),
+                subject: document.getElementById('tbSubjectID').value, condition: document.getElementById('tbCondition').value,
+                variable: document.getElementById('tbVarValue').value, delay_s: document.getElementById('inputDelay').value,
+                cal_factor: calFactor, result_uA: averageRaw.toFixed(4), result_uM: finalConc.toFixed(2), rawData: [...currentDataPoints]
+            });
+            localStorage.setItem('aminosenseMasterLog', JSON.stringify(masterLog));
+
+            const chkAuto = document.getElementById('chkAutoIncrement');
+            if (chkAuto && chkAuto.checked) {
+                let tbVar = document.getElementById('tbVarValue');
+                tbVar.value = (parseFloat(tbVar.value) + parseFloat(document.getElementById('tbStepValue').value)).toString();
+            }
+        }
+
+        // ==========================================
+        // 4. EXPORT & SHARE LOGIC
+        // ==========================================
+        function exportData(csvContent, fileName) {
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const file = new File([blob], fileName, { type: 'text/csv' });
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                navigator.share({ title: 'Aminosense Data Export', text: 'Attached is the latest Aminosense CSV data export.', files: [file] })
+                .catch((error) => console.log('Sharing failed', error));
+            } else {
+                const link = document.createElement("a");
+                link.href = URL.createObjectURL(blob); link.download = fileName;
+                document.body.appendChild(link); link.click(); document.body.removeChild(link);
+            }
+        }
+
+        btnDownload.addEventListener('click', () => {
+            let csv = "Aminosense Raw Data Report\nTimestamp:,\"" + new Date().toLocaleString() + "\"\nTime (s),Current (uA)\n\n";
+            for (let i = 0; i < currentDataPoints.length; i++) csv += `${(i * 0.5).toFixed(1)},${currentDataPoints[i].toFixed(4)}\n`;
+            exportData(csv, `Aminosense_Data_${new Date().getTime()}.csv`);
+        });
+
+        btnDownloadMaster.addEventListener('click', () => {
+            let masterLog = JSON.parse(localStorage.getItem('aminosenseMasterLog')) || [];
+            if (masterLog.length === 0) { alert("Master Log is empty!"); return; }
+            let csv = "Timestamp,SubjectID,Condition,VariableValue,EquilDelay_s,CalFactor,FinalCurrent_uA,FinalConc_uM,Time_s,RawCurrent_uA\n";
+            masterLog.forEach(run => { 
+                let delayStr = run.delay_s !== undefined ? run.delay_s : "N/A", calStr = run.cal_factor !== undefined ? run.cal_factor : "1.0"; 
+                if (run.rawData && run.rawData.length > 0) {
+                    for (let i = 0; i < run.rawData.length; i++) csv += `"${run.timestamp}","${run.subject}","${run.condition}",${run.variable},${delayStr},${calStr},${run.result_uA},${run.result_uM},${(i*0.5).toFixed(1)},${run.rawData[i].toFixed(4)}\n`;
+                } else csv += `"${run.timestamp}","${run.subject}","${run.condition}",${run.variable},${delayStr},${calStr},${run.result_uA},${run.result_uM},,\n`;
+            });
+            exportData(csv, `Aminosense_Detailed_MasterLog_${new Date().getTime()}.csv`);
+        });
+
+        btnClearMaster.addEventListener('click', () => {
+            if (confirm("Permanently delete all saved runs?")) { localStorage.removeItem('aminosenseMasterLog'); refreshDashboard(); }
+        });
+    </script>
 </body>
 </html>
