@@ -805,12 +805,21 @@ footer {
       <h2 class="section-title">Ready to transform your<br>amino acid analysis?</h2>
       <p class="section-desc">Request a demo, get pricing, or speak with our applications team about your specific research needs.</p>
       <div class="cta-form">
-        <input type="email" placeholder="Enter your work email">
-        <button class="btn-primary">Request Demo</button>
+        <input type="email" id="user-email" placeholder="Enter your work email">
+        <button class="btn-primary" onclick="sendDemo()">Request Demo</button>
       </div>
     </div>
   </div>
 </section>
+
+<script>
+function sendDemo() {
+  const email = document.getElementById('user-email').value;
+  const subject = encodeURIComponent('Demo Request — AminoSense');
+  const body = encodeURIComponent('Hi AminoSense team,\n\nI\'d like to request a demo of the AminoSense biosensor.\n\nMy email: ' + email + '\n\nThank you!');
+  window.location.href = 'mailto:matei@aminosense.bio?subject=' + subject + '&body=' + body;
+}
+</script>
 
 <!-- FOOTER -->
 <footer>
