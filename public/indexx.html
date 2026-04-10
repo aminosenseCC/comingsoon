@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AminoSense — Precision Amino Acid Biosensing</title>
+<!-- Segoe UI system font stack -->
+<style>
+:root {
+  --purple: #4B3F73;
+  --crimson: #B20834;
+  --gold: #F2C94C;
+  --white: #FFFFFF;
+  --off-white: #F7F6FA;
+  --light-gray: #E8E6EE;
+  --text-dark: #1A1525;
+  --text-muted: #6B6280;
+  --purple-10: rgba(75, 63, 115, 0.08);
+  --purple-20: rgba(75, 63, 115, 0.15);
+  --crimson-10: rgba(178, 8, 52, 0.08);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+h3, h4, strong, .nav-cta, .hero-badge, .sensor-header-label, .btn-primary, .metric-val, .feature-stat strong, .step-num {
+  font-family: 'Segoe UI Semibold', 'Segoe UI', system-ui, sans-serif;
+  font-weight: 600;
+}
+
+body {
+  font-family: 'Segoe UI Semilight', 'Segoe UI', system-ui, sans-serif;
+  color: var(--text-dark);
+  background: var(--white);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── NAV ─── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--light-gray);
+  transition: box-shadow 0.3s;
+}
+nav.scrolled { box-shadow: 0 2px 24px rgba(75,63,115,0.08); }
+.nav-inner {
+  max-width: 1200px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 40px; height: 72px;
+}
+.nav-logo img { height: 32px; }
+.nav-links { display: flex; gap: 36px; align-items: center; }
+.nav-links a {
+  font-size: 14px; font-weight: 500; color: var(--text-muted);
+  text-decoration: none; letter-spacing: 0.02em;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--purple); }
+.nav-cta {
+  background: var(--crimson); color: var(--white) !important;
+  padding: 10px 24px; border-radius: 6px;
+  font-weight: 600 !important; font-size: 13px !important;
+  letter-spacing: 0.03em; transition: all 0.25s;
+}
+.nav-cta:hover { background: #8f062a; transform: translateY(-1px); }
+.nav-cta-portal { background: var(--purple) !important; }
+.nav-cta-portal:hover { background: #3a3160 !important; }
+
+/* ─── HERO ─── */
+.hero {
+  min-height: 100vh; display: flex; align-items: center;
+  padding: 120px 40px 80px;
+  background:
+    radial-gradient(ellipse 80% 60% at 70% 40%, rgba(75,63,115,0.04) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 20% 80%, rgba(178,8,52,0.03) 0%, transparent 60%),
+    var(--white);
+  position: relative; overflow: hidden;
+}
+.hero::after {
+  content: '';
+  position: absolute; top: 0; right: 0;
+  width: 50%; height: 100%;
+  background:
+    repeating-linear-gradient(90deg, var(--light-gray) 0px, var(--light-gray) 1px, transparent 1px, transparent 60px),
+    repeating-linear-gradient(0deg, var(--light-gray) 0px, var(--light-gray) 1px, transparent 1px, transparent 60px);
+  opacity: 0.35;
+  mask-image: radial-gradient(ellipse 80% 70% at 60% 50%, black 20%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 70% at 60% 50%, black 20%, transparent 70%);
+  pointer-events: none;
+}
+.hero-inner {
+  max-width: 1200px; margin: 0 auto; width: 100%;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;
+  position: relative; z-index: 1;
+}
+.hero-text { max-width: 540px; }
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--purple-10); border: 1px solid var(--purple-20);
+  padding: 6px 16px; border-radius: 100px;
+  font-size: 12px; font-weight: 600; color: var(--purple);
+  letter-spacing: 0.06em; text-transform: uppercase;
+  margin-bottom: 28px;
+  animation: fadeUp 0.8s ease both;
+}
+.hero-badge::before {
+  content: ''; width: 6px; height: 6px;
+  background: var(--crimson); border-radius: 50%;
+}
+.hero h1 {
+  font-family: 'Segoe UI Semilight', 'Segoe UI', system-ui, sans-serif;
+  font-size: clamp(42px, 5vw, 64px);
+  font-weight: 300; line-height: 1.1;
+  color: var(--purple);
+  margin-bottom: 24px;
+  animation: fadeUp 0.8s 0.1s ease both;
+}
+.hero h1 em {
+  font-style: italic; color: var(--crimson);
+}
+.hero-sub {
+  font-size: 17px; line-height: 1.7;
+  color: var(--text-muted); max-width: 440px;
+  margin-bottom: 40px;
+  animation: fadeUp 0.8s 0.2s ease both;
+}
+.hero-actions {
+  display: flex; gap: 16px; align-items: center;
+  animation: fadeUp 0.8s 0.3s ease both;
+}
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--crimson); color: var(--white);
+  padding: 14px 32px; border-radius: 8px;
+  font-size: 15px; font-weight: 600;
+  text-decoration: none; letter-spacing: 0.01em;
+  transition: all 0.25s; border: none; cursor: pointer;
+}
+.btn-primary:hover { background: #8f062a; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(178,8,52,0.2); }
+.btn-secondary {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: transparent; color: var(--purple);
+  padding: 14px 28px; border-radius: 8px;
+  font-size: 15px; font-weight: 500;
+  text-decoration: none; border: 1.5px solid var(--light-gray);
+  transition: all 0.25s;
+}
+.btn-secondary:hover { border-color: var(--purple); background: var(--purple-10); }
+
+/* Hero visual */
+.hero-visual {
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  animation: fadeUp 0.8s 0.4s ease both;
+}
+.sensor-card {
+  background: var(--white);
+  border: 1px solid var(--light-gray);
+  border-radius: 16px; padding: 40px;
+  box-shadow: 0 24px 80px rgba(75,63,115,0.08), 0 4px 16px rgba(75,63,115,0.04);
+  width: 100%; max-width: 440px;
+}
+.sensor-header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 32px;
+}
+.sensor-header-label {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--text-muted);
+  margin-bottom: 4px;
+}
+.sensor-header-value {
+  font-family: 'Segoe UI Semilight', 'Segoe UI', system-ui, sans-serif;
+  font-size: 28px; color: var(--purple);
+}
+.sensor-status {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 600; color: #0D9F6E;
+  background: rgba(13,159,110,0.08); padding: 4px 12px;
+  border-radius: 100px;
+}
+.sensor-status::before {
+  content: ''; width: 6px; height: 6px;
+  background: #0D9F6E; border-radius: 50%;
+  animation: pulse-dot 2s infinite;
+}
+.sensor-graph {
+  height: 120px; margin-bottom: 24px;
+  background:
+    linear-gradient(180deg, rgba(75,63,115,0.03) 0%, transparent 100%);
+  border-radius: 8px; position: relative; overflow: hidden;
+  border: 1px solid rgba(75,63,115,0.06);
+}
+.sensor-graph svg { width: 100%; height: 100%; }
+.sensor-metrics {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+}
+.metric {
+  text-align: center; padding: 12px 8px;
+  background: var(--off-white); border-radius: 8px;
+}
+.metric-val {
+  font-size: 20px; font-weight: 700; color: var(--purple);
+  font-variant-numeric: tabular-nums;
+}
+.metric-label {
+  font-size: 11px; color: var(--text-muted);
+  margin-top: 2px; letter-spacing: 0.02em;
+}
+
+/* ─── SECTION SHARED ─── */
+section { padding: 100px 40px; }
+.section-inner { max-width: 1200px; margin: 0 auto; }
+.section-label {
+  font-size: 12px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--crimson);
+  margin-bottom: 16px;
+}
+.section-title {
+  font-family: 'Segoe UI Semilight', 'Segoe UI', system-ui, sans-serif;
+  font-size: clamp(32px, 3.5vw, 48px);
+  color: var(--purple); line-height: 1.15;
+  font-weight: 300;
+  margin-bottom: 20px;
+}
+.section-desc {
+  font-size: 16px; line-height: 1.7;
+  color: var(--text-muted); max-width: 560px;
+}
+
+/* ─── FEATURES ─── */
+.features { background: var(--off-white); }
+.features-header { text-align: center; margin-bottom: 64px; }
+.features-header .section-desc { margin: 0 auto; }
+.features-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+}
+.feature-card {
+  background: var(--white); border: 1px solid var(--light-gray);
+  border-radius: 12px; padding: 36px;
+  transition: all 0.35s;
+  position: relative; overflow: hidden;
+  display: flex; flex-direction: column;
+}
+.feature-card:hover {
+  border-color: var(--purple-20);
+  box-shadow: 0 12px 40px rgba(75,63,115,0.08);
+  transform: translateY(-4px);
+}
+.feature-icon {
+  width: 48px; height: 48px;
+  background: var(--purple-10); border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 20px;
+}
+.feature-icon svg { width: 24px; height: 24px; }
+.feature-card h3 {
+  font-size: 18px; font-weight: 600; color: var(--purple);
+  margin-bottom: 10px;
+}
+.feature-card p {
+  font-size: 14px; line-height: 1.65; color: var(--text-muted);
+  flex: 1;
+  padding-bottom: 16px;
+}
+.feature-card .feature-stat {
+  margin-top: auto; padding-top: 28px;
+  border-top: 1px solid var(--light-gray);
+  font-size: 12px; color: var(--text-muted);
+  display: flex; align-items: baseline; gap: 6px;
+}
+.feature-stat strong {
+  font-size: 22px; font-weight: 700; color: var(--crimson);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── HOW IT WORKS ─── */
+.how-it-works-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;
+  margin-top: 56px;
+}
+.steps { display: flex; flex-direction: column; gap: 0; }
+.step {
+  display: grid; grid-template-columns: 48px 1fr; gap: 24px;
+  padding: 28px 0; position: relative;
+}
+.step + .step { border-top: 1px solid var(--light-gray); }
+.step-num {
+  width: 48px; height: 48px;
+  background: var(--purple); color: var(--white);
+  border-radius: 50%; font-weight: 700; font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.step h4 { font-size: 16px; font-weight: 600; color: var(--purple); margin-bottom: 6px; }
+.step p { font-size: 14px; line-height: 1.6; color: var(--text-muted); }
+
+.workflow-visual {
+  background: var(--off-white); border: 1px solid var(--light-gray);
+  border-radius: 16px; padding: 48px;
+  display: flex; flex-direction: column; gap: 20px;
+}
+.workflow-bar {
+  display: flex; align-items: center; gap: 12px;
+}
+.workflow-bar-label {
+  font-size: 11px; font-weight: 600; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.06em;
+  width: 80px; flex-shrink: 0; text-align: right;
+}
+.workflow-bar-track {
+  flex: 1; height: 36px; background: var(--white);
+  border: 1px solid var(--light-gray); border-radius: 6px;
+  overflow: hidden; position: relative;
+}
+.workflow-bar-fill {
+  height: 100%; border-radius: 5px;
+  transition: width 1.5s ease;
+}
+.bar-leu .workflow-bar-fill { width: 82%; background: linear-gradient(90deg, var(--purple), #6B5CA5); }
+.bar-val .workflow-bar-fill { width: 65%; background: linear-gradient(90deg, var(--crimson), #D4366A); }
+.bar-gly .workflow-bar-fill { width: 91%; background: linear-gradient(90deg, var(--gold), #E8BC3F); }
+.bar-ala .workflow-bar-fill { width: 47%; background: linear-gradient(90deg, #0D9F6E, #34D399); }
+.workflow-bar-val {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  font-size: 12px; font-weight: 700; color: var(--text-dark);
+}
+
+/* ─── SPECS ─── */
+.specs { background: var(--purple); color: var(--white); }
+.specs .section-label { color: var(--gold); }
+.specs .section-title { color: var(--white); }
+.specs .section-desc { color: rgba(255,255,255,0.65); }
+.specs-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px;
+  margin-top: 56px;
+}
+.spec-item {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px; padding: 32px;
+  transition: all 0.3s;
+}
+.spec-item:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.2);
+}
+.spec-val {
+  font-family: 'Segoe UI Semibold', 'Segoe UI', system-ui, sans-serif;
+  font-size: 36px; color: var(--gold);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.spec-label {
+  font-size: 14px; color: rgba(255,255,255,0.7);
+  line-height: 1.5;
+}
+
+/* ─── CTA ─── */
+.cta-section {
+  background: var(--white); text-align: center;
+}
+.cta-card {
+  max-width: 680px; margin: 0 auto;
+  background: linear-gradient(135deg, var(--off-white) 0%, rgba(178,8,52,0.04) 100%);
+  border: 1px solid var(--light-gray);
+  border-radius: 20px; padding: 64px 48px;
+}
+.cta-card .section-title { margin-bottom: 16px; }
+.cta-card .section-desc { margin: 0 auto 36px; }
+.cta-form {
+  display: flex; gap: 12px; max-width: 440px; margin: 0 auto;
+}
+.cta-form input {
+  flex: 1; padding: 14px 20px; border: 1.5px solid var(--light-gray);
+  border-radius: 8px; font-family: inherit; font-size: 14px;
+  outline: none; transition: border-color 0.2s;
+  background: var(--white);
+}
+.cta-form input:focus { border-color: var(--purple); }
+.cta-form button { white-space: nowrap; }
+
+/* ─── FOOTER ─── */
+footer {
+  background: var(--off-white); padding: 48px 40px;
+  border-top: 1px solid var(--light-gray);
+}
+.footer-inner {
+  max-width: 1200px; margin: 0 auto;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.footer-left img { height: 24px; margin-bottom: 8px; }
+.footer-left p {
+  font-size: 12px; color: var(--text-muted); line-height: 1.5;
+}
+.footer-ruo {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 600; color: var(--crimson);
+  letter-spacing: 0.06em; text-transform: uppercase;
+  background: var(--crimson-10); padding: 4px 12px;
+  border-radius: 4px; margin-top: 8px;
+}
+.footer-links { display: flex; gap: 32px; }
+.footer-links a {
+  font-size: 13px; color: var(--text-muted);
+  text-decoration: none; transition: color 0.2s;
+}
+.footer-links a:hover { color: var(--purple); }
+
+/* ─── ANIMATIONS ─── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.reveal {
+  opacity: 0; transform: translateY(24px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible {
+  opacity: 1; transform: translateY(0);
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 900px) {
+  .hero-inner { grid-template-columns: 1fr; gap: 48px; }
+  .hero-visual { order: -1; }
+  .sensor-card { max-width: 100%; }
+  .features-grid { grid-template-columns: 1fr; }
+  .how-it-works-grid { grid-template-columns: 1fr; gap: 48px; }
+  .specs-grid { grid-template-columns: repeat(2, 1fr); }
+  .nav-links { display: none; }
+  .cta-form { flex-direction: column; }
+  .footer-inner { flex-direction: column; gap: 24px; text-align: center; }
+  .footer-links { flex-wrap: wrap; justify-content: center; }
+}
+@media (max-width: 600px) {
+  section { padding: 64px 20px; }
+  .nav-inner { padding: 0 20px; }
+  .hero { padding: 100px 20px 60px; }
+  .specs-grid { grid-template-columns: 1fr; }
+  .sensor-metrics { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="nav">
+  <div class="nav-inner">
+    <a class="nav-logo" href="#"><img src="Full_Logo.png" alt="AminoSense"></a>
+    <div class="nav-links">
+      <a href="#features">Technology</a>
+      <a href="#how-it-works">Workflow</a>
+      <a href="#specs">Specifications</a>
+      <a href="#contact" class="nav-cta">Request Demo</a>
+      <a href="#portal" class="nav-cta nav-cta-portal">Research Portal</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-text">
+      <div class="hero-badge">For Research Use Only</div>
+      <h1>Amino acid detection,<br><em>reimagined.</em></h1>
+      <p class="hero-sub">The AminoSense sensor delivers real-time amino acid quantification at a fraction of the cost of current methods, using a minimally invasive finger prick.</p>
+      <div class="hero-actions">
+        <a href="#contact" class="btn-primary">
+          Request a Demo
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+        </a>
+        <a href="#specs" class="btn-secondary">View Specs</a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="sensor-card" style="padding:32px;">
+        <!-- Finger prick → Sensor → Reading diagram -->
+        <svg viewBox="0 0 380 300" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+          <defs>
+            <linearGradient id="chipGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#5B4F83"/>
+              <stop offset="100%" stop-color="#3B2F63"/>
+            </linearGradient>
+            <linearGradient id="skinGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#F0D0B8"/>
+              <stop offset="100%" stop-color="#E0BB9E"/>
+            </linearGradient>
+            <linearGradient id="channelGrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#B20834" stop-opacity="0.15"/>
+              <stop offset="100%" stop-color="#B20834" stop-opacity="0.5"/>
+            </linearGradient>
+            <linearGradient id="screenGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#1A1525"/>
+              <stop offset="100%" stop-color="#2A2440"/>
+            </linearGradient>
+            <filter id="chipShadow" x="-4%" y="-4%" width="108%" height="116%">
+              <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#4B3F73" flood-opacity="0.12"/>
+            </filter>
+            <filter id="dropShadow" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#B20834" flood-opacity="0.25"/>
+            </filter>
+          </defs>
+
+          <!-- ═══ STEP 1: FINGER WITH BLOOD DROP ═══ -->
+          <text x="65" y="16" font-size="9" fill="#6B6280" font-family="Segoe UI, system-ui" letter-spacing="0.08em" font-weight="600" text-anchor="middle">SAMPLE</text>
+
+          <!-- Finger (pointing down, straight sides) -->
+          <g transform="translate(65, 24)">
+            <!-- Finger body - straight rectangular sides, small rounded tip -->
+            <path d="M-12,0 L-12,42 C-12,48 -7,52 0,52 C7,52 12,48 12,42 L12,0 Z" fill="url(#skinGrad)" stroke="#D4A882" stroke-width="0.8"/>
+            <!-- Fingernail - original size, positioned low near fingertip -->
+            <rect x="-8" y="30" width="16" height="18" rx="8" fill="#F5E0D0" stroke="#D4A882" stroke-width="0.5"/>
+            <!-- Cuticle line -->
+            <path d="M-6,34 C-2,32 2,32 6,34" fill="none" stroke="#D4A882" stroke-width="0.5" opacity="0.5"/>
+            <!-- Blood drop falling from fingertip -->
+            <path d="M0,52 C0,52 -6,64 -6,70 C-6,73.3 -3.3,76 0,76 C3.3,76 6,73.3 6,70 C6,64 0,52 0,52Z" fill="#B20834" filter="url(#dropShadow)">
+              <animate attributeName="opacity" values="0.9;1;0.9" dur="2s" repeatCount="indefinite"/>
+            </path>
+            <path d="M0,54 C0,54 -3,62 -3,66 C-3,67 -2,67.5 -1,67.5" fill="none" stroke="#fff" stroke-width="0.7" opacity="0.35"/>
+          </g>
+
+          <!-- Dashed line from drop to sensor -->
+          <line x1="65" y1="102" x2="65" y2="118" stroke="#B20834" stroke-width="1.2" stroke-dasharray="3,3" opacity="0.35"/>
+
+          <!-- ═══ STEP 2: SENSOR CARTRIDGE ═══ -->
+          <text x="190" y="112" font-size="9" fill="#6B6280" font-family="Segoe UI, system-ui" letter-spacing="0.08em" font-weight="600" text-anchor="middle">SENSOR</text>
+
+          <!-- Cartridge body -->
+          <rect x="30" y="122" width="320" height="68" rx="10" fill="url(#chipGrad)" filter="url(#chipShadow)"/>
+
+          <!-- Sample inlet notch -->
+          <rect x="55" y="118" width="20" height="8" rx="3" fill="#3B2F63" stroke="#5B4F83" stroke-width="0.5"/>
+
+          <!-- Chip label -->
+          <text x="190" y="141" font-size="8.5" fill="rgba(255,255,255,0.45)" font-family="Segoe UI, system-ui" text-anchor="middle" letter-spacing="0.12em" font-weight="600">AMINOSENSE CARTRIDGE</text>
+
+          <!-- Single detection channel -->
+          <rect x="50" y="150" width="280" height="26" rx="4" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+          <rect x="50" y="150" width="200" height="26" rx="4" fill="url(#channelGrad)"/>
+          <!-- Binding site indicators along channel -->
+          <circle cx="110" cy="163" r="2.5" fill="#F2C94C" opacity="0.95"/>
+          <circle cx="125" cy="163" r="2.5" fill="#F2C94C" opacity="0.75"/>
+          <circle cx="140" cy="163" r="2.5" fill="#F2C94C" opacity="0.55"/>
+          <circle cx="155" cy="163" r="2.5" fill="#F2C94C" opacity="0.35"/>
+          <circle cx="170" cy="163" r="2.5" fill="#F2C94C" opacity="0.2"/>
+
+          <!-- Connector pins left -->
+          <rect x="20" y="138" width="10" height="5" rx="1" fill="#F2C94C" opacity="0.45"/>
+          <rect x="20" y="150" width="10" height="5" rx="1" fill="#F2C94C" opacity="0.45"/>
+          <rect x="20" y="162" width="10" height="5" rx="1" fill="#F2C94C" opacity="0.45"/>
+          <rect x="20" y="174" width="10" height="5" rx="1" fill="#F2C94C" opacity="0.45"/>
+
+          <!-- Connector pins right -->
+          <rect x="350" y="138" width="10" height="5" rx="1" fill="#F2C94C" opacity="0.45"/>
+          <rect x="350" y="150" width="10" height="5" rx="1" fill="#F2C94C" opacity="0.45"/>
+          <rect x="350" y="162" width="10" height="5" rx="1" fill="#F2C94C" opacity="0.45"/>
+          <rect x="350" y="174" width="10" height="5" rx="1" fill="#F2C94C" opacity="0.45"/>
+
+          <!-- ═══ Arrow down to reading ═══ -->
+          <line x1="190" y1="194" x2="190" y2="218" stroke="#F2C94C" stroke-width="1.2" stroke-dasharray="3,3" opacity="0.45"/>
+          <polygon points="185,218 195,218 190,225" fill="#F2C94C" opacity="0.55"/>
+
+          <!-- ═══ STEP 3: READING / DISPLAY ═══ -->
+          <text x="190" y="236" font-size="9" fill="#6B6280" font-family="Segoe UI, system-ui" letter-spacing="0.08em" font-weight="600" text-anchor="middle">READING</text>
+
+          <!-- Reader display -->
+          <rect x="90" y="244" width="200" height="48" rx="8" fill="url(#screenGrad)" stroke="rgba(75,63,115,0.3)" stroke-width="1"/>
+
+          <!-- Display content - concentration readout -->
+          <text x="110" y="264" font-size="9" fill="rgba(255,255,255,0.5)" font-family="Segoe UI, system-ui" letter-spacing="0.04em">CONC</text>
+          <text x="110" y="282" font-size="16" fill="#F2C94C" font-family="Segoe UI Semibold, Segoe UI, system-ui" font-weight="600">142 μM</text>
+
+          <!-- Mini signal bar -->
+          <rect x="200" y="258" width="72" height="4" rx="2" fill="rgba(255,255,255,0.1)"/>
+          <rect x="200" y="258" width="52" height="4" rx="2" fill="#F2C94C" opacity="0.7"/>
+          <text x="200" y="254" font-size="7" fill="rgba(255,255,255,0.4)" font-family="Segoe UI, system-ui">SIGNAL</text>
+
+          <!-- Status indicator -->
+          <circle cx="210" cy="280" r="3" fill="#0D9F6E">
+            <animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite"/>
+          </circle>
+          <text x="218" y="283" font-size="8" fill="#0D9F6E" font-family="Segoe UI, system-ui" font-weight="600">READY</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="section-inner">
+    <div class="features-header reveal">
+      <div class="section-label">Core Technology</div>
+      <h2 class="section-title">Engineered for precision</h2>
+      <p class="section-desc">Our proprietary biosensor platform combines a novel enzyme with custom electrochemistry for rapid, noise-free detection of target amino acids.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card reveal">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#4B3F73" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4m10-10h-4M6 12H2m15.07-7.07-2.83 2.83M9.76 14.24l-2.83 2.83m11.14 0-2.83-2.83M9.76 9.76 6.93 6.93"/></svg>
+        </div>
+        <h3>Targeted Detection</h3>
+        <p>Purpose-built biosensor delivers focused, high-confidence quantification without the complexity of broad-panel approaches.</p>
+        <div class="feature-stat"><strong>2</strong> analytes, with more on the way</div>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#4B3F73" stroke-width="1.5"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        </div>
+        <h3>Rapid Time-to-Result</h3>
+        <p>From sample introduction to quantitative readout in under three minutes. Designed to integrate seamlessly into high-throughput research workflows.</p>
+        <div class="feature-stat"><strong>&lt;3</strong> minutes per sample</div>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#4B3F73" stroke-width="1.5"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+        </div>
+        <h3>Research-Grade Sensitivity</h3>
+        <p>Achieve detection across physiologically relevant concentration ranges, with exceptional signal-to-noise characteristics.</p>
+        <div class="feature-stat"><strong>X μM</strong> limit of detection</div>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#4B3F73" stroke-width="1.5"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/><path d="M9 2v2m6-2v2M9 20v2m6-2v2M2 9h2m-2 6h2M20 9h2m-2 6h2"/></svg>
+        </div>
+        <h3>Minimal Sample Volume</h3>
+        <p>Requires only 10 μL of sample per assay, allowing for minimally invasive finger prick rather than full blood draw.</p>
+        <div class="feature-stat"><strong>10 μL</strong> sample volume</div>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#4B3F73" stroke-width="1.5"><path d="M12 20V10m0 0 4 4m-4-4-4 4M4 4h16"/></svg>
+        </div>
+        <h3>Software Integration</h3>
+        <p>Export data in standard formats (CSV, JSON) through our custom research portal. Analyze data, generate figures, and keep track of resource usage all in one convenient portal.</p>
+        <div class="feature-stat"><strong>Free</strong> Portal Access</div>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#4B3F73" stroke-width="1.5"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        </div>
+        <h3>Validated Performance</h3>
+        <p>Cross-validated against HPLC and LC-MS/MS reference methods. Comprehensive analytical validation data package available on request.</p>
+        <div class="feature-stat"><strong>R² &gt; 0.99</strong> correlation</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how-it-works">
+  <div class="section-inner">
+    <div class="section-label reveal">Workflow</div>
+    <h2 class="section-title reveal">Sample to insight in<br>three simple steps</h2>
+    <div class="how-it-works-grid">
+      <div class="steps">
+        <div class="step reveal">
+          <div class="step-num">1</div>
+          <div>
+            <h4>Prepare &amp; Load</h4>
+            <p>Add 10 μL of your sample — serum, cell lysate, media, or buffer — directly onto the AminoSense cartridge. No derivatization or pre-treatment required.</p>
+          </div>
+        </div>
+        <div class="step reveal">
+          <div class="step-num">2</div>
+          <div>
+            <h4>Measure</h4>
+            <p>Insert the cartridge into the reader. The biosensor delivers a readout in as little as 30 seconds.</p>
+          </div>
+        </div>
+        <div class="step reveal">
+          <div class="step-num">3</div>
+          <div>
+            <h4>Analyze &amp; Export</h4>
+            <p>View concentration instantly on the integrated display. Export data to our research portal using USB-C or Bluetooth.</p>
+          </div>
+        </div>
+      </div>
+      <div class="workflow-visual reveal">
+        <div style="font-size:12px;font-weight:600;color:var(--text-muted);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:12px;">Signal Response Curve</div>
+        <svg viewBox="0 0 400 240" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+          <defs>
+            <linearGradient id="curvefill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#4B3F73" stop-opacity="0.14"/>
+              <stop offset="100%" stop-color="#4B3F73" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Axes -->
+          <line x1="55" y1="15" x2="55" y2="195" stroke="#E8E6EE" stroke-width="1"/>
+          <line x1="55" y1="195" x2="385" y2="195" stroke="#E8E6EE" stroke-width="1"/>
+
+          <!-- Y-axis gridlines -->
+          <line x1="55" y1="150" x2="385" y2="150" stroke="#E8E6EE" stroke-width="0.5" stroke-dasharray="4,4"/>
+          <line x1="55" y1="105" x2="385" y2="105" stroke="#E8E6EE" stroke-width="0.5" stroke-dasharray="4,4"/>
+          <line x1="55" y1="60" x2="385" y2="60" stroke="#E8E6EE" stroke-width="0.5" stroke-dasharray="4,4"/>
+
+          <!-- Y-axis labels (Current) -->
+          <text x="48" y="198" font-size="9" fill="#6B6280" font-family="Segoe UI, system-ui" text-anchor="end">0</text>
+          <text x="48" y="153" font-size="9" fill="#6B6280" font-family="Segoe UI, system-ui" text-anchor="end">50</text>
+          <text x="48" y="108" font-size="9" fill="#6B6280" font-family="Segoe UI, system-ui" text-anchor="end">100</text>
+          <text x="48" y="63" font-size="9" fill="#6B6280" font-family="Segoe UI, system-ui" text-anchor="end">150</text>
+          <text x="48" y="22" font-size="9" fill="#6B6280" font-family="Segoe UI, system-ui" text-anchor="end">200</text>
+
+          <!-- X-axis labels (Time in seconds, 0–60) -->
+          <text x="55" y="210" font-size="9" fill="#6B6280" font-family="Segoe UI, system-ui" text-anchor="middle">0</text>
+          <text x="110" y="210" font-size="9" fill="#6B6280" font-family="Segoe UI, system-ui" text-anchor="middle">10</text>
+          <text x="165" y="210" font-size="9" fill="#6B6280" font-family="Segoe UI, system-ui" text-anchor="middle">20</text>
+          <text x="220" y="210" font-size="9" fill="#6B6280" font-family="Segoe UI, system-ui" text-anchor="middle">30</text>
+          <text x="275" y="210" font-size="9" fill="#6B6280" font-family="Segoe UI, system-ui" text-anchor="middle">40</text>
+          <text x="330" y="210" font-size="9" fill="#6B6280" font-family="Segoe UI, system-ui" text-anchor="middle">50</text>
+          <text x="385" y="210" font-size="9" fill="#6B6280" font-family="Segoe UI, system-ui" text-anchor="middle">60</text>
+
+          <!-- X-axis tick marks -->
+          <line x1="110" y1="195" x2="110" y2="199" stroke="#E8E6EE" stroke-width="1"/>
+          <line x1="165" y1="195" x2="165" y2="199" stroke="#E8E6EE" stroke-width="1"/>
+          <line x1="220" y1="195" x2="220" y2="199" stroke="#E8E6EE" stroke-width="1"/>
+          <line x1="275" y1="195" x2="275" y2="199" stroke="#E8E6EE" stroke-width="1"/>
+          <line x1="330" y1="195" x2="330" y2="199" stroke="#E8E6EE" stroke-width="1"/>
+          <line x1="385" y1="195" x2="385" y2="199" stroke="#E8E6EE" stroke-width="1"/>
+
+          <!-- Axis titles -->
+          <text x="220" y="232" font-size="10" fill="#6B6280" font-family="Segoe UI, system-ui" text-anchor="middle">Time (s)</text>
+          <text transform="rotate(-90)" x="-105" y="16" font-size="10" fill="#6B6280" font-family="Segoe UI, system-ui" text-anchor="middle">Current (nA)</text>
+
+          <!-- Single curve: fast rise 0–30s, levels off 30–60s -->
+          <!-- x=55 is 0s, x=220 is 30s, x=385 is 60s -->
+          <!-- y=195 is 0 nA, y=40 is ~172 nA plateau -->
+          <path d="M55,194 C70,190 85,175 100,150 C115,120 135,85 160,62 C180,48 200,42 220,40 C245,39 270,39 295,39 C320,39 350,39 385,39" fill="none" stroke="#4B3F73" stroke-width="2.5" stroke-linecap="round"/>
+          <!-- Fill under curve -->
+          <path d="M55,194 C70,190 85,175 100,150 C115,120 135,85 160,62 C180,48 200,42 220,40 C245,39 270,39 295,39 C320,39 350,39 385,39 L385,195 L55,195 Z" fill="url(#curvefill)"/>
+
+          <!-- Single dot at the plateau (~30s mark) -->
+          <circle cx="220" cy="40" r="4.5" fill="#B20834" stroke="#fff" stroke-width="2"/>
+
+          <!-- Steady-state dashed line from dot -->
+          <line x1="220" y1="40" x2="220" y2="195" stroke="#B20834" stroke-width="1" stroke-dasharray="3,4" opacity="0.3"/>
+
+          <!-- Label at the dot -->
+          <text x="232" y="33" font-size="9" fill="#B20834" font-family="Segoe UI Semibold, Segoe UI, system-ui" font-weight="600">Steady state</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SPECS -->
+<section class="specs" id="specs">
+  <div class="section-inner">
+    <div class="section-label reveal">Technical Specifications</div>
+    <h2 class="section-title reveal">Built for rigorous research</h2>
+    <p class="section-desc reveal">Every parameter engineered to meet the demands of quantitative amino acid analysis.</p>
+    <div class="specs-grid">
+      <div class="spec-item reveal">
+        <div class="spec-val">X μM</div>
+        <div class="spec-label">Limit of Detection<br>(per analyte)</div>
+      </div>
+      <div class="spec-item reveal">
+        <div class="spec-val">0.5–500</div>
+        <div class="spec-label">Dynamic Range<br>(μM)</div>
+      </div>
+      <div class="spec-item reveal">
+        <div class="spec-val">&lt;5%</div>
+        <div class="spec-label">Coefficient of<br>Variation (CV)</div>
+      </div>
+      <div class="spec-item reveal">
+        <div class="spec-val">10 μL</div>
+        <div class="spec-label">Minimum Sample<br>Volume</div>
+      </div>
+      <div class="spec-item reveal">
+        <div class="spec-val">&lt;3 min</div>
+        <div class="spec-label">Time to<br>Result</div>
+      </div>
+      <div class="spec-item reveal">
+        <div class="spec-val">2</div>
+        <div class="spec-label">Target<br>Analytes</div>
+      </div>
+      <div class="spec-item reveal">
+        <div class="spec-val">USB-C</div>
+        <div class="spec-label">Data Export<br>Interface</div>
+      </div>
+      <div class="spec-item reveal">
+        <div class="spec-val">2–8°C</div>
+        <div class="spec-label">Cartridge Storage<br>Temperature</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="contact">
+  <div class="section-inner">
+    <div class="cta-card reveal">
+      <div class="section-label">Get Started</div>
+      <h2 class="section-title">Ready to transform your<br>amino acid analysis?</h2>
+      <p class="section-desc">Request a demo, get pricing, or speak with our applications team about your specific research needs.</p>
+      <div class="cta-form">
+        <input type="email" placeholder="Enter your work email">
+        <button class="btn-primary">Request Demo</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-left">
+      <img src="Logo.png" alt="AminoSense">
+      <p>Precision biosensing for amino acid research.</p>
+      <div class="footer-ruo">For Research Use Only — Not for diagnostic use</div>
+    </div>
+    <div class="footer-links">
+      <a href="#features">Technology</a>
+      <a href="#how-it-works">Workflow</a>
+      <a href="#specs">Specifications</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </div>
+  <div style="max-width:1200px;margin:32px auto 0;padding-top:24px;border-top:1px solid var(--light-gray);font-size:11px;color:var(--text-muted);text-align:center;">
+    &copy; 2026 AminoSense, Inc. All rights reserved. For Research Use Only. Not for use in diagnostic procedures.
+  </div>
+</footer>
+
+<script>
+// Nav scroll effect
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 20);
+});
+
+// Scroll reveal
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) {
+      setTimeout(() => entry.target.classList.add('visible'), i * 80);
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+reveals.forEach(el => observer.observe(el));
+
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+</script>
+</body>
+</html>
