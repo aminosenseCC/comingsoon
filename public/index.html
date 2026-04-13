@@ -362,7 +362,7 @@ section { padding: 100px 40px; }
 
 /* ─── CTA ─── */
 .cta-section {
-  background: var(--white); text-align: center;
+  background: var(--off-white); text-align: center;
 }
 .cta-card {
   max-width: 680px; margin: 0 auto;
@@ -411,6 +411,70 @@ footer {
 }
 .footer-links a:hover { color: var(--purple); }
 
+/* ─── TEAM ─── */
+.team { background: var(--white); }
+.team-header { text-align: center; margin-bottom: 56px; }
+.team-header .section-desc { margin: 0 auto; }
+.team-sub-label {
+  font-size: 13px; font-weight: 600; color: var(--purple);
+  letter-spacing: 0.06em; text-transform: uppercase;
+  margin-bottom: 28px; margin-top: 64px;
+  text-align: center;
+}
+.team-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px;
+}
+.team-card {
+  text-align: center; padding: 28px 16px;
+  border-radius: 12px; border: 1px solid var(--light-gray);
+  background: var(--white);
+  transition: all 0.3s;
+}
+.team-card:hover {
+  border-color: var(--purple-20);
+  box-shadow: 0 8px 32px rgba(75,63,115,0.08);
+  transform: translateY(-3px);
+}
+.team-avatar {
+  width: 80px; height: 80px;
+  border-radius: 50%; margin: 0 auto 16px;
+  background: var(--off-white);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; color: var(--purple); font-weight: 600;
+  border: 2px solid var(--light-gray);
+}
+.team-card h4 {
+  font-size: 15px; font-weight: 600; color: var(--purple);
+  margin-bottom: 4px;
+}
+.team-card .team-role {
+  font-size: 13px; color: var(--crimson); font-weight: 500;
+  margin-bottom: 8px;
+}
+.team-card .team-bio {
+  font-size: 12px; color: var(--text-muted); line-height: 1.55;
+}
+.advisor-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+}
+.advisor-card {
+  text-align: center; padding: 24px 16px;
+  border-radius: 12px; border: 1px solid var(--light-gray);
+  background: var(--off-white);
+  transition: all 0.3s;
+}
+.advisor-card:hover {
+  border-color: var(--purple-20);
+  box-shadow: 0 8px 32px rgba(75,63,115,0.08);
+  transform: translateY(-3px);
+}
+.advisor-card .team-avatar {
+  width: 64px; height: 64px; font-size: 22px;
+}
+.advisor-card h4 { font-size: 14px; }
+.advisor-card .team-role { font-size: 12px; }
+.advisor-card .team-bio { font-size: 11px; }
+
 /* ─── ANIMATIONS ─── */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(20px); }
@@ -437,6 +501,8 @@ footer {
   .features-grid { grid-template-columns: 1fr; }
   .how-it-works-grid { grid-template-columns: 1fr; gap: 48px; }
   .specs-grid { grid-template-columns: repeat(2, 1fr); }
+  .team-grid { grid-template-columns: repeat(2, 1fr); }
+  .advisor-grid { grid-template-columns: repeat(2, 1fr); }
   .nav-links { display: none; }
   .cta-form { flex-direction: column; }
   .footer-inner { flex-direction: column; gap: 24px; text-align: center; }
@@ -461,6 +527,7 @@ footer {
       <a href="#features">Technology</a>
       <a href="#how-it-works">Workflow</a>
       <a href="#specs">Specifications</a>
+      <a href="#team">Team</a>
       <a href="#contact" class="nav-cta">Request Demo</a>
       <a href="portal.html" class="nav-cta nav-cta-portal">Research Portal</a>
     </div>
@@ -797,6 +864,109 @@ footer {
   </div>
 </section>
 
+<!-- TEAM -->
+<section class="team" id="team">
+  <div class="section-inner">
+    <div class="team-header reveal">
+      <div class="section-label">Our People</div>
+      <h2 class="section-title">The team behind AminoSense</h2>
+      <p class="section-desc">A multidisciplinary team of scientists and engineers building the future of amino acid diagnostics.</p>
+    </div>
+
+    <div class="team-grid">
+      <div class="team-card reveal">
+        <div class="team-avatar">MC</div>
+        <h4>Member Name</h4>
+        <div class="team-role">Co-Founder &amp; CEO</div>
+        <div class="team-bio">Brief bio or background description goes here.</div>
+      </div>
+      <div class="team-card reveal">
+        <div class="team-avatar">AB</div>
+        <h4>Member Name</h4>
+        <div class="team-role">Co-Founder &amp; CTO</div>
+        <div class="team-bio">Brief bio or background description goes here.</div>
+      </div>
+      <div class="team-card reveal">
+        <div class="team-avatar">CD</div>
+        <h4>Member Name</h4>
+        <div class="team-role">Head of Engineering</div>
+        <div class="team-bio">Brief bio or background description goes here.</div>
+      </div>
+      <div class="team-card reveal">
+        <div class="team-avatar">EF</div>
+        <h4>Member Name</h4>
+        <div class="team-role">Lead Biochemist</div>
+        <div class="team-bio">Brief bio or background description goes here.</div>
+      </div>
+      <div class="team-card reveal">
+        <div class="team-avatar">GH</div>
+        <h4>Member Name</h4>
+        <div class="team-role">Electrochemistry Lead</div>
+        <div class="team-bio">Brief bio or background description goes here.</div>
+      </div>
+      <div class="team-card reveal">
+        <div class="team-avatar">IJ</div>
+        <h4>Member Name</h4>
+        <div class="team-role">Software Engineer</div>
+        <div class="team-bio">Brief bio or background description goes here.</div>
+      </div>
+      <div class="team-card reveal">
+        <div class="team-avatar">KL</div>
+        <h4>Member Name</h4>
+        <div class="team-role">Research Scientist</div>
+        <div class="team-bio">Brief bio or background description goes here.</div>
+      </div>
+      <div class="team-card reveal">
+        <div class="team-avatar">MN</div>
+        <h4>Member Name</h4>
+        <div class="team-role">Operations Lead</div>
+        <div class="team-bio">Brief bio or background description goes here.</div>
+      </div>
+    </div>
+
+    <div class="team-sub-label reveal">Advisors</div>
+
+    <div class="advisor-grid">
+      <div class="advisor-card reveal">
+        <div class="team-avatar">OP</div>
+        <h4>Advisor Name</h4>
+        <div class="team-role">Professor of Biochemistry</div>
+        <div class="team-bio">University affiliation and expertise area.</div>
+      </div>
+      <div class="advisor-card reveal">
+        <div class="team-avatar">QR</div>
+        <h4>Advisor Name</h4>
+        <div class="team-role">Biosensor Industry Expert</div>
+        <div class="team-bio">Industry background and relevant experience.</div>
+      </div>
+      <div class="advisor-card reveal">
+        <div class="team-avatar">ST</div>
+        <h4>Advisor Name</h4>
+        <div class="team-role">Clinical Research Advisor</div>
+        <div class="team-bio">Clinical research background and affiliations.</div>
+      </div>
+      <div class="advisor-card reveal">
+        <div class="team-avatar">UV</div>
+        <h4>Advisor Name</h4>
+        <div class="team-role">Regulatory &amp; QA Advisor</div>
+        <div class="team-bio">Regulatory affairs expertise and background.</div>
+      </div>
+      <div class="advisor-card reveal">
+        <div class="team-avatar">WX</div>
+        <h4>Advisor Name</h4>
+        <div class="team-role">Business Strategy Advisor</div>
+        <div class="team-bio">Startup and commercialization experience.</div>
+      </div>
+      <div class="advisor-card reveal">
+        <div class="team-avatar">YZ</div>
+        <h4>Advisor Name</h4>
+        <div class="team-role">Electrochemistry Advisor</div>
+        <div class="team-bio">Academic and industry electrochemistry background.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- CTA -->
 <section class="cta-section" id="contact">
   <div class="section-inner">
@@ -804,12 +974,12 @@ footer {
       <div class="section-label">Get Started</div>
       <h2 class="section-title">Ready to transform your<br>amino acid analysis?</h2>
       <p class="section-desc">Request a demo, get pricing, or speak with our applications team about your specific research needs.</p>
-      <a href="mailto:matei@aminosense.bio?subject=Demo%20Request%20%E2%80%94%20AminoSense" class="btn-primary" style="margin-top:12px;">Contact Us</a>
+      <a href="/cdn-cgi/l/email-protection#acc1cdd8c9c5eccdc1c5c2c3dfc9c2dfc982cec5c393dfd9cec6c9cfd891e8c9c1c3899e9cfec9ddd9c9dfd8899e9c89e99e89949c899598899e9cedc1c5c2c3ffc9c2dfc9" class="btn-primary" style="margin-top:12px;">Contact Us</a>
     </div>
   </div>
 </section>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 function sendDemo() {
   const email = document.getElementById('user-email').value;
   const subject = encodeURIComponent('Demo Request — AminoSense');
@@ -830,6 +1000,7 @@ function sendDemo() {
       <a href="#features">Technology</a>
       <a href="#how-it-works">Workflow</a>
       <a href="#specs">Specifications</a>
+      <a href="#team">Team</a>
       <a href="#contact">Contact</a>
     </div>
   </div>
@@ -860,9 +1031,19 @@ reveals.forEach(el => observer.observe(el));
 // Smooth scroll
 document.querySelectorAll('a[href^="#"]').forEach(a => {
   a.addEventListener('click', e => {
-    e.preventDefault();
-    const target = document.querySelector(a.getAttribute('href'));
-    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const href = a.getAttribute('href');
+    if (href === '#' || href === '#top') {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    const target = document.querySelector(href);
+    if (target) {
+      e.preventDefault();
+      const navHeight = document.getElementById('nav').offsetHeight;
+      const top = target.getBoundingClientRect().top + window.pageYOffset - navHeight;
+      window.scrollTo({ top: top, behavior: 'smooth' });
+    }
   });
 });
 </script>
