@@ -43,9 +43,12 @@ body {
 .logo {
   margin-bottom: 48px;
   animation: fadeDown 0.8s ease both;
+  display: flex;
+  justify-content: center;
 }
 .logo img {
-  height: 36px;
+  height: auto;
+  width: 33vw;
 }
 
 /* Tagline */
@@ -176,11 +179,6 @@ h1 em {
 }
 .landing-footer a:hover {
   color: var(--crimson);
-}
-
-.logo img {
-  height: auto;
-  width: 33vw;
 }
   
 @keyframes fadeDown {
