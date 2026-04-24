@@ -13,8 +13,6 @@
   --crimson: #B20834;
   --gold: #F2C94C;
   --white: #FFFFFF;
-  --off-white: #F7F6FA;
-  --gray: #E8E6EE;
   --text-muted: #6B6280;
 }
 
@@ -28,8 +26,15 @@ body {
   align-items: center;
   justify-content: center;
   padding: 40px 24px;
-  overflow-x: hidden;
-  scrollbar-gutter: stable both-edges;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Molecule canvas */
+#molecules {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
 }
 
 .landing {
@@ -40,7 +45,6 @@ body {
   z-index: 1;
 }
 
-/* Logo */
 .logo {
   margin-bottom: 48px;
   animation: fadeDown 0.8s ease both;
@@ -49,19 +53,18 @@ body {
 }
 .logo img {
   height: auto;
-  width: 75vw;
+  width: 65vw;
 }
 
-/* Tagline */
 h1 {
   font-family: 'Segoe UI Semilight', 'Segoe UI', system-ui, sans-serif;
   font-weight: 300;
-  font-size: clamp(36px, 5vw, 56px);
+  font-size: clamp(32px, 5vw, 48px);
   line-height: 1.15;
   color: var(--purple);
   margin-bottom: 20px;
-  animation: fadeDown 0.8s 0.1s ease both;
   white-space: nowrap;
+  animation: fadeDown 0.8s 0.1s ease both;
 }
 h1 em {
   font-style: italic;
@@ -69,25 +72,15 @@ h1 em {
 }
 
 .subtitle {
-  font-size: 20px;
+  font-size: 18px;
   line-height: 1.6;
   color: var(--purple);
   opacity: 0.7;
   margin-bottom: 16px;
-  animation: fadeDown 0.8s 0.2s ease both;
   white-space: nowrap;
+  animation: fadeDown 0.8s 0.2s ease both;
 }
 
-/* Divider */
-.divider {
-  width: 48px;
-  height: 2px;
-  background: var(--gold);
-  margin: 32px auto;
-  animation: fadeDown 0.8s 0.25s ease both;
-}
-
-/* CTA */
 .cta {
   display: flex;
   gap: 12px;
@@ -119,17 +112,7 @@ h1 em {
   transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(178,8,52,0.2);
 }
-.btn-secondary {
-  background: transparent;
-  color: var(--purple);
-  border: 1.5px solid var(--gray);
-}
-.btn-secondary:hover {
-  border-color: var(--purple);
-  background: rgba(75,63,115,0.05);
-}
 
-/* RUO badge */
 .ruo {
   display: inline-flex;
   align-items: center;
@@ -143,37 +126,35 @@ h1 em {
   background: rgba(178,8,52,0.06);
   padding: 5px 14px;
   border-radius: 4px;
-  animation: fadeDown 0.8s 0.5s ease both;
+  animation: fadeDown 0.8s 0.4s ease both;
 }
 
-/* Footer */
 .landing-footer {
   margin-top: 64px;
   font-size: 11px;
   color: var(--text-muted);
-  animation: fadeDown 0.8s 0.55s ease both;
+  animation: fadeDown 0.8s 0.45s ease both;
 }
-.landing-footer a {
-  color: var(--purple);
-  text-decoration: none;
-}
-.landing-footer a:hover {
-  color: var(--crimson);
-}
-  
+
 @keyframes fadeDown {
   from { opacity: 0; transform: translateY(-16px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
+@media (max-width: 768px) {
+  h1 { white-space: normal; }
+  .subtitle { white-space: normal; }
+  .logo img { width: 70vw; }
+}
 @media (max-width: 480px) {
-  .stats { gap: 24px; }
-  .stat-value { font-size: 20px; }
   .cta { flex-direction: column; align-items: center; }
+  .logo img { width: 80vw; }
 }
 </style>
 </head>
 <body>
+
+<canvas id="molecules"></canvas>
 
 <div class="landing">
   <div class="logo">
@@ -194,6 +175,157 @@ h1 em {
     <p>&copy; 2026 AminoSense, Inc.</p>
   </div>
 </div>
+
+<script>
+const canvas = document.getElementById('molecules');
+const ctx = canvas.getContext('2d');
+let w, h;
+let mouse = { x: -1000, y: -1000 };
+
+function resize() {
+  w = canvas.width = window.innerWidth;
+  h = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+window.addEventListener('mouseleave', () => { mouse.x = -1000; mouse.y = -1000; });
+
+const colors = [
+  { r: 75, g: 63, b: 115 },   // purple
+  { r: 178, g: 8, b: 52 },     // crimson
+  { r: 242, g: 201, b: 76 },   // gold
+];
+
+class Node {
+  constructor() {
+    this.reset(true);
+  }
+
+  reset(initial) {
+    if (initial) {
+      // Distribute evenly across the entire canvas
+      this.x = Math.random() * w;
+      this.y = Math.random() * h;
+    } else {
+      // Respawn from a random edge
+      const edge = Math.floor(Math.random() * 4);
+      if (edge === 0) { this.x = -20; this.y = Math.random() * h; }
+      else if (edge === 1) { this.x = w + 20; this.y = Math.random() * h; }
+      else if (edge === 2) { this.x = Math.random() * w; this.y = -20; }
+      else { this.x = Math.random() * w; this.y = h + 20; }
+    }
+    this.radius = 2 + Math.random() * 4;
+    // Random direction, very slow drift
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 0.05 + Math.random() * 0.1;
+    this.vx = Math.cos(angle) * speed;
+    this.vy = Math.sin(angle) * speed;
+    this.baseAlpha = 0.06 + Math.random() * 0.12;
+    this.alpha = this.baseAlpha;
+    this.color = colors[Math.floor(Math.random() * colors.length)];
+    this.pulseSpeed = 0.005 + Math.random() * 0.015;
+    this.pulseOffset = Math.random() * Math.PI * 2;
+  }
+
+  update(t) {
+    this.x += this.vx;
+    this.y += this.vy;
+
+    // Mouse repulsion
+    const dx = this.x - mouse.x;
+    const dy = this.y - mouse.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist < 150) {
+      const force = (150 - dist) / 150 * 0.8;
+      this.x += (dx / dist) * force;
+      this.y += (dy / dist) * force;
+    }
+
+    // Gentle pulse
+    this.alpha = this.baseAlpha + Math.sin(t * this.pulseSpeed + this.pulseOffset) * 0.03;
+
+    // Reset when off screen
+    if (this.x < -60 || this.x > w + 60 || this.y < -60 || this.y > h + 60) {
+      this.reset(false);
+    }
+  }
+
+  draw() {
+    const { r, g, b } = this.color;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(${r},${g},${b},${this.alpha * 1.5})`;
+    ctx.fill();
+
+    // Soft glow
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.radius * 3, 0, Math.PI * 2);
+    const grad = ctx.createRadialGradient(this.x, this.y, this.radius * 0.5, this.x, this.y, this.radius * 3);
+    grad.addColorStop(0, `rgba(${r},${g},${b},${this.alpha * 0.4})`);
+    grad.addColorStop(1, `rgba(${r},${g},${b},0)`);
+    ctx.fillStyle = grad;
+    ctx.fill();
+  }
+}
+
+// Create nodes
+const nodeCount = Math.min(Math.floor(w * h / 12000), 80);
+const nodes = [];
+for (let i = 0; i < nodeCount; i++) {
+  nodes.push(new Node());
+}
+
+const bondDistance = 160;
+
+function drawBond(a, b, dist) {
+  const alpha = (1 - dist / bondDistance) * Math.min(a.alpha, b.alpha) * 2.5;
+  if (alpha < 0.005) return;
+
+  const mr = Math.round((a.color.r + b.color.r) / 2);
+  const mg = Math.round((a.color.g + b.color.g) / 2);
+  const mb = Math.round((a.color.b + b.color.b) / 2);
+
+  ctx.beginPath();
+  ctx.moveTo(a.x, a.y);
+  ctx.lineTo(b.x, b.y);
+  ctx.strokeStyle = `rgba(${mr},${mg},${mb},${alpha})`;
+  ctx.lineWidth = 0.8;
+  ctx.stroke();
+}
+
+let t = 0;
+function animate() {
+  t++;
+  ctx.clearRect(0, 0, w, h);
+
+  // Update nodes
+  for (const node of nodes) {
+    node.update(t);
+  }
+
+  // Draw bonds
+  for (let i = 0; i < nodes.length; i++) {
+    for (let j = i + 1; j < nodes.length; j++) {
+      const dx = nodes[i].x - nodes[j].x;
+      const dy = nodes[i].y - nodes[j].y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < bondDistance) {
+        drawBond(nodes[i], nodes[j], dist);
+      }
+    }
+  }
+
+  // Draw nodes
+  for (const node of nodes) {
+    node.draw();
+  }
+
+  requestAnimationFrame(animate);
+}
+
+animate();
+</script>
 
 </body>
 </html>
