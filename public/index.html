@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AminoSense — Amino Acid Biosensing</title>
+<link rel="icon" type="image/png" href="Icon.png">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --purple: #4B3F73;
+  --crimson: #B20834;
+  --gold: #F2C94C;
+  --white: #FFFFFF;
+  --off-white: #F7F6FA;
+  --gray: #E8E6EE;
+  --text-muted: #6B6280;
+}
+
+body {
+  font-family: 'Segoe UI Semilight', 'Segoe UI', system-ui, sans-serif;
+  color: var(--purple);
+  background: var(--white);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  overflow-x: hidden;
+}
+
+.landing {
+  max-width: 720px;
+  width: 100%;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+/* Logo */
+.logo {
+  margin-bottom: 48px;
+  animation: fadeDown 0.8s ease both;
+}
+.logo img {
+  height: 36px;
+}
+
+/* Tagline */
+h1 {
+  font-family: 'Segoe UI Semilight', 'Segoe UI', system-ui, sans-serif;
+  font-weight: 300;
+  font-size: clamp(32px, 5vw, 48px);
+  line-height: 1.15;
+  color: var(--purple);
+  margin-bottom: 20px;
+  animation: fadeDown 0.8s 0.1s ease both;
+}
+h1 em {
+  font-style: italic;
+  color: var(--crimson);
+}
+
+.subtitle {
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--purple);
+  opacity: 0.7;
+  margin-bottom: 16px;
+  white-space: nowrap;
+  animation: fadeDown 0.8s 0.2s ease both;
+}
+
+/* Divider */
+.divider {
+  width: 48px;
+  height: 2px;
+  background: var(--gold);
+  margin: 32px auto;
+  animation: fadeDown 0.8s 0.25s ease both;
+}
+
+/* Stats row */
+.stats {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-bottom: 40px;
+  animation: fadeDown 0.8s 0.3s ease both;
+}
+.stat-value {
+  font-family: 'Segoe UI Semibold', 'Segoe UI', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 24px;
+  color: var(--purple);
+}
+.stat-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+/* CTA */
+.cta {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 48px;
+  animation: fadeDown 0.8s 0.3s ease both;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 32px;
+  border-radius: 8px;
+  font-family: 'Segoe UI Semibold', 'Segoe UI', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+  transition: all 0.25s;
+  cursor: pointer;
+  border: none;
+}
+.btn-primary {
+  background: var(--crimson);
+  color: var(--white);
+}
+.btn-primary:hover {
+  background: #8f062a;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(178,8,52,0.2);
+}
+.btn-secondary {
+  background: transparent;
+  color: var(--purple);
+  border: 1.5px solid var(--gray);
+}
+.btn-secondary:hover {
+  border-color: var(--purple);
+  background: rgba(75,63,115,0.05);
+}
+
+/* RUO badge */
+.ruo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-family: 'Segoe UI Semibold', 'Segoe UI', system-ui, sans-serif;
+  font-weight: 600;
+  color: var(--crimson);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: rgba(178,8,52,0.06);
+  padding: 5px 14px;
+  border-radius: 4px;
+  animation: fadeDown 0.8s 0.5s ease both;
+}
+
+/* Footer */
+.landing-footer {
+  margin-top: 64px;
+  font-size: 11px;
+  color: var(--text-muted);
+  animation: fadeDown 0.8s 0.55s ease both;
+}
+.landing-footer a {
+  color: var(--purple);
+  text-decoration: none;
+}
+.landing-footer a:hover {
+  color: var(--crimson);
+}
+
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 480px) {
+  .stats { gap: 24px; }
+  .stat-value { font-size: 20px; }
+  .cta { flex-direction: column; align-items: center; }
+}
+</style>
+</head>
+<body>
+
+<div class="landing">
+  <div class="logo">
+    <img src="Logo_Full.png" alt="AminoSense">
+  </div>
+
+  <h1>Amino acid detection,<br><em>reimagined.</em></h1>
+
+  <p class="subtitle">Real-time amino acid quantification from a finger prick — at a fraction of the cost of current methods.</p>
+
+  <div class="cta">
+    <a href="mailto:matei@aminosense.bio?subject=Demo%20Request%20%E2%80%94%20AminoSense" class="btn btn-primary">Request a Demo</a>
+  </div>
+
+  <div class="ruo">For Research Use Only</div>
+
+  <div class="landing-footer">
+    <p>&copy; 2026 AminoSense, Inc.</p>
+  </div>
+</div>
+
+</body>
+</html>
