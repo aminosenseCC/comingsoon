@@ -3,8 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aminosense Web Reader v4.2</title>
+    <title>Aminosense Web Reader v4.9</title>
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+    
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; background-color: #f9f9f9;}
         
@@ -31,7 +35,7 @@
         #log { background-color: #333; color: #0f0; border: 1px solid #222; padding: 10px; height: 150px; overflow-y: scroll; font-size: 12px; font-family: monospace; border-radius: 5px; margin-top: 15px;}
         .status { margin-top: 10px; font-weight: bold; font-size: 18px; color: #555; text-align: center; }
         label { font-size: 13px; font-weight: 600; color: #444;}
-        input[type="text"], input[type="number"] { padding: 4px; border: 1px solid #ccc; border-radius: 4px; }
+        input[type="text"], input[type="number"], select { padding: 4px; border: 1px solid #ccc; border-radius: 4px; }
         
         table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
         th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
@@ -47,8 +51,8 @@
 
     <div class="header-container">
         <div class="logo-area">
-            <img src="Logo_Full.png" alt="AminoSense Logo" class="logo" onerror="this.style.display='none'">
-            <h2 style="color: #333; margin: 0; text-align: right;">Aminosense Cloud</h2>
+            <img src="AminoSense_Logo.png" alt="AminoSense Logo" class="logo" onerror="this.style.display='none'">
+            <h2 style="color: #333; margin: 0;">Aminosense Cloud</h2>
         </div>
     </div>
 
@@ -71,14 +75,26 @@
         </div>
 
         <div class="panel">
-            <label>Equil. Delay (s): <input type="number" id="inputDelay" value="1" min="0" style="width: 60px;"></label>
-            <label style="margin-left: 15px;">Run Time (s): <input type="number" id="inputRunTime" value="60" min="1" style="width: 60px;"></label>
-            <label style="margin-left: 15px; color: #007ACC;"><strong>Cal Factor:</strong> <input type="number" id="inputCalFactor" value="1.0" step="0.1" style="width: 60px;"></label>
+            <label>Equil. Delay (s): <input type="number" id="inputDelay" value="1" min="0" style="width: 45px;"></label>
+            <label style="margin-left: 15px;">Run Time (s): <input type="number" id="inputRunTime" value="60" min="1" style="width: 45px;"></label>
+            
+            <label style="margin-left: 15px;">Rate:
+                <select id="inputSampleRate">
+                    <option value="0.2">5 Hz (Fast)</option>
+                    <option value="0.5" selected>2 Hz (Std)</option>
+                    <option value="1.0">1 Hz (Slow)</option>
+                </select>
+            </label>
+
+            <label style="margin-left: 15px; color: #dc3545;"><strong>Potential (mV):</strong> <input type="number" id="inputPotential" value="-650" style="width: 55px;"></label>
+
+            <label style="margin-left: 15px; color: #007ACC;"><strong>Cal Factor:</strong> <input type="number" id="inputCalFactor" value="1.0" step="0.1" style="width: 50px;"></label>
         </div>
 
         <div class="panel">
             <button id="btnConnect" class="btn-primary">1. Connect Sensor</button>
             <button id="btnMeasure" class="btn-secondary" disabled>2. Start Test</button>
+            <button id="btnAbort" class="btn-danger" disabled>Abort Test</button>
             <button id="btnDownload" class="btn-success" disabled>3. Export / Share Run</button>
         </div>
 
@@ -93,15 +109,26 @@
 
     <div id="view-dashboard" style="display: none;">
         
-        <div class="panel" style="height: 300px;">
-            <h4 style="margin-top: 0; margin-bottom: 10px; color: #444;">Raw Decay Curves (Time vs. Current)</h4>
+        <div class="panel" style="height: 320px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h4 style="margin: 0; color: #444;">Raw Decay Curves (Time vs. Current)</h4>
+                <button class="btn-secondary" style="padding: 5px 10px; font-size: 12px; margin: 0;" onclick="dashboardChart.resetZoom()">Reset Zoom</button>
+            </div>
             <div style="height: 250px;">
                 <canvas id="dashboardChart"></canvas>
             </div>
         </div>
 
-        <div class="panel" style="height: 300px;">
-            <h4 style="margin-top: 0; margin-bottom: 10px; color: #444;">Trend Analysis (Variable vs. Result)</h4>
+        <div class="panel" style="height: 320px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h4 style="margin: 0; color: #444;">Trend Analysis (Variable vs. Result)</h4>
+                <div>
+                    <label style="font-size: 13px; margin-right: 15px; cursor: pointer; color: #003366;">
+                        <input type="checkbox" id="chkBaselineToggle" onchange="updateDashboardChart()"> <strong>View as Baseline Change</strong>
+                    </label>
+                    <button class="btn-secondary" style="padding: 5px 10px; font-size: 12px; margin: 0;" onclick="trendChart.resetZoom()">Reset Zoom</button>
+                </div>
+            </div>
             <div style="height: 250px;">
                 <canvas id="trendChart"></canvas>
             </div>
@@ -115,7 +142,7 @@
                     <button id="btnClearMaster" class="btn-danger">Reset Log</button>
                 </div>
             </div>
-            <p style="font-size: 12px; color: #666; margin-top: 0;"><em>Click on a Subject ID or Condition below to edit it. Check boxes to plot runs on the graphs above.</em></p>
+            <p style="font-size: 12px; color: #666; margin-top: 0;"><em>Use mouse-wheel or pinch to zoom graphs. Click and drag to pan. Click on a Subject ID or Condition below to edit.</em></p>
             
             <div id="statsPanel" style="display: none; background-color: #eef7ff; border: 1px solid #bce8f1; padding: 10px 15px; border-radius: 5px; margin-bottom: 15px; justify-content: space-around; font-size: 14px; color: #003366;">
                 <span><strong>Selected Replicates:</strong> <span id="statCount">0</span></span>
@@ -146,7 +173,7 @@
 
     <div class="footer-container">
         <span>For Research Use Only. Not for diagnostic use.</span>
-        <span>v4.2</span>
+        <span>v4.9</span>
     </div>
 
     <script>
@@ -174,13 +201,24 @@
         });
 
         // ==========================================
-        // 2. DASHBOARD LOGIC (With Math & AUC)
+        // 2. DASHBOARD LOGIC
         // ==========================================
+        const zoomOptions = {
+            pan: { enabled: true, mode: 'xy' },
+            zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'xy' }
+        };
+
+        // NEW: "interaction" object added to deeply enable tooltips across the whole line
         const ctxDash = document.getElementById('dashboardChart').getContext('2d');
         const dashboardChart = new Chart(ctxDash, {
             type: 'line',
-            data: { labels: [], datasets: [] },
-            options: { responsive: true, maintainAspectRatio: false, animation: false, scales: { x: { title: { display: true, text: 'Time (s)' } }, y: { title: { display: true, text: 'Current (µA)' } } } }
+            data: { datasets: [] }, 
+            options: { 
+                responsive: true, maintainAspectRatio: false, animation: false, 
+                interaction: { mode: 'nearest', axis: 'xy', intersect: false }, 
+                scales: { x: { type: 'linear', title: { display: true, text: 'Time (s)' } }, y: { title: { display: true, text: 'Current (µA)' } } },
+                plugins: { zoom: zoomOptions, tooltip: { enabled: true } }
+            }
         });
 
         const ctxTrend = document.getElementById('trendChart').getContext('2d');
@@ -189,7 +227,9 @@
             data: { datasets: [] },
             options: { 
                 responsive: true, maintainAspectRatio: false, animation: false, 
-                scales: { x: { type: 'linear', title: { display: true, text: 'Variable Value' } }, y: { title: { display: true, text: 'Final Result (µM)' } } } 
+                interaction: { mode: 'nearest', axis: 'xy', intersect: false },
+                scales: { x: { type: 'linear', title: { display: true, text: 'Variable Value' } }, y: { title: { display: true, text: 'Final Result (µM)' } } },
+                plugins: { zoom: zoomOptions, tooltip: { enabled: true } }
             }
         });
 
@@ -229,29 +269,22 @@
             let masterLog = JSON.parse(localStorage.getItem('aminosenseMasterLog')) || [];
             if (masterLog[index]) {
                 masterLog[index][field] = newValue.trim();
-                
                 if (field === 'cal_factor') {
                     let newCal = parseFloat(newValue) || 1.0;
                     let rawMicroamps = parseFloat(masterLog[index].result_uA) || 0;
                     masterLog[index].result_uM = (rawMicroamps * newCal).toFixed(2);
                 }
-
                 localStorage.setItem('aminosenseMasterLog', JSON.stringify(masterLog));
-                
-                if (field === 'cal_factor') {
-                    refreshDashboard(); 
-                } else if (field === 'condition' || field === 'variable') {
-                    updateDashboardChart(); 
-                }
+                if (field === 'cal_factor') refreshDashboard(); else if (field === 'condition' || field === 'variable') updateDashboardChart(); 
             }
         };
 
         window.updateDashboardChart = function() {
             let masterLog = JSON.parse(localStorage.getItem('aminosenseMasterLog')) || [];
             const checkboxes = document.querySelectorAll('.plot-check');
+            const isBaselineView = document.getElementById('chkBaselineToggle') ? document.getElementById('chkBaselineToggle').checked : false; 
             
             dashboardChart.data.datasets = [];
-            let maxLabels = 0; 
             let trendDatasets = {};
             let tColorIndex = 0;
             let dColorIndex = 0;
@@ -263,17 +296,20 @@
                     if (run) {
                         selectedResults.push(parseFloat(run.result_uM));
 
-                        // 1. Raw Decay Chart
                         if (run.rawData) {
-                            if (run.rawData.length > maxLabels) maxLabels = run.rawData.length;
+                            let interval = run.interval_s || 0.5; 
+                            let mappedData = run.rawData.map((val, idx) => ({
+                                x: parseFloat((idx * interval).toFixed(1)),
+                                y: val
+                            }));
+
                             dashboardChart.data.datasets.push({
                                 label: `${run.subject} (Var: ${run.variable})`,
-                                data: run.rawData, borderColor: chartColors[dColorIndex % chartColors.length], borderWidth: 2, pointRadius: 0, fill: false, tension: 0.1
+                                data: mappedData, borderColor: chartColors[dColorIndex % chartColors.length], borderWidth: 2, pointRadius: 0, fill: false, tension: 0.1
                             });
                             dColorIndex++;
                         }
 
-                        // 2. Trend Chart Grouping
                         let groupName = run.condition || "Unknown Condition";
                         if (!trendDatasets[groupName]) {
                             trendDatasets[groupName] = {
@@ -281,40 +317,34 @@
                             };
                             tColorIndex++;
                         }
-                        
                         trendDatasets[groupName].data.push({ x: parseFloat(run.variable), y: parseFloat(run.result_uM) });
                     }
                 }
             });
 
-            dashboardChart.data.labels = Array.from({length: maxLabels}, (_, i) => (i * 0.5).toFixed(1));
             dashboardChart.update();
 
-            // --- THE NEW AUC MATH LOGIC ---
             Object.values(trendDatasets).forEach(ds => {
-                // Sort the points left-to-right based on the Variable (X-axis)
                 ds.data.sort((a, b) => a.x - b.x);
+                if (isBaselineView && ds.data.length > 0) {
+                    let baselineY = ds.data[0].y;
+                    ds.data.forEach(pt => { pt.y = parseFloat((pt.y - baselineY).toFixed(2)); });
+                }
                 
                 let auc = 0;
                 for (let i = 0; i < ds.data.length - 1; i++) {
-                    let x1 = ds.data[i].x;
-                    let y1 = ds.data[i].y;
-                    let x2 = ds.data[i+1].x;
-                    let y2 = ds.data[i+1].y;
-                    
-                    // Trapezoidal Rule
+                    let x1 = ds.data[i].x; let y1 = ds.data[i].y; let x2 = ds.data[i+1].x; let y2 = ds.data[i+1].y;
                     auc += ((y1 + y2) / 2) * (x2 - x1);
                 }
-
-                if (ds.data.length > 1) {
-                    ds.label = `${ds.label} (AUC: ${auc.toFixed(1)})`;
-                }
+                if (ds.data.length > 1) ds.label = `${ds.label} (AUC: ${auc.toFixed(1)})`;
             });
 
+            if (trendChart.options && trendChart.options.scales && trendChart.options.scales.y && trendChart.options.scales.y.title) {
+                trendChart.options.scales.y.title.text = isBaselineView ? 'Change from Baseline (µM)' : 'Final Result (µM)';
+            }
             trendChart.data.datasets = Object.values(trendDatasets);
             trendChart.update();
 
-            // --- AUTO-STATS PANEL ---
             const statsPanel = document.getElementById('statsPanel');
             if (selectedResults.length >= 2) {
                 let n = selectedResults.length;
@@ -343,9 +373,13 @@
 
         let bleDevice, bleServer, rxCharacteristic, txCharacteristic;
         let dataBuffer = "", currentDataPoints = []; 
+        let currentInterval = 0.5; 
+        
+        let isAborting = false; 
 
         const btnConnect = document.getElementById('btnConnect');
         const btnMeasure = document.getElementById('btnMeasure');
+        const btnAbort = document.getElementById('btnAbort');
         const btnDownload = document.getElementById('btnDownload');
         const btnDownloadMaster = document.getElementById('btnDownloadMaster');
         const btnClearMaster = document.getElementById('btnClearMaster');
@@ -355,7 +389,11 @@
         const ctxLive = document.getElementById('liveChart').getContext('2d');
         const liveChart = new Chart(ctxLive, {
             type: 'line', data: { labels: [], datasets: [{ label: 'Current (µA)', data: [], borderColor: '#003366', borderWidth: 2, pointRadius: 0, fill: false, tension: 0.1 }] },
-            options: { responsive: true, maintainAspectRatio: false, animation: false, scales: { x: { title: { display: true, text: 'Time (s)' } }, y: { title: { display: true, text: 'Current (µA)' } } } }
+            options: { 
+                responsive: true, maintainAspectRatio: false, animation: false, 
+                interaction: { mode: 'nearest', axis: 'xy', intersect: false }, // Tooltips enabled here too!
+                scales: { x: { title: { display: true, text: 'Time (s)' } }, y: { title: { display: true, text: 'Current (µA)' } } } 
+            }
         });
 
         function log(message) { logDiv.innerHTML += `<div>> ${message}</div>`; logDiv.scrollTop = logDiv.scrollHeight; }
@@ -379,22 +417,63 @@
         btnMeasure.addEventListener('click', async () => {
             if (!rxCharacteristic) return;
             currentDataPoints = []; liveChart.data.labels = []; liveChart.data.datasets[0].data = []; liveChart.update();
-            btnMeasure.disabled = true; btnDownload.disabled = true; statusText.innerText = `Result: Testing...`;
+            
+            isAborting = false;
+            btnMeasure.disabled = true; 
+            btnAbort.disabled = false; 
+            btnDownload.disabled = true; 
+            statusText.innerText = `Result: Testing...`;
 
             let delaySecs = parseFloat(document.getElementById('inputDelay').value);
             let runSecs = parseFloat(document.getElementById('inputRunTime').value);
+            currentInterval = parseFloat(document.getElementById('inputSampleRate').value);
+            let msString = (currentInterval * 1000) + "m";
+            
+            let appliedVoltage_mV = document.getElementById('inputPotential').value;
+            let vString = appliedVoltage_mV + "m"; 
+            
             let waitCommand = delaySecs > 0 ? `wait ${delaySecs}\n` : "";
-            const script = `e\nvar p\nvar c\nset_pgstat_chan 0\nset_pgstat_mode 2\ncell_on\n${waitCommand}meas_loop_ca p c 500m 500m ${runSecs}\npck_start\npck_add p\npck_add c\npck_end\nendloop\ncell_off\n\n`;
+            const script = `e\nvar p\nvar c\nset_pgstat_chan 0\nset_pgstat_mode 2\nset_e ${vString}\ncell_on\n${waitCommand}meas_loop_ca p c ${vString} ${msString} ${runSecs}\npck_start\npck_add p\npck_add c\npck_end\nendloop\ncell_off\n\n`;
 
             try {
-                log("Sending parameters to hardware...");
+                log(`Sending parameters (Rate: ${currentInterval}s, Potential: ${appliedVoltage_mV}mV)...`);
                 const scriptBytes = new TextEncoder().encode(script);
                 for (let i = 0; i < scriptBytes.length; i += 20) {
                     await rxCharacteristic.writeValue(scriptBytes.slice(i, i + 20));
                     await new Promise(resolve => setTimeout(resolve, 20));
                 }
                 log("Test Started!");
-            } catch (error) { log(`Send Error: ${error.message}`); btnMeasure.disabled = false; }
+            } catch (error) { log(`Send Error: ${error.message}`); btnMeasure.disabled = false; btnAbort.disabled = true;}
+        });
+
+        btnAbort.addEventListener('click', async () => {
+            if (!rxCharacteristic) return;
+            try {
+                isAborting = true;
+                log("Sending strict Abort Command to hardware...");
+                
+                btnAbort.disabled = true;
+                btnMeasure.disabled = true; 
+                statusText.innerText = `Result: Aborting...`;
+
+                const abortBytes = new TextEncoder().encode("\nZ\n");
+                
+                if (rxCharacteristic.properties.writeWithoutResponse) {
+                    await rxCharacteristic.writeValueWithoutResponse(abortBytes);
+                } else {
+                    await rxCharacteristic.writeValue(abortBytes);
+                }
+                
+                setTimeout(() => {
+                    if (isAborting) {
+                        log("Hardware abort timeout. Forcing UI unlock.");
+                        isAborting = false;
+                        btnMeasure.disabled = false;
+                        statusText.innerText = `Result: Force Aborted`;
+                    }
+                }, 3000);
+
+            } catch (error) { log(`Abort Error: ${error.message}`); }
         });
 
         function handleIncomingData(event) {
@@ -403,14 +482,18 @@
                 let lines = dataBuffer.split('\n'); dataBuffer = lines.pop(); 
                 for (let line of lines) {
                     line = line.trim();
-                    if (line === "*") calculateFinalResult();
-                    else if (line.startsWith("P") && line.includes("ba")) {
+                    if (line === "*") {
+                        calculateFinalResult();
+                    } else if (line.startsWith("P") && line.includes("ba")) {
+                        if (isAborting) continue;
+
                         let baIndex = line.indexOf("ba"), hexStr = line.substring(baIndex + 2, baIndex + 9), prefix = line.charAt(baIndex + 9);
                         let rawInt = parseInt(hexStr, 16) - 134217728; 
                         let mult = prefix === 'p' ? 1e-12 : prefix === 'n' ? 1e-9 : prefix === 'u' ? 1e-6 : prefix === 'm' ? 1e-3 : 1;
                         let uA = (rawInt * mult) * 1e6;
                         currentDataPoints.push(uA);
-                        liveChart.data.labels.push((currentDataPoints.length * 0.5).toFixed(1));
+                        
+                        liveChart.data.labels.push((currentDataPoints.length * currentInterval).toFixed(1));
                         liveChart.data.datasets[0].data.push(uA); liveChart.update();
                     }
                 }
@@ -418,22 +501,35 @@
         }
 
         function calculateFinalResult() {
+            btnAbort.disabled = true; 
+
+            if (isAborting) {
+                log("Hardware confirmed abort. Data discarded.");
+                isAborting = false;
+                btnMeasure.disabled = false;
+                btnDownload.disabled = true;
+                statusText.innerText = `Result: Aborted`;
+                return;
+            }
+
             if (currentDataPoints.length === 0) { log("Error: No data."); btnMeasure.disabled = false; return; }
             let pointsToTake = Math.min(3, currentDataPoints.length);
             let averageRaw = currentDataPoints.slice(-pointsToTake).reduce((a, b) => a + b, 0) / pointsToTake;
             let calFactor = parseFloat(document.getElementById('inputCalFactor').value) || 1.0; 
             let finalConc = averageRaw * calFactor;
 
-            statusText.innerText = `Result: ${finalConc.toFixed(2)} uM`;
+            statusText.innerText = `Result: ${finalConc.toFixed(2)} µM`;
             btnMeasure.disabled = false; btnDownload.disabled = false;
-            log(`Test Complete! Result: ${finalConc.toFixed(2)} uM`);
+            log(`Test Complete! Result: ${finalConc.toFixed(2)} µM`);
 
             let masterLog = JSON.parse(localStorage.getItem('aminosenseMasterLog')) || [];
             masterLog.push({
                 id: Date.now(), timestamp: new Date().toLocaleString(),
                 subject: document.getElementById('tbSubjectID').value, condition: document.getElementById('tbCondition').value,
                 variable: document.getElementById('tbVarValue').value, delay_s: document.getElementById('inputDelay').value,
-                cal_factor: calFactor, result_uA: averageRaw.toFixed(4), result_uM: finalConc.toFixed(2), rawData: [...currentDataPoints]
+                cal_factor: calFactor, result_uA: averageRaw.toFixed(4), result_uM: finalConc.toFixed(2), 
+                interval_s: currentInterval, 
+                rawData: [...currentDataPoints]
             });
             localStorage.setItem('aminosenseMasterLog', JSON.stringify(masterLog));
 
@@ -462,7 +558,7 @@
 
         btnDownload.addEventListener('click', () => {
             let csv = "Aminosense Raw Data Report\nTimestamp:,\"" + new Date().toLocaleString() + "\"\nTime (s),Current (uA)\n\n";
-            for (let i = 0; i < currentDataPoints.length; i++) csv += `${(i * 0.5).toFixed(1)},${currentDataPoints[i].toFixed(4)}\n`;
+            for (let i = 0; i < currentDataPoints.length; i++) csv += `${(i * currentInterval).toFixed(1)},${currentDataPoints[i].toFixed(4)}\n`;
             exportData(csv, `Aminosense_Data_${new Date().getTime()}.csv`);
         });
 
@@ -473,7 +569,8 @@
             masterLog.forEach(run => { 
                 let delayStr = run.delay_s !== undefined ? run.delay_s : "N/A", calStr = run.cal_factor !== undefined ? run.cal_factor : "1.0"; 
                 if (run.rawData && run.rawData.length > 0) {
-                    for (let i = 0; i < run.rawData.length; i++) csv += `"${run.timestamp}","${run.subject}","${run.condition}",${run.variable},${delayStr},${calStr},${run.result_uA},${run.result_uM},${(i*0.5).toFixed(1)},${run.rawData[i].toFixed(4)}\n`;
+                    let interval = run.interval_s || 0.5; 
+                    for (let i = 0; i < run.rawData.length; i++) csv += `"${run.timestamp}","${run.subject}","${run.condition}",${run.variable},${delayStr},${calStr},${run.result_uA},${run.result_uM},${(i*interval).toFixed(1)},${run.rawData[i].toFixed(4)}\n`;
                 } else csv += `"${run.timestamp}","${run.subject}","${run.condition}",${run.variable},${delayStr},${calStr},${run.result_uA},${run.result_uM},,\n`;
             });
             exportData(csv, `Aminosense_Detailed_MasterLog_${new Date().getTime()}.csv`);
