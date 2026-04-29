@@ -577,114 +577,124 @@
        waypoint 4: light 28%→33% → dim 64.25%→69.25%
        waypoint 5: light 39%→44% → dim 55%→60%
   */
+  /* Activation timing per waypoint (17s cycle), with ~5% smooth transitions:
+     Forward leg 0-44%. Hold (all 5 active) 44-55%. Reverse leg 55-92%. Pause 92-100%.
+
+     Plane reaches each waypoint at:
+       wp1: 0%, wp2: 11%, wp3: 22%, wp4: 33%, wp5: 44%
+     Reverse line passes each waypoint at:
+       wp5: 55%, wp4: 64.25%, wp3: 73.5%, wp2: 82.75%, wp1: 92%
+
+     Activation transitions are CENTERED on these moments — starts 2.5% before
+     plane arrives, fully lit 2.5% after. Same for deactivation around line-pass.
+  */
   @keyframes nodeActive1 {
     0%      { border-color: var(--blue);
               box-shadow: 0 0 0 6px rgba(53, 195, 227, 0.08), 0 18px 38px -16px rgba(60, 34, 34, 0.22);
               transform: scale(1); }
-    5%, 87% { border-color: var(--orange);
-              box-shadow: 0 0 0 8px rgba(241, 90, 45, 0.12), 0 24px 48px -16px rgba(241, 90, 45, 0.35);
-              transform: scale(1.06); }
-    92%, 100% { border-color: var(--blue);
-                box-shadow: 0 0 0 6px rgba(53, 195, 227, 0.08), 0 18px 38px -16px rgba(60, 34, 34, 0.22);
-                transform: scale(1); }
-  }
-  @keyframes nodeActive2 {
-    0%, 6%   { border-color: var(--blue);
-               box-shadow: 0 0 0 6px rgba(53, 195, 227, 0.08), 0 18px 38px -16px rgba(60, 34, 34, 0.22);
-               transform: scale(1); }
-    11%, 82.75% { border-color: var(--orange);
+    2.5%, 89.5% { border-color: var(--orange);
                   box-shadow: 0 0 0 8px rgba(241, 90, 45, 0.12), 0 24px 48px -16px rgba(241, 90, 45, 0.35);
                   transform: scale(1.06); }
-    87.75%, 100% { border-color: var(--blue);
+    94.5%, 100% { border-color: var(--blue);
+                  box-shadow: 0 0 0 6px rgba(53, 195, 227, 0.08), 0 18px 38px -16px rgba(60, 34, 34, 0.22);
+                  transform: scale(1); }
+  }
+  @keyframes nodeActive2 {
+    0%, 8.5%   { border-color: var(--blue);
+                 box-shadow: 0 0 0 6px rgba(53, 195, 227, 0.08), 0 18px 38px -16px rgba(60, 34, 34, 0.22);
+                 transform: scale(1); }
+    13.5%, 80.25% { border-color: var(--orange);
+                    box-shadow: 0 0 0 8px rgba(241, 90, 45, 0.12), 0 24px 48px -16px rgba(241, 90, 45, 0.35);
+                    transform: scale(1.06); }
+    85.25%, 100% { border-color: var(--blue);
                    box-shadow: 0 0 0 6px rgba(53, 195, 227, 0.08), 0 18px 38px -16px rgba(60, 34, 34, 0.22);
                    transform: scale(1); }
   }
   @keyframes nodeActive3 {
-    0%, 17%  { border-color: var(--blue);
-               box-shadow: 0 0 0 6px rgba(53, 195, 227, 0.08), 0 18px 38px -16px rgba(60, 34, 34, 0.22);
-               transform: scale(1); }
-    22%, 73.5% { border-color: var(--orange);
+    0%, 19.5%  { border-color: var(--blue);
+                 box-shadow: 0 0 0 6px rgba(53, 195, 227, 0.08), 0 18px 38px -16px rgba(60, 34, 34, 0.22);
+                 transform: scale(1); }
+    24.5%, 71% { border-color: var(--orange);
                  box-shadow: 0 0 0 8px rgba(241, 90, 45, 0.12), 0 24px 48px -16px rgba(241, 90, 45, 0.35);
                  transform: scale(1.06); }
-    78.5%, 100% { border-color: var(--blue);
-                  box-shadow: 0 0 0 6px rgba(53, 195, 227, 0.08), 0 18px 38px -16px rgba(60, 34, 34, 0.22);
-                  transform: scale(1); }
+    76%, 100% { border-color: var(--blue);
+                box-shadow: 0 0 0 6px rgba(53, 195, 227, 0.08), 0 18px 38px -16px rgba(60, 34, 34, 0.22);
+                transform: scale(1); }
   }
   @keyframes nodeActive4 {
-    0%, 28%  { border-color: var(--blue);
-               box-shadow: 0 0 0 6px rgba(53, 195, 227, 0.08), 0 18px 38px -16px rgba(60, 34, 34, 0.22);
-               transform: scale(1); }
-    33%, 64.25% { border-color: var(--orange);
-                  box-shadow: 0 0 0 8px rgba(241, 90, 45, 0.12), 0 24px 48px -16px rgba(241, 90, 45, 0.35);
-                  transform: scale(1.06); }
-    69.25%, 100% { border-color: var(--blue);
+    0%, 30.5%  { border-color: var(--blue);
+                 box-shadow: 0 0 0 6px rgba(53, 195, 227, 0.08), 0 18px 38px -16px rgba(60, 34, 34, 0.22);
+                 transform: scale(1); }
+    35.5%, 61.75% { border-color: var(--orange);
+                    box-shadow: 0 0 0 8px rgba(241, 90, 45, 0.12), 0 24px 48px -16px rgba(241, 90, 45, 0.35);
+                    transform: scale(1.06); }
+    66.75%, 100% { border-color: var(--blue);
                    box-shadow: 0 0 0 6px rgba(53, 195, 227, 0.08), 0 18px 38px -16px rgba(60, 34, 34, 0.22);
                    transform: scale(1); }
   }
   @keyframes nodeActive5 {
-    0%, 39%  { border-color: var(--blue);
-               box-shadow: 0 0 0 6px rgba(53, 195, 227, 0.08), 0 18px 38px -16px rgba(60, 34, 34, 0.22);
-               transform: scale(1); }
-    44%, 55% { border-color: var(--orange);
-               box-shadow: 0 0 0 8px rgba(241, 90, 45, 0.12), 0 24px 48px -16px rgba(241, 90, 45, 0.35);
-               transform: scale(1.06); }
-    60%, 100% { border-color: var(--blue);
-                box-shadow: 0 0 0 6px rgba(53, 195, 227, 0.08), 0 18px 38px -16px rgba(60, 34, 34, 0.22);
-                transform: scale(1); }
+    0%, 41.5%  { border-color: var(--blue);
+                 box-shadow: 0 0 0 6px rgba(53, 195, 227, 0.08), 0 18px 38px -16px rgba(60, 34, 34, 0.22);
+                 transform: scale(1); }
+    46.5%, 52.5% { border-color: var(--orange);
+                   box-shadow: 0 0 0 8px rgba(241, 90, 45, 0.12), 0 24px 48px -16px rgba(241, 90, 45, 0.35);
+                   transform: scale(1.06); }
+    57.5%, 100% { border-color: var(--blue);
+                  box-shadow: 0 0 0 6px rgba(53, 195, 227, 0.08), 0 18px 38px -16px rgba(60, 34, 34, 0.22);
+                  transform: scale(1); }
   }
   /* Text color keyframes — same timing pattern */
   @keyframes textActive1 {
     0%      { color: var(--brown); }
-    5%, 87% { color: var(--orange); }
-    92%, 100% { color: var(--brown); }
+    2.5%, 89.5% { color: var(--orange); }
+    94.5%, 100% { color: var(--brown); }
   }
   @keyframes textActive2 {
-    0%, 6%   { color: var(--brown); }
-    11%, 82.75% { color: var(--orange); }
-    87.75%, 100% { color: var(--brown); }
+    0%, 8.5%   { color: var(--brown); }
+    13.5%, 80.25% { color: var(--orange); }
+    85.25%, 100% { color: var(--brown); }
   }
   @keyframes textActive3 {
-    0%, 17%  { color: var(--brown); }
-    22%, 73.5% { color: var(--orange); }
-    78.5%, 100% { color: var(--brown); }
+    0%, 19.5%  { color: var(--brown); }
+    24.5%, 71% { color: var(--orange); }
+    76%, 100% { color: var(--brown); }
   }
   @keyframes textActive4 {
-    0%, 28%  { color: var(--brown); }
-    33%, 64.25% { color: var(--orange); }
-    69.25%, 100% { color: var(--brown); }
+    0%, 30.5%  { color: var(--brown); }
+    35.5%, 61.75% { color: var(--orange); }
+    66.75%, 100% { color: var(--brown); }
   }
   @keyframes textActive5 {
-    0%, 39%  { color: var(--brown); }
-    44%, 55% { color: var(--orange); }
-    60%, 100% { color: var(--brown); }
+    0%, 41.5%  { color: var(--brown); }
+    46.5%, 52.5% { color: var(--orange); }
+    57.5%, 100% { color: var(--brown); }
   }
 
-  /* Ring (::before) keyframes — dashed concentric ring rotates 180° and turns
-     orange while waypoint is active, mirroring the original hover behavior. */
+  /* Ring (::before) keyframes */
   @keyframes ringActive1 {
     0%      { transform: rotate(0deg);   border-color: rgba(53, 195, 227, 0.3); }
-    5%, 87% { transform: rotate(180deg); border-color: rgba(241, 90, 45, 0.45); }
-    92%, 100% { transform: rotate(360deg); border-color: rgba(53, 195, 227, 0.3); }
+    2.5%, 89.5% { transform: rotate(180deg); border-color: rgba(241, 90, 45, 0.45); }
+    94.5%, 100% { transform: rotate(360deg); border-color: rgba(53, 195, 227, 0.3); }
   }
   @keyframes ringActive2 {
-    0%, 6%   { transform: rotate(0deg);   border-color: rgba(53, 195, 227, 0.3); }
-    11%, 82.75% { transform: rotate(180deg); border-color: rgba(241, 90, 45, 0.45); }
-    87.75%, 100% { transform: rotate(360deg); border-color: rgba(53, 195, 227, 0.3); }
+    0%, 8.5%   { transform: rotate(0deg);   border-color: rgba(53, 195, 227, 0.3); }
+    13.5%, 80.25% { transform: rotate(180deg); border-color: rgba(241, 90, 45, 0.45); }
+    85.25%, 100% { transform: rotate(360deg); border-color: rgba(53, 195, 227, 0.3); }
   }
   @keyframes ringActive3 {
-    0%, 17%  { transform: rotate(0deg);   border-color: rgba(53, 195, 227, 0.3); }
-    22%, 73.5% { transform: rotate(180deg); border-color: rgba(241, 90, 45, 0.45); }
-    78.5%, 100% { transform: rotate(360deg); border-color: rgba(53, 195, 227, 0.3); }
+    0%, 19.5%  { transform: rotate(0deg);   border-color: rgba(53, 195, 227, 0.3); }
+    24.5%, 71% { transform: rotate(180deg); border-color: rgba(241, 90, 45, 0.45); }
+    76%, 100% { transform: rotate(360deg); border-color: rgba(53, 195, 227, 0.3); }
   }
   @keyframes ringActive4 {
-    0%, 28%  { transform: rotate(0deg);   border-color: rgba(53, 195, 227, 0.3); }
-    33%, 64.25% { transform: rotate(180deg); border-color: rgba(241, 90, 45, 0.45); }
-    69.25%, 100% { transform: rotate(360deg); border-color: rgba(53, 195, 227, 0.3); }
+    0%, 30.5%  { transform: rotate(0deg);   border-color: rgba(53, 195, 227, 0.3); }
+    35.5%, 61.75% { transform: rotate(180deg); border-color: rgba(241, 90, 45, 0.45); }
+    66.75%, 100% { transform: rotate(360deg); border-color: rgba(53, 195, 227, 0.3); }
   }
   @keyframes ringActive5 {
-    0%, 39%  { transform: rotate(0deg);   border-color: rgba(53, 195, 227, 0.3); }
-    44%, 55% { transform: rotate(180deg); border-color: rgba(241, 90, 45, 0.45); }
-    60%, 100% { transform: rotate(360deg); border-color: rgba(53, 195, 227, 0.3); }
+    0%, 41.5%  { transform: rotate(0deg);   border-color: rgba(53, 195, 227, 0.3); }
+    46.5%, 52.5% { transform: rotate(180deg); border-color: rgba(241, 90, 45, 0.45); }
+    57.5%, 100% { transform: rotate(360deg); border-color: rgba(53, 195, 227, 0.3); }
   }
   /* Responsive */
   @media (max-width: 1100px) {
@@ -1298,11 +1308,11 @@
         <!-- Biplane riding the path during the forward leg -->
         <g class="flight-plane-group">
           <g>
-            <!-- Plane geometry shifted -12 along x so the propeller tip
-                 (the plane's leading edge) aligns with the path point.
-                 Without this shift, the path point sat at the fuselage center,
-                 putting the plane's visual nose ahead of where the line ended. -->
-            <g transform="translate(-12 0)">
+            <!-- Plane geometry shifted -4 along x so the propeller hub
+                 sits ahead of the path point. The orange line ends at
+                 the path point; the plane's nose extends ~5 units beyond,
+                 making the plane clearly lead the line visually. -->
+            <g transform="translate(-4 0)">
               <!-- Simple biplane silhouette pointing right -->
               <!-- Tail fin -->
               <polygon points="-16,-6 -12,-1.5 -12,1.5 -16,1.5" fill="#F15A2D"/>
@@ -1313,10 +1323,11 @@
               <!-- Wing struts connecting wings to fuselage -->
               <rect x="-3" y="-5" width="1.4" height="10" fill="#F15A2D"/>
               <rect x="4" y="-5" width="1.4" height="10" fill="#F15A2D"/>
-              <!-- Fuselage (drawn after struts so it overlaps cleanly at the body) -->
-              <rect x="-12" y="-1.5" width="22" height="3" fill="#F15A2D"/>
+              <!-- Fuselage (drawn after struts so it overlaps cleanly at the body).
+                   Shortened so the propeller is the foremost part of the plane. -->
+              <rect x="-12" y="-1.5" width="20" height="3" fill="#F15A2D"/>
               <!-- Spinning propeller at the nose -->
-              <g transform="translate(11 0)">
+              <g transform="translate(9 0)">
                 <line x1="0" y1="-5" x2="0" y2="5" stroke="#3C2222" stroke-width="1.4" stroke-linecap="round">
                   <animateTransform attributeName="transform" type="rotate"
                                     from="0" to="360" dur="0.18s" repeatCount="indefinite"/>
