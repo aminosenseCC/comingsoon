@@ -59,14 +59,10 @@
     position: fixed;
     top: 0; left: 0; right: 0;
     z-index: 100;
-    padding: 1.25rem 0;
-    transition: background .3s var(--ease), backdrop-filter .3s var(--ease), padding .3s var(--ease);
-  }
-  nav.scrolled {
+    padding: 1rem 0;
     background: rgba(255, 247, 232, 0.85);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    padding: 0.85rem 0;
     border-bottom: 1px solid var(--line);
   }
   nav .container {
@@ -82,11 +78,9 @@
   }
   .brand-logo {
     display: block;
-    height: 44px;
+    height: 38px;
     width: auto;
-    transition: height .3s var(--ease);
   }
-  nav.scrolled .brand-logo { height: 34px; }
   /* Footer uses mark only (horizontal logo's brown text wouldn't read on dark bg) */
   .brand-mark-only {
     display: block;
@@ -167,8 +161,7 @@
     color: var(--orange);
     font-weight: 500;
     margin-bottom: 2rem;
-    opacity: 0;
-    animation: fadeUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.1s forwards;
+    animation: fadeUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
   }
   .hero-eyebrow::before {
     content: '';
@@ -186,8 +179,7 @@
     color: var(--brown);
     max-width: 14ch;
     margin-bottom: 2rem;
-    opacity: 0;
-    animation: fadeUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.2s forwards;
+    animation: fadeUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
   }
   .hero h1 em {
     font-style: italic;
@@ -201,8 +193,7 @@
     color: var(--brown-light);
     max-width: 52ch;
     margin-bottom: 3rem;
-    opacity: 0;
-    animation: fadeUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.35s forwards;
+    animation: fadeUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.35s both;
   }
   .hero-lead a {
     color: var(--brown);
@@ -218,8 +209,7 @@
     gap: 1rem;
     align-items: center;
     flex-wrap: wrap;
-    opacity: 0;
-    animation: fadeUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.5s forwards;
+    animation: fadeUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.5s both;
   }
 
   .btn {
@@ -266,11 +256,10 @@
     top: 50%;
     right: -10%;
     transform: translateY(calc(-50% + 30px));
-    width: clamp(420px, 52vw, 760px);
-    height: clamp(420px, 52vw, 760px);
+    width: clamp(360px, 46vw, 670px);
+    height: clamp(360px, 46vw, 670px);
     pointer-events: none;
-    opacity: 0;
-    animation: markIn 1.4s cubic-bezier(0.22, 1, 0.36, 1) 0.4s forwards;
+    animation: markIn 1.4s cubic-bezier(0.22, 1, 0.36, 1) 0.4s both;
   }
   .hero-mark img {
     width: 100%;
@@ -288,8 +277,7 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 2rem;
-    opacity: 0;
-    animation: fadeUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.65s forwards;
+    animation: fadeUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.65s both;
   }
   .pillar {
     display: flex;
@@ -493,17 +481,23 @@
     border-color: rgba(60, 34, 34, 0.18);
   }
   .venture-logo {
-    width: 64px;
-    height: 64px;
-    border-radius: 16px;
+    height: 40px;
+    margin-bottom: 1.75rem;
     display: flex;
     align-items: center;
-    justify-content: center;
-    margin-bottom: 1.5rem;
-    background: var(--cream);
-    border: 1px solid var(--line);
   }
-  .venture-logo svg { width: 36px; height: 36px; }
+  .venture-logo-img {
+    max-height: 100%;
+    max-width: 200px;
+    width: auto;
+    object-fit: contain;
+  }
+  /* Caffree's logo has tagline padding under the wordmark, so it reads smaller
+     at the same height; bump it up to visually align with the others */
+  .venture-logo-img[src="CF.png"] {
+    max-height: 130%;
+    transform: translateY(2px);
+  }
 
   .venture-stage {
     display: inline-flex;
@@ -705,15 +699,20 @@
      CONTACT
      ============================================================= */
   .contact {
-    padding: clamp(5rem, 10vh, 8rem) 0;
+    padding: clamp(6rem, 12vh, 9rem) 0 clamp(5rem, 10vh, 8rem);
     position: relative;
     overflow: hidden;
   }
   .contact-grid {
     display: grid;
-    grid-template-columns: 1.1fr 1fr;
-    gap: 4rem;
-    align-items: start;
+    grid-template-columns: 1fr;
+    justify-items: end;
+  }
+  .contact-text {
+    width: 100%;
+    max-width: 36rem;
+    position: relative;
+    z-index: 1;
   }
   .contact h2 {
     font-family: var(--serif);
@@ -729,7 +728,7 @@
     font-size: 1.1rem;
     color: var(--brown-light);
     line-height: 1.55;
-    margin-bottom: 2.5rem;
+    margin-bottom: 2rem;
     max-width: 42ch;
   }
   .contact-email {
@@ -739,65 +738,53 @@
     color: var(--brown);
     border-bottom: 1px solid var(--orange);
     padding-bottom: 4px;
-    margin-bottom: 3rem;
+    margin-bottom: 2.5rem;
     transition: color .35s var(--ease);
   }
   .contact-email:hover { color: var(--orange); }
 
-  /* Plane image — positioned to break out of the column grid, mirrors original site */
+  /* Plane image — anchored to top-left of the section, breaks out past the
+     viewport's left edge so the propeller logo is slightly cut off.
+     Mirrors original site's approach. */
   .plane-bg {
     position: absolute;
-    top: -40px;
-    left: 0;
-    transform: translateX(-30%);
-    width: 700px;
-    max-width: 60vw;
+    top: 90px;
+    left: -120px;
+    width: 620px;
     height: auto;
     pointer-events: none;
     z-index: 0;
-    opacity: 0;
-    animation: planeIn 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.2s forwards;
+    animation: planeIn 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
   }
   @keyframes planeIn {
-    from { opacity: 0; transform: translateX(-40%) translateY(20px); }
-    to   { opacity: 1; transform: translateX(-30%) translateY(0); }
+    from { opacity: 0; transform: translateX(-30px) translateY(20px); }
+    to   { opacity: 1; transform: translateX(0) translateY(0); }
   }
   @media (max-width: 1100px) {
     .plane-bg {
-      width: 560px;
-      animation: planeInMd 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.2s forwards;
+      left: -140px;
+      width: 540px;
     }
   }
-  @keyframes planeInMd {
-    from { opacity: 0; transform: translateX(-55%) translateY(20px); }
-    to   { opacity: 1; transform: translateX(-45%) translateY(0); }
-  }
-  @media (max-width: 700px) {
+  @media (max-width: 900px) {
     .plane-bg {
       position: relative;
       top: auto;
       left: auto;
       width: 100%;
       max-width: 480px;
-      margin: 0 auto -2rem;
+      margin: 0 auto -1rem;
       display: block;
-      animation: planeInMobile 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.2s forwards;
     }
-  }
-  @keyframes planeInMobile {
-    from { opacity: 0; transform: translateY(20px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  .contact .container {
-    position: relative;
-    z-index: 1;
+    .contact-grid {
+      justify-items: stretch;
+    }
   }
 
   .contact-form {
-    background: var(--cream-warm);
-    border: 1px solid var(--line);
-    border-radius: 20px;
-    padding: 2.5rem;
+    margin-top: 1rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--line);
   }
   .form-row { margin-bottom: 1.5rem; }
   .form-row label {
@@ -856,7 +843,6 @@
 
   @media (max-width: 900px) {
     .contact-grid { grid-template-columns: 1fr; gap: 2.5rem; }
-    .contact-form { padding: 1.75rem; }
   }
 
   /* =============================================================
@@ -937,16 +923,28 @@
     to { transform: rotate(360deg); }
   }
 
-  [data-reveal] {
-    opacity: 0;
-    transform: translateY(28px);
-    transition: opacity .9s var(--ease), transform .9s var(--ease);
+  /* Scroll-triggered reveals using CSS animation-timeline (no JS).
+     In browsers that don't support view(), elements simply stay at their
+     resting state (visible) — that's the safe fallback. */
+  @keyframes revealUp {
+    from { opacity: 0; transform: translateY(28px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
-  [data-reveal].in { opacity: 1; transform: translateY(0); }
-  [data-reveal][data-delay="1"] { transition-delay: .08s; }
-  [data-reveal][data-delay="2"] { transition-delay: .16s; }
-  [data-reveal][data-delay="3"] { transition-delay: .24s; }
-  [data-reveal][data-delay="4"] { transition-delay: .32s; }
+  @supports (animation-timeline: view()) {
+    [data-reveal] {
+      animation: revealUp linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 22%;
+    }
+    /* Stagger via animation-range — later items wait until they're a bit
+       further into view before completing */
+    [data-reveal][data-delay="1"] { animation-range: entry 0% cover 28%; }
+    [data-reveal][data-delay="2"] { animation-range: entry 0% cover 34%; }
+    [data-reveal][data-delay="3"] { animation-range: entry 0% cover 40%; }
+    [data-reveal][data-delay="4"] { animation-range: entry 0% cover 46%; }
+    [data-reveal][data-delay="5"] { animation-range: entry 0% cover 52%; }
+    [data-reveal][data-delay="6"] { animation-range: entry 0% cover 58%; }
+  }
 
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
@@ -954,9 +952,6 @@
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
     }
-    [data-reveal] { opacity: 1; transform: none; }
-    .hero-mark img,
-    .plane-bg { animation: none; }
   }
 </style>
 </head>
@@ -1062,33 +1057,26 @@
 
       <article class="venture" data-reveal data-delay="1">
         <div class="venture-logo" aria-hidden="true">
-          <!-- KetoTap Core: drop / continuous monitor mark -->
-          <svg viewBox="0 0 36 36" fill="none">
-            <path d="M18 4 C12 14, 8 20, 8 24 A10 10 0 0 0 28 24 C28 20, 24 14, 18 4 Z" fill="#35C3E3"/>
-            <circle cx="18" cy="24" r="3" fill="#FFF7E8"/>
-            <path d="M14 28 Q18 30, 22 28" stroke="#3C2222" stroke-width="1.4" fill="none" stroke-linecap="round"/>
-          </svg>
+          <img src="KT.png" alt="" class="venture-logo-img">
         </div>
         <div class="venture-stage">Seed · 2023</div>
         <h3>KetoTap Core</h3>
         <div class="venture-tag">Continuous ketone monitoring</div>
-        <p>The first non-invasive continuous ketone monitor — bringing real-time metabolic data to athletes, clinicians, and people managing diabetes, epilepsy, and metabolic health. Built on a defensible IP foundation developed alongside the underlying sensor science, with patent strategy spanning hardware, biochemistry, and signal interpretation.</p>
+        <p>The enzyme that makes continuous ketone monitoring viable. A novel BHB oxidase developed with UC Davis, Codexis, and EvoEnzyme — drop-in technology for blood meter manufacturers and continuous monitor developers, with the same electrochemistry as glucose oxidase and none of the dehydrogenase complexity.</p>
+        <a href="https://www.phenotap.com/" target="_blank" rel="noopener" class="venture-link">
+          Visit phenotap.com
+          <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 11L11 3M11 3H5M11 3V9"/></svg>
+        </a>
       </article>
 
       <article class="venture" data-reveal data-delay="2">
         <div class="venture-logo" aria-hidden="true">
-          <!-- Caffree: coffee bean / decaf mark -->
-          <svg viewBox="0 0 36 36" fill="none">
-            <ellipse cx="18" cy="18" rx="11" ry="14" fill="#3C2222"/>
-            <path d="M18 5 Q22 18 18 31" stroke="#FFF7E8" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-            <circle cx="27" cy="9" r="6" fill="#F15A2D"/>
-            <path d="M24 9 L30 9 M27 6 L27 12" stroke="#FFF7E8" stroke-width="1.5" stroke-linecap="round"/>
-          </svg>
+          <img src="CF.png" alt="" class="venture-logo-img">
         </div>
         <div class="venture-stage">Incubation · 2025</div>
         <h3>Caffree</h3>
         <div class="venture-tag">Precision decaffeination</div>
-        <p>An enzyme-based decaffeination technology developed in partnership with UC Davis researchers. Caffree lets consumers fine-tune caffeine levels at the cup — without sacrificing the flavor, ritual, or health benefits of their coffee.</p>
+        <p>An enzyme-based decaffeination technology developed in partnership with UC Davis researchers. Caffree gives consumers and producers a way to dial in caffeine levels precisely without sacrificing the flavor, ritual, or health benefits that make coffee what it is to the people who drink it.</p>
         <a href="https://caffree.com/" target="_blank" rel="noopener" class="venture-link">
           Visit caffree.com
           <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 11L11 3M11 3H5M11 3V9"/></svg>
@@ -1097,20 +1085,12 @@
 
       <article class="venture" data-reveal data-delay="3">
         <div class="venture-logo" aria-hidden="true">
-          <!-- AminoSense: protein / amino acid molecule mark -->
-          <svg viewBox="0 0 36 36" fill="none">
-            <circle cx="11" cy="12" r="4" fill="#35C3E3"/>
-            <circle cx="25" cy="12" r="4" fill="#35C3E3"/>
-            <circle cx="18" cy="25" r="4" fill="#F15A2D"/>
-            <line x1="11" y1="12" x2="25" y2="12" stroke="#3C2222" stroke-width="1.6"/>
-            <line x1="11" y1="12" x2="18" y2="25" stroke="#3C2222" stroke-width="1.6"/>
-            <line x1="25" y1="12" x2="18" y2="25" stroke="#3C2222" stroke-width="1.6"/>
-          </svg>
+          <img src="AS.png" alt="" class="venture-logo-img">
         </div>
         <div class="venture-stage">Incubation · 2026</div>
         <h3>AminoSense</h3>
         <div class="venture-tag">Measuring protein synthesis</div>
-        <p>A new measurement platform for amino acid metabolism and protein synthesis — the body's most fundamental signal of recovery, growth, and aging. Currently in stealth, with a science team incubated through Barnstorm.</p>
+        <p>A new measurement platform for amino acid metabolism — the body's most fundamental signal of recovery, growth, and aging. Currently in stealth, with a science team incubated through Barnstorm and a technology stack rooted in UC Davis biochemistry research.</p>
         <span class="venture-link" style="color: var(--brown-light); cursor: default;">
           Coming soon
         </span>
@@ -1285,7 +1265,7 @@
   <img class="plane-bg" src="PLANE.png" alt="" aria-hidden="true">
   <div class="container">
     <div class="contact-grid">
-      <div data-reveal>
+      <div class="contact-text" data-reveal data-delay="1">
         <div class="section-head" style="display:block; margin-bottom:0;">
           <div class="marker">04 / Get in touch</div>
         </div>
@@ -1295,28 +1275,27 @@
         </p>
         <a href="mailto:build@barnstormfoundry.com" class="contact-email">build@barnstormfoundry.com</a>
 
+        <form class="contact-form" action="mailto:build@barnstormfoundry.com" method="post" enctype="text/plain">
+          <div class="form-row">
+            <label for="f-name">Name <span class="req">*</span></label>
+            <input type="text" id="f-name" name="name" required>
+          </div>
+          <div class="form-row">
+            <label for="f-email">Email <span class="req">*</span></label>
+            <input type="email" id="f-email" name="email" required>
+          </div>
+          <div class="form-row">
+            <label for="f-msg">Message</label>
+            <textarea id="f-msg" name="message" placeholder="Hi, I'd like to chat about…"></textarea>
+          </div>
+          <button type="submit" class="form-submit">
+            Send
+            <svg class="arrow" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6">
+              <path d="M3 11L11 3M11 3H5M11 3V9"/>
+            </svg>
+          </button>
+        </form>
       </div>
-
-      <form class="contact-form" data-reveal data-delay="1" onsubmit="event.preventDefault(); const b=this.querySelector('.form-submit'); b.textContent='Sent — thank you'; setTimeout(()=>{this.reset(); b.innerHTML='Send <svg class=&quot;arrow&quot; viewBox=&quot;0 0 14 14&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.6&quot;><path d=&quot;M3 11L11 3M11 3H5M11 3V9&quot;/></svg>';},2200);">
-        <div class="form-row">
-          <label for="f-name">Name <span class="req">*</span></label>
-          <input type="text" id="f-name" name="name" required>
-        </div>
-        <div class="form-row">
-          <label for="f-email">Email <span class="req">*</span></label>
-          <input type="email" id="f-email" name="email" required>
-        </div>
-        <div class="form-row">
-          <label for="f-msg">Message</label>
-          <textarea id="f-msg" name="message" placeholder="Hi, I'd like to chat about…"></textarea>
-        </div>
-        <button type="submit" class="form-submit">
-          Send
-          <svg class="arrow" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6">
-            <path d="M3 11L11 3M11 3H5M11 3V9"/>
-          </svg>
-        </button>
-      </form>
     </div>
   </div>
 </section>
@@ -1358,23 +1337,6 @@
     </div>
   </div>
 </footer>
-
-<script>
-  const nav = document.getElementById('nav');
-  const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 24);
-  window.addEventListener('scroll', onScroll, { passive: true });
-  onScroll();
-
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        e.target.classList.add('in');
-        io.unobserve(e.target);
-      }
-    });
-  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
-  document.querySelectorAll('[data-reveal]').forEach(el => io.observe(el));
-</script>
 
 </body>
 </html>
