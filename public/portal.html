@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aminosense Web Reader v4.9</title>
+    <title>Aminosense Web Reader v4.12</title>
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
@@ -80,15 +80,40 @@
             
             <label style="margin-left: 15px;">Rate:
                 <select id="inputSampleRate">
-                    <option value="0.2">5 Hz (Fast)</option>
+                    <option value="0.1">10 Hz (Ultra)</option> <option value="0.2">5 Hz (Fast)</option>
                     <option value="0.5" selected>2 Hz (Std)</option>
                     <option value="1.0">1 Hz (Slow)</option>
                 </select>
             </label>
 
-            <label style="margin-left: 15px; color: #dc3545;"><strong>Potential (mV):</strong> <input type="number" id="inputPotential" value="-650" style="width: 55px;"></label>
+            <label style="margin-left: 15px;">Port:
+                <select id="inputChannel">
+                    <option value="0" selected>Left (Ch 1)</option>
+                    <option value="1">Right (Ch 2)</option>
+                </select>
+            </label>
 
-            <label style="margin-left: 15px; color: #007ACC;"><strong>Cal Factor:</strong> <input type="number" id="inputCalFactor" value="1.0" step="0.1" style="width: 50px;"></label>
+            <div style="margin-top: 10px;">
+                <label style="color: #dc3545;"><strong>Potential (mV):</strong> <input type="number" id="inputPotential" value="-650" style="width: 55px;"></label>
+                
+                <label style="margin-left: 15px; color: #28a745;"><strong>Current Range:</strong>
+                    <select id="inputCurrentRange" style="width: 80px;">
+                        <option value="1m">1 mA</option>
+                        <option value="100u">100 µA</option>
+                        <option value="10u" selected>10 µA</option>
+                        <option value="1u">1 µA</option>
+                        <option value="100n">100 nA</option>
+                    </select>
+                </label>
+
+                <label style="margin-left: 15px; color: #007ACC;"><strong>Cal Factor:</strong> <input type="number" id="inputCalFactor" value="1.0" step="0.1" style="width: 50px;"></label>
+                
+                <label style="margin-left: 15px; color: #666;"><strong>Overlay:</strong>
+                    <select id="inputReference" style="width: 150px;">
+                        <option value="-1">None</option>
+                    </select>
+                </label>
+            </div>
         </div>
 
         <div class="panel">
@@ -158,10 +183,11 @@
                             <th>Plot</th>
                             <th>Time/Date</th>
                             <th>Subject ID</th>
+                            <th>Port</th>
                             <th>Condition</th>
                             <th>Variable</th>
                             <th>Cal Factor</th>
-                            <th>Result (uM)</th>
+                            <th>Result (µM)</th>
                         </tr>
                     </thead>
                     <tbody id="runTableBody">
@@ -173,7 +199,7 @@
 
     <div class="footer-container">
         <span>For Research Use Only. Not for diagnostic use.</span>
-        <span>v4.9</span>
+        <span>v4.12</span>
     </div>
 
     <script>
@@ -208,7 +234,6 @@
             zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'xy' }
         };
 
-        // NEW: "interaction" object added to deeply enable tooltips across the whole line
         const ctxDash = document.getElementById('dashboardChart').getContext('2d');
         const dashboardChart = new Chart(ctxDash, {
             type: 'line',
@@ -241,7 +266,7 @@
             tbody.innerHTML = ""; 
 
             if(masterLog.length === 0) {
-                tbody.innerHTML = "<tr><td colspan='7' style='text-align:center;'>No runs saved yet.</td></tr>";
+                tbody.innerHTML = "<tr><td colspan='8' style='text-align:center;'>No runs saved yet.</td></tr>";
                 updateDashboardChart();
                 return;
             }
@@ -250,11 +275,13 @@
                 const run = masterLog[i];
                 const tr = document.createElement('tr');
                 let currentCal = run.cal_factor !== undefined ? run.cal_factor : "1.0";
+                let portName = run.port === "1" ? "Right" : "Left";
                 
                 tr.innerHTML = `
                     <td style="text-align:center;"><input type="checkbox" class="plot-check" data-index="${i}" onchange="updateDashboardChart()"></td>
                     <td>${run.timestamp}</td>
                     <td class="editable" contenteditable="true" onblur="saveEdit(${i}, 'subject', this.innerText)">${run.subject}</td>
+                    <td>${portName}</td>
                     <td class="editable" contenteditable="true" onblur="saveEdit(${i}, 'condition', this.innerText)">${run.condition}</td>
                     <td class="editable" contenteditable="true" onblur="saveEdit(${i}, 'variable', this.innerText)">${run.variable}</td>
                     <td class="editable" contenteditable="true" onblur="saveEdit(${i}, 'cal_factor', this.innerText)">${currentCal}</td>
@@ -276,6 +303,7 @@
                 }
                 localStorage.setItem('aminosenseMasterLog', JSON.stringify(masterLog));
                 if (field === 'cal_factor') refreshDashboard(); else if (field === 'condition' || field === 'variable') updateDashboardChart(); 
+                populateOverlayMenu();
             }
         };
 
@@ -388,15 +416,46 @@
 
         const ctxLive = document.getElementById('liveChart').getContext('2d');
         const liveChart = new Chart(ctxLive, {
-            type: 'line', data: { labels: [], datasets: [{ label: 'Current (µA)', data: [], borderColor: '#003366', borderWidth: 2, pointRadius: 0, fill: false, tension: 0.1 }] },
+            type: 'line', 
+            data: { 
+                datasets: [
+                    { label: 'Live Current (µA)', data: [], borderColor: '#dc3545', borderWidth: 2, pointRadius: 0, fill: false, tension: 0.1 },
+                    { label: 'Reference Ghost', data: [], borderColor: '#adb5bd', borderWidth: 2, borderDash: [5, 5], pointRadius: 0, fill: false, tension: 0.1 }
+                ] 
+            },
             options: { 
                 responsive: true, maintainAspectRatio: false, animation: false, 
-                interaction: { mode: 'nearest', axis: 'xy', intersect: false }, // Tooltips enabled here too!
-                scales: { x: { title: { display: true, text: 'Time (s)' } }, y: { title: { display: true, text: 'Current (µA)' } } } 
+                interaction: { mode: 'nearest', axis: 'xy', intersect: false }, 
+                scales: { 
+                    x: { type: 'linear', title: { display: true, text: 'Time (s)' } }, 
+                    y: { title: { display: true, text: 'Current (µA)' } } 
+                } 
             }
         });
 
         function log(message) { logDiv.innerHTML += `<div>> ${message}</div>`; logDiv.scrollTop = logDiv.scrollHeight; }
+
+        function populateOverlayMenu() {
+            let masterLog = JSON.parse(localStorage.getItem('aminosenseMasterLog')) || [];
+            const selectRef = document.getElementById('inputReference');
+            
+            let currentValue = selectRef.value; 
+            selectRef.innerHTML = '<option value="-1">None</option>';
+            
+            for (let i = masterLog.length - 1; i >= 0; i--) {
+                const run = masterLog[i];
+                let option = document.createElement('option');
+                option.value = i;
+                option.text = `${run.subject} - ${run.condition} (${run.variable})`;
+                selectRef.appendChild(option);
+            }
+            
+            if(document.querySelector(`#inputReference option[value="${currentValue}"]`)) {
+                selectRef.value = currentValue;
+            }
+        }
+        
+        populateOverlayMenu();
 
         btnConnect.addEventListener('click', async () => {
             try {
@@ -416,7 +475,28 @@
 
         btnMeasure.addEventListener('click', async () => {
             if (!rxCharacteristic) return;
-            currentDataPoints = []; liveChart.data.labels = []; liveChart.data.datasets[0].data = []; liveChart.update();
+            
+            currentDataPoints = []; 
+            liveChart.data.datasets[0].data = []; 
+            liveChart.data.datasets[1].data = []; 
+            
+            const refIndex = document.getElementById('inputReference').value;
+            if (refIndex !== "-1") {
+                let masterLog = JSON.parse(localStorage.getItem('aminosenseMasterLog')) || [];
+                let refRun = masterLog[refIndex];
+                if (refRun && refRun.rawData) {
+                    let refInterval = refRun.interval_s || 0.5;
+                    liveChart.data.datasets[1].data = refRun.rawData.map((val, idx) => ({
+                        x: parseFloat((idx * refInterval).toFixed(1)),
+                        y: val
+                    }));
+                    liveChart.data.datasets[1].label = `Ref: ${refRun.subject} (${refRun.condition})`;
+                    log(`Loaded ghost overlay for ${refRun.subject}`);
+                }
+            } else {
+                liveChart.data.datasets[1].label = "Reference Ghost";
+            }
+            liveChart.update();
             
             isAborting = false;
             btnMeasure.disabled = true; 
@@ -431,18 +511,26 @@
             
             let appliedVoltage_mV = document.getElementById('inputPotential').value;
             let vString = appliedVoltage_mV + "m"; 
+
+            let selectedChannel = document.getElementById('inputChannel').value;
+            let portName = selectedChannel === "1" ? "Right" : "Left";
             
+            // NEW: Get the selected Current Range!
+            let crString = document.getElementById('inputCurrentRange').value;
+
             let waitCommand = delaySecs > 0 ? `wait ${delaySecs}\n` : "";
-            const script = `e\nvar p\nvar c\nset_pgstat_chan 0\nset_pgstat_mode 2\nset_e ${vString}\ncell_on\n${waitCommand}meas_loop_ca p c ${vString} ${msString} ${runSecs}\npck_start\npck_add p\npck_add c\npck_end\nendloop\ncell_off\n\n`;
+            
+            // THE FIX: Notice the addition of "set_cr ${crString}" to manually set the ADC precision
+            const script = `e\nvar p\nvar c\nset_pgstat_chan ${selectedChannel}\nset_pgstat_mode 2\nset_cr ${crString}\nset_e ${vString}\ncell_on\n${waitCommand}meas_loop_ca p c ${vString} ${msString} ${runSecs}\npck_start\npck_add p\npck_add c\npck_end\nendloop\ncell_off\n\n`;
 
             try {
-                log(`Sending parameters (Rate: ${currentInterval}s, Potential: ${appliedVoltage_mV}mV)...`);
+                log(`Sending parameters (Port: ${portName}, Rate: ${currentInterval}s, Range: ${crString}, Potential: ${appliedVoltage_mV}mV)...`);
                 const scriptBytes = new TextEncoder().encode(script);
                 for (let i = 0; i < scriptBytes.length; i += 20) {
                     await rxCharacteristic.writeValue(scriptBytes.slice(i, i + 20));
                     await new Promise(resolve => setTimeout(resolve, 20));
                 }
-                log("Test Started!");
+                log(`Test Started on ${portName} Port!`);
             } catch (error) { log(`Send Error: ${error.message}`); btnMeasure.disabled = false; btnAbort.disabled = true;}
         });
 
@@ -457,12 +545,8 @@
                 statusText.innerText = `Result: Aborting...`;
 
                 const abortBytes = new TextEncoder().encode("\nZ\n");
-                
-                if (rxCharacteristic.properties.writeWithoutResponse) {
-                    await rxCharacteristic.writeValueWithoutResponse(abortBytes);
-                } else {
-                    await rxCharacteristic.writeValue(abortBytes);
-                }
+                if (rxCharacteristic.properties.writeWithoutResponse) { await rxCharacteristic.writeValueWithoutResponse(abortBytes); } 
+                else { await rxCharacteristic.writeValue(abortBytes); }
                 
                 setTimeout(() => {
                     if (isAborting) {
@@ -472,7 +556,6 @@
                         statusText.innerText = `Result: Force Aborted`;
                     }
                 }, 3000);
-
             } catch (error) { log(`Abort Error: ${error.message}`); }
         });
 
@@ -493,8 +576,9 @@
                         let uA = (rawInt * mult) * 1e6;
                         currentDataPoints.push(uA);
                         
-                        liveChart.data.labels.push((currentDataPoints.length * currentInterval).toFixed(1));
-                        liveChart.data.datasets[0].data.push(uA); liveChart.update();
+                        let currentX = parseFloat((currentDataPoints.length * currentInterval).toFixed(1));
+                        liveChart.data.datasets[0].data.push({ x: currentX, y: uA }); 
+                        liveChart.update();
                     }
                 }
             }
@@ -525,13 +609,17 @@
             let masterLog = JSON.parse(localStorage.getItem('aminosenseMasterLog')) || [];
             masterLog.push({
                 id: Date.now(), timestamp: new Date().toLocaleString(),
-                subject: document.getElementById('tbSubjectID').value, condition: document.getElementById('tbCondition').value,
+                subject: document.getElementById('tbSubjectID').value, 
+                port: document.getElementById('inputChannel').value, 
+                condition: document.getElementById('tbCondition').value,
                 variable: document.getElementById('tbVarValue').value, delay_s: document.getElementById('inputDelay').value,
                 cal_factor: calFactor, result_uA: averageRaw.toFixed(4), result_uM: finalConc.toFixed(2), 
                 interval_s: currentInterval, 
                 rawData: [...currentDataPoints]
             });
             localStorage.setItem('aminosenseMasterLog', JSON.stringify(masterLog));
+
+            populateOverlayMenu();
 
             const chkAuto = document.getElementById('chkAutoIncrement');
             if (chkAuto && chkAuto.checked) {
@@ -543,17 +631,23 @@
         // ==========================================
         // 4. EXPORT & SHARE LOGIC
         // ==========================================
+        function forceDownload(blob, fileName) {
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob); 
+            link.download = fileName;
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        }
+
         function exportData(csvContent, fileName) {
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const file = new File([blob], fileName, { type: 'text/csv' });
-            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+            if (isMobile && navigator.canShare && navigator.canShare({ files: [file] })) {
                 navigator.share({ title: 'Aminosense Data Export', text: 'Attached is the latest Aminosense CSV data export.', files: [file] })
-                .catch((error) => console.log('Sharing failed', error));
-            } else {
-                const link = document.createElement("a");
-                link.href = URL.createObjectURL(blob); link.download = fileName;
-                document.body.appendChild(link); link.click(); document.body.removeChild(link);
-            }
+                .catch((error) => { console.log('Sharing failed, falling back to download', error); forceDownload(blob, fileName); });
+            } else { forceDownload(blob, fileName); }
         }
 
         btnDownload.addEventListener('click', () => {
@@ -565,19 +659,24 @@
         btnDownloadMaster.addEventListener('click', () => {
             let masterLog = JSON.parse(localStorage.getItem('aminosenseMasterLog')) || [];
             if (masterLog.length === 0) { alert("Master Log is empty!"); return; }
-            let csv = "Timestamp,SubjectID,Condition,VariableValue,EquilDelay_s,CalFactor,FinalCurrent_uA,FinalConc_uM,Time_s,RawCurrent_uA\n";
+            let csv = "Timestamp,SubjectID,Port,Condition,VariableValue,EquilDelay_s,CalFactor,FinalCurrent_uA,FinalConc_uM,Time_s,RawCurrent_uA\n";
             masterLog.forEach(run => { 
                 let delayStr = run.delay_s !== undefined ? run.delay_s : "N/A", calStr = run.cal_factor !== undefined ? run.cal_factor : "1.0"; 
+                let portName = run.port === "1" ? "Right" : "Left"; 
                 if (run.rawData && run.rawData.length > 0) {
                     let interval = run.interval_s || 0.5; 
-                    for (let i = 0; i < run.rawData.length; i++) csv += `"${run.timestamp}","${run.subject}","${run.condition}",${run.variable},${delayStr},${calStr},${run.result_uA},${run.result_uM},${(i*interval).toFixed(1)},${run.rawData[i].toFixed(4)}\n`;
-                } else csv += `"${run.timestamp}","${run.subject}","${run.condition}",${run.variable},${delayStr},${calStr},${run.result_uA},${run.result_uM},,\n`;
+                    for (let i = 0; i < run.rawData.length; i++) csv += `"${run.timestamp}","${run.subject}","${portName}","${run.condition}",${run.variable},${delayStr},${calStr},${run.result_uA},${run.result_uM},${(i*interval).toFixed(1)},${run.rawData[i].toFixed(4)}\n`;
+                } else csv += `"${run.timestamp}","${run.subject}","${portName}","${run.condition}",${run.variable},${delayStr},${calStr},${run.result_uA},${run.result_uM},,\n`;
             });
             exportData(csv, `Aminosense_Detailed_MasterLog_${new Date().getTime()}.csv`);
         });
 
         btnClearMaster.addEventListener('click', () => {
-            if (confirm("Permanently delete all saved runs?")) { localStorage.removeItem('aminosenseMasterLog'); refreshDashboard(); }
+            if (confirm("Permanently delete all saved runs?")) { 
+                localStorage.removeItem('aminosenseMasterLog'); 
+                refreshDashboard(); 
+                populateOverlayMenu(); 
+            }
         });
     </script>
 </body>
