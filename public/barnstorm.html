@@ -636,27 +636,7 @@
   }
   .member:hover::before { transform: scaleX(1); }
 
-  .member-mono {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    background: rgba(53, 195, 227, 0.15);
-    border: 1px solid rgba(53, 195, 227, 0.3);
-    color: var(--blue);
-    font-family: var(--serif);
-    font-size: 1.3rem;
-    font-style: italic;
-    margin-bottom: 1.25rem;
-    flex-shrink: 0;
-  }
-  .member:nth-child(2n) .member-mono {
-    background: rgba(241, 90, 45, 0.15);
-    border-color: rgba(241, 90, 45, 0.3);
-    color: var(--orange);
-  }
+  /* (member-mono initials removed from design) */
 
   .member h3 {
     font-family: var(--serif);
@@ -938,20 +918,18 @@
     to   { opacity: 1; transform: translateY(0); }
   }
   @supports (animation-timeline: view()) {
-    [data-reveal] {
+    [data-reveal]:not(.member) {
       animation: revealUp linear both;
       animation-timeline: view();
       animation-range: entry 0% cover 18%;
     }
-    /* Tight stagger — keep all items finishing inside a similar viewport
-       window so later items aren't stuck mid-animation when they end up
-       near the section's bottom edge */
-    [data-reveal][data-delay="1"] { animation-range: entry 0% cover 22%; }
-    [data-reveal][data-delay="2"] { animation-range: entry 0% cover 26%; }
-    [data-reveal][data-delay="3"] { animation-range: entry 0% cover 30%; }
-    [data-reveal][data-delay="4"] { animation-range: entry 0% cover 34%; }
-    [data-reveal][data-delay="5"] { animation-range: entry 0% cover 38%; }
-    [data-reveal][data-delay="6"] { animation-range: entry 0% cover 42%; }
+    /* Tight stagger for non-team reveals */
+    [data-reveal]:not(.member)[data-delay="1"] { animation-range: entry 0% cover 22%; }
+    [data-reveal]:not(.member)[data-delay="2"] { animation-range: entry 0% cover 26%; }
+    [data-reveal]:not(.member)[data-delay="3"] { animation-range: entry 0% cover 30%; }
+    [data-reveal]:not(.member)[data-delay="4"] { animation-range: entry 0% cover 34%; }
+    [data-reveal]:not(.member)[data-delay="5"] { animation-range: entry 0% cover 38%; }
+    [data-reveal]:not(.member)[data-delay="6"] { animation-range: entry 0% cover 42%; }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -1097,8 +1075,8 @@
         </div>
         <div class="venture-stage">Incubation · 2026</div>
         <h3>AminoSense</h3>
-        <div class="venture-tag">Measuring protein synthesis</div>
-        <p>A new measurement platform for amino acid metabolism — the body's most fundamental signal of recovery, growth, and aging. Currently in stealth, with a science team incubated through Barnstorm and a technology stack rooted in UC Davis biochemistry research.</p>
+        <div class="venture-tag">Measuring amino acid levels</div>
+        <p>A new measurement platform for amino acids — the body's most fundamental signal of recovery, growth, and aging. Currently in stealth, with a science team incubated through Barnstorm and a technology stack rooted in UC Davis biochemistry research.</p>
         <span class="venture-link" style="color: var(--brown-light); cursor: default;">
           Coming soon
         </span>
@@ -1129,7 +1107,6 @@
       <div class="team-grid">
 
         <article class="member" data-reveal data-delay="1">
-          <div class="member-mono">A</div>
           <h3>Aryeh Ganz</h3>
           <div class="member-role">Managing Partner &amp; Co-founder</div>
           <div class="member-domain">Founder, Cornucopian Capital</div>
@@ -1137,7 +1114,6 @@
         </article>
 
         <article class="member" data-reveal data-delay="2">
-          <div class="member-mono">J</div>
           <h3>Justin Siegel, PhD</h3>
           <div class="member-role">Co-founder</div>
           <div class="member-domain">Biochemistry &amp; Molecular Medicine</div>
@@ -1155,7 +1131,6 @@
       <div class="team-grid">
 
         <article class="member" data-reveal data-delay="1">
-          <div class="member-mono">G</div>
           <h3>Giovanni Battistini</h3>
           <div class="member-role">Venture Partner · since 2023</div>
           <div class="member-domain">CEO, KetoTap Core</div>
@@ -1163,7 +1138,6 @@
         </article>
 
         <article class="member" data-reveal data-delay="2">
-          <div class="member-mono">E</div>
           <h3>Eric Quick</h3>
           <div class="member-role">Venture Partner · since 2025</div>
           <div class="member-domain">CEO, Caffree</div>
@@ -1171,7 +1145,6 @@
         </article>
 
         <article class="member" data-reveal data-delay="3">
-          <div class="member-mono">A</div>
           <h3>Avi Rosenbaum, PhD</h3>
           <div class="member-role">Venture Partner · 2026 EIR</div>
           <div class="member-domain">COO, AminoSense</div>
@@ -1189,7 +1162,6 @@
       <div class="team-grid">
 
         <article class="member" data-reveal data-delay="1">
-          <div class="member-mono">R</div>
           <h3>Robbie Devine, PhD</h3>
           <div class="member-role">Scientific Co-founder</div>
           <div class="member-domain">Biosensing &amp; Metabolic Measurement</div>
@@ -1197,7 +1169,6 @@
         </article>
 
         <article class="member" data-reveal data-delay="2">
-          <div class="member-mono">A</div>
           <h3>Augustine Arredondo</h3>
           <div class="member-role">Scientific Co-founder</div>
           <div class="member-domain">Enzyme &amp; Ingredient Innovation</div>
@@ -1215,7 +1186,6 @@
       <div class="team-grid">
 
         <article class="member" data-reveal data-delay="1">
-          <div class="member-mono">P</div>
           <h3>Phil Johnston</h3>
           <div class="member-role">Advisor</div>
           <div class="member-domain">Life Sciences Talent</div>
@@ -1223,7 +1193,6 @@
         </article>
 
         <article class="member" data-reveal data-delay="2">
-          <div class="member-mono">P</div>
           <h3>Peter Christey</h3>
           <div class="member-role">Advisor</div>
           <div class="member-domain">Food Science &amp; Operations</div>
@@ -1231,7 +1200,6 @@
         </article>
 
         <article class="member" data-reveal data-delay="3">
-          <div class="member-mono">E</div>
           <h3>Erich Veitenheimer III</h3>
           <div class="member-role">Advisor</div>
           <div class="member-domain">Biotech IP</div>
@@ -1239,15 +1207,13 @@
         </article>
 
         <article class="member" data-reveal data-delay="4">
-          <div class="member-mono">L</div>
           <h3>Len Nannarone</h3>
           <div class="member-role">Advisor</div>
-          <div class="member-domain">Commercial &amp; Brand Strategy</div>
-          <p class="member-bio">Len advises Barnstorm's portfolio on commercial strategy, brand positioning, and go-to-market design. He brings a career of operating experience inside consumer health and CPG businesses — translating clinical and scientific differentiation into stories consumers act on, and building the channels to deliver them at scale.</p>
+          <div class="member-domain">Corporate Law &amp; M&amp;A</div>
+          <p class="member-bio">Founder of Disruptive Legal Fees, advising Barnstorm and its ventures on corporate matters, M&amp;A, and securities law. Earlier career in M&amp;A at Kirkland &amp; Ellis and Intel; since then has taken numerous startups from formation to exit, with acquirers including Uber, Yahoo, Google, Apple, and major pharma.</p>
         </article>
 
         <article class="member" data-reveal data-delay="5">
-          <div class="member-mono">H</div>
           <h3>Harold Schmitz, PhD</h3>
           <div class="member-role">Advisor</div>
           <div class="member-domain">Food &amp; Health Innovation</div>
@@ -1255,7 +1221,6 @@
         </article>
 
         <article class="member" data-reveal data-delay="6">
-          <div class="member-mono">J</div>
           <h3>Joe Wang, PhD</h3>
           <div class="member-role">Advisor</div>
           <div class="member-domain">Biosensors &amp; Wearable Diagnostics</div>
