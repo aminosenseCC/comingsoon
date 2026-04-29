@@ -1,0 +1,1380 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Barnstorm Foundry — Reimagining Health</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* =============================================================
+     BRAND TOKENS
+     ============================================================= */
+  :root {
+    --brown:        #3C2222;
+    --brown-deep:   #2a1717;
+    --brown-light:  #6D4D4A;
+    --blue:         #35C3E3;
+    --blue-deep:    #1ea5c5;
+    --orange:       #F15A2D;
+    --orange-deep:  #d44318;
+    --cream:        #FFF7E8;
+    --cream-warm:   #f5ecd6;
+    --line:         rgba(60, 34, 34, 0.12);
+    --line-dark:    rgba(255, 247, 232, 0.15);
+
+    --serif: 'Instrument Serif', 'Times New Roman', serif;
+    --sans:  'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+    --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: var(--sans);
+    background: var(--cream);
+    color: var(--brown);
+    font-size: 16px;
+    line-height: 1.5;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  img, svg { max-width: 100%; display: block; }
+  a { color: inherit; text-decoration: none; }
+  button { font: inherit; cursor: pointer; border: none; background: none; }
+
+  .container {
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 0 clamp(1.5rem, 5vw, 4rem);
+  }
+
+  /* =============================================================
+     NAV
+     ============================================================= */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 1.25rem 0;
+    transition: background .3s var(--ease), backdrop-filter .3s var(--ease), padding .3s var(--ease);
+  }
+  nav.scrolled {
+    background: rgba(255, 247, 232, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+  nav .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    color: var(--brown);
+    text-decoration: none;
+  }
+  .brand-logo {
+    display: block;
+    height: 44px;
+    width: auto;
+    transition: height .3s var(--ease);
+  }
+  nav.scrolled .brand-logo { height: 34px; }
+  /* Footer uses mark only (horizontal logo's brown text wouldn't read on dark bg) */
+  .brand-mark-only {
+    display: block;
+    height: 36px;
+    width: auto;
+  }
+  .brand-text { line-height: 1; }
+  .brand-text span {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 400;
+    letter-spacing: 0.18em;
+    color: var(--brown-light);
+    margin-top: 2px;
+    text-transform: uppercase;
+  }
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    list-style: none;
+  }
+  .nav-links a {
+    font-size: 0.9rem;
+    color: var(--brown);
+    position: relative;
+    padding: 0.5rem 0;
+    transition: color .35s var(--ease);
+  }
+  .nav-links a:not(.nav-cta)::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 1px;
+    background: var(--orange);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform .35s var(--ease);
+  }
+  .nav-links a:not(.nav-cta):hover { color: var(--orange); }
+  .nav-links a:not(.nav-cta):hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+  .nav-cta {
+    padding: 0.55rem 1.1rem !important;
+    border: 1px solid var(--brown);
+    border-radius: 999px;
+    transition: all .3s var(--ease);
+  }
+  .nav-cta:hover {
+    background: var(--brown);
+    color: var(--cream) !important;
+  }
+
+  @media (max-width: 800px) {
+    .nav-links { gap: 1rem; }
+    .nav-links li:nth-child(2),
+    .nav-links li:nth-child(3) { display: none; }
+  }
+
+  /* =============================================================
+     HERO
+     ============================================================= */
+  .hero {
+    position: relative;
+    padding: clamp(7rem, 14vh, 10rem) 0 clamp(5rem, 10vh, 8rem);
+    overflow: hidden;
+  }
+
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--orange);
+    font-weight: 500;
+    margin-bottom: 2rem;
+    opacity: 0;
+    animation: fadeUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.1s forwards;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    width: 28px;
+    height: 1px;
+    background: var(--orange);
+  }
+
+  .hero h1 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(3.5rem, 9vw, 7rem);
+    line-height: 0.96;
+    letter-spacing: -0.025em;
+    color: var(--brown);
+    max-width: 14ch;
+    margin-bottom: 2rem;
+    opacity: 0;
+    animation: fadeUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.2s forwards;
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--orange);
+    font-weight: 400;
+  }
+
+  .hero-lead {
+    font-size: clamp(1.05rem, 1.4vw, 1.2rem);
+    line-height: 1.55;
+    color: var(--brown-light);
+    max-width: 52ch;
+    margin-bottom: 3rem;
+    opacity: 0;
+    animation: fadeUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.35s forwards;
+  }
+  .hero-lead a {
+    color: var(--brown);
+    font-weight: 600;
+    border-bottom: 1px solid var(--blue);
+    padding-bottom: 1px;
+    transition: color .35s var(--ease);
+  }
+  .hero-lead a:hover { color: var(--blue-deep); }
+
+  .hero-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.5s forwards;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 1rem 1.6rem;
+    font-size: 0.92rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    border-radius: 999px;
+    transition: all .3s var(--ease);
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .btn-primary {
+    background: var(--brown);
+    color: var(--cream);
+    border: 1px solid var(--brown);
+  }
+  .btn-primary:hover {
+    background: var(--orange);
+    border-color: var(--orange);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px -10px rgba(241, 90, 45, 0.5);
+  }
+  .btn-ghost {
+    color: var(--brown);
+    border: 1px solid var(--line);
+  }
+  .btn-ghost:hover {
+    border-color: var(--brown);
+    transform: translateY(-2px);
+  }
+  .btn .arrow {
+    width: 14px; height: 14px;
+    transition: transform .3s var(--ease);
+  }
+  .btn:hover .arrow { transform: translate(3px, -3px); }
+
+  /* Hero propeller mark — references "barnstorming" */
+  .hero-mark {
+    position: absolute;
+    top: 50%;
+    right: -10%;
+    transform: translateY(calc(-50% + 30px));
+    width: clamp(420px, 52vw, 760px);
+    height: clamp(420px, 52vw, 760px);
+    pointer-events: none;
+    opacity: 0;
+    animation: markIn 1.4s cubic-bezier(0.22, 1, 0.36, 1) 0.4s forwards;
+  }
+  .hero-mark img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    animation: spinProp 60s linear infinite;
+    transform-origin: center center;
+  }
+
+  /* Hero pillars */
+  .hero-pillars {
+    margin-top: 5rem;
+    padding-top: 2.5rem;
+    border-top: 1px solid var(--line);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    opacity: 0;
+    animation: fadeUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.65s forwards;
+  }
+  .pillar {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  .pillar-num {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 1.1rem;
+    color: var(--orange);
+    flex-shrink: 0;
+    padding-top: 2px;
+  }
+  .pillar-label {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--brown-light);
+    margin-bottom: 0.3rem;
+    font-weight: 500;
+  }
+  .pillar-text {
+    font-size: 0.95rem;
+    color: var(--brown);
+    line-height: 1.4;
+  }
+
+  @media (max-width: 800px) {
+    .hero-mark {
+      right: -35%;
+      top: 75%;
+      opacity: 0.35 !important;
+      animation: none;
+    }
+    .hero-pillars {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+  }
+
+  /* =============================================================
+     SECTION HEAD
+     ============================================================= */
+  .section-head {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 3rem;
+    margin-bottom: 4rem;
+    align-items: center;
+  }
+  /* Title column wraps the marker + h2; marker is lifted out of layout
+     so the grid centers the paragraph against the h2 only, not the
+     marker+h2 stack. Works whether the h2 is one line or wraps. */
+  .section-head > div {
+    position: relative;
+  }
+  .section-head .marker {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    margin-bottom: 1rem;
+    display: inline-block;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--orange);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .section-head h2 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(2.5rem, 5vw, 4.2rem);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--brown);
+  }
+  .section-head h2 em { font-style: italic; color: var(--orange); }
+  .section-head p {
+    font-size: clamp(1rem, 1.2vw, 1.1rem);
+    line-height: 1.55;
+    color: var(--brown-light);
+    max-width: 50ch;
+  }
+  @media (max-width: 900px) {
+    .section-head { grid-template-columns: 1fr; gap: 1.5rem; }
+    .section-head > p { transform: none; }
+  }
+
+  /* =============================================================
+     APPROACH — expanded process
+     ============================================================= */
+  .approach {
+    padding: clamp(5rem, 10vh, 8rem) 0;
+    background: var(--cream-warm);
+    position: relative;
+    overflow: hidden;
+  }
+  .approach-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1rem;
+  }
+  .step {
+    background: var(--cream);
+    border-radius: 16px;
+    padding: 1.75rem 1.5rem;
+    border: 1px solid var(--line);
+    position: relative;
+    transition: transform .4s var(--ease), box-shadow .4s var(--ease), border-color .4s var(--ease);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .step::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(120% 80% at 100% 0%, rgba(53, 195, 227, 0.08) 0%, transparent 50%);
+    opacity: 0;
+    transition: opacity .4s var(--ease);
+  }
+  .step:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 24px 48px -20px rgba(60, 34, 34, 0.15);
+    border-color: rgba(60, 34, 34, 0.18);
+  }
+  .step:hover::before { opacity: 1; }
+
+  .step-num {
+    font-family: var(--sans);
+    font-weight: 500;
+    font-size: 0.78rem;
+    letter-spacing: 0.18em;
+    color: var(--orange);
+    line-height: 1;
+    margin-bottom: 1.25rem;
+    display: block;
+  }
+  .step h3 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 1.5rem;
+    letter-spacing: -0.01em;
+    color: var(--brown);
+    margin-bottom: 0.6rem;
+    line-height: 1.1;
+  }
+  .step p {
+    font-size: 0.88rem;
+    line-height: 1.55;
+    color: var(--brown-light);
+  }
+  .step-meta {
+    margin-top: auto;
+    padding-top: 1.25rem;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--orange);
+    font-weight: 500;
+  }
+
+  @media (max-width: 1200px) {
+    .approach-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 800px) {
+    .approach-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 500px) {
+    .approach-grid { grid-template-columns: 1fr; }
+  }
+
+  /* =============================================================
+     PORTFOLIO / VENTURES
+     ============================================================= */
+  .ventures {
+    padding: clamp(5rem, 10vh, 8rem) 0;
+    background: var(--cream);
+    position: relative;
+  }
+  .ventures-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+  .venture {
+    background: var(--cream-warm);
+    border-radius: 20px;
+    padding: 2.25rem;
+    border: 1px solid var(--line);
+    transition: all .4s var(--ease);
+    display: flex;
+    flex-direction: column;
+    min-height: 380px;
+  }
+  .venture:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 24px 48px -20px rgba(60, 34, 34, 0.15);
+    border-color: rgba(60, 34, 34, 0.18);
+  }
+  .venture-logo {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    background: var(--cream);
+    border: 1px solid var(--line);
+  }
+  .venture-logo svg { width: 36px; height: 36px; }
+
+  .venture-stage {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--orange);
+    font-weight: 500;
+    margin-bottom: 0.75rem;
+  }
+  .venture-stage::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--orange);
+  }
+  .venture h3 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 2rem;
+    letter-spacing: -0.01em;
+    color: var(--brown);
+    margin-bottom: 0.4rem;
+    line-height: 1;
+  }
+  .venture-tag {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--blue-deep);
+    margin-bottom: 1.25rem;
+  }
+  .venture p {
+    font-size: 0.95rem;
+    line-height: 1.55;
+    color: var(--brown-light);
+    margin-bottom: 1.5rem;
+  }
+  .venture-link {
+    margin-top: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--brown);
+    transition: color .35s var(--ease), gap .35s var(--ease);
+  }
+  .venture-link:hover { color: var(--orange); gap: 0.7rem; }
+
+  @media (max-width: 1000px) {
+    .ventures-grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 700px) {
+    .ventures-grid { grid-template-columns: 1fr; }
+    .venture { min-height: 0; }
+  }
+
+  /* =============================================================
+     TEAM — equal-height cards, no read more, brown bg
+     ============================================================= */
+  .team {
+    background: var(--brown);
+    color: var(--cream);
+    position: relative;
+    padding: clamp(5rem, 10vh, 8rem) 0;
+    overflow: hidden;
+  }
+  .team::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 85% 15%, rgba(241, 90, 45, 0.15) 0%, transparent 35%),
+      radial-gradient(circle at 10% 85%, rgba(53, 195, 227, 0.12) 0%, transparent 40%);
+    pointer-events: none;
+  }
+  .team .section-head h2 { color: var(--cream); }
+  .team .section-head h2 em { color: var(--blue); }
+  .team .section-head p { color: rgba(255, 247, 232, 0.7); }
+  .team .section-head .marker { color: var(--blue); }
+
+  .team-group {
+    margin-bottom: 3.5rem;
+  }
+  .team-group:last-child { margin-bottom: 0; }
+  .team-group-label {
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--blue);
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--line-dark);
+  }
+
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+  }
+
+  .member {
+    background: rgba(255, 247, 232, 0.04);
+    border: 1px solid rgba(255, 247, 232, 0.1);
+    border-radius: 16px;
+    padding: 1.75rem;
+    transition: all .4s var(--ease);
+    position: relative;
+    overflow: hidden;
+
+    /* Equal-height layout */
+    display: flex;
+    flex-direction: column;
+    min-height: 360px;
+  }
+  .member::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--orange), var(--blue));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform .5s var(--ease);
+  }
+  .member:hover {
+    background: rgba(255, 247, 232, 0.07);
+    border-color: rgba(255, 247, 232, 0.2);
+    transform: translateY(-4px);
+  }
+  .member:hover::before { transform: scaleX(1); }
+
+  .member-mono {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: rgba(53, 195, 227, 0.15);
+    border: 1px solid rgba(53, 195, 227, 0.3);
+    color: var(--blue);
+    font-family: var(--serif);
+    font-size: 1.3rem;
+    font-style: italic;
+    margin-bottom: 1.25rem;
+    flex-shrink: 0;
+  }
+  .member:nth-child(2n) .member-mono {
+    background: rgba(241, 90, 45, 0.15);
+    border-color: rgba(241, 90, 45, 0.3);
+    color: var(--orange);
+  }
+
+  .member h3 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 1.5rem;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    color: var(--cream);
+    margin-bottom: 0.4rem;
+  }
+  .member-role {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--orange);
+    font-weight: 500;
+    margin-bottom: 0.4rem;
+  }
+  .member-domain {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 0.92rem;
+    color: var(--blue);
+    margin-bottom: 1.1rem;
+  }
+  .member-bio {
+    font-size: 0.88rem;
+    line-height: 1.55;
+    color: rgba(255, 247, 232, 0.72);
+    flex: 1;
+  }
+
+  @media (max-width: 900px) {
+    .team-grid { grid-template-columns: repeat(2, 1fr); }
+    .member { min-height: 0; }
+  }
+  @media (max-width: 600px) {
+    .team-grid { grid-template-columns: 1fr; }
+  }
+
+  /* =============================================================
+     CONTACT
+     ============================================================= */
+  .contact {
+    padding: clamp(5rem, 10vh, 8rem) 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 4rem;
+    align-items: start;
+  }
+  .contact h2 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(2.8rem, 6vw, 5rem);
+    line-height: 0.96;
+    letter-spacing: -0.02em;
+    color: var(--brown);
+    margin-bottom: 1.5rem;
+  }
+  .contact h2 em { font-style: italic; color: var(--orange); }
+  .contact-lead {
+    font-size: 1.1rem;
+    color: var(--brown-light);
+    line-height: 1.55;
+    margin-bottom: 2.5rem;
+    max-width: 42ch;
+  }
+  .contact-email {
+    display: inline-block;
+    font-family: var(--serif);
+    font-size: 1.4rem;
+    color: var(--brown);
+    border-bottom: 1px solid var(--orange);
+    padding-bottom: 4px;
+    margin-bottom: 3rem;
+    transition: color .35s var(--ease);
+  }
+  .contact-email:hover { color: var(--orange); }
+
+  /* Plane image — positioned to break out of the column grid, mirrors original site */
+  .plane-bg {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    transform: translateX(-30%);
+    width: 700px;
+    max-width: 60vw;
+    height: auto;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0;
+    animation: planeIn 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.2s forwards;
+  }
+  @keyframes planeIn {
+    from { opacity: 0; transform: translateX(-40%) translateY(20px); }
+    to   { opacity: 1; transform: translateX(-30%) translateY(0); }
+  }
+  @media (max-width: 1100px) {
+    .plane-bg {
+      width: 560px;
+      animation: planeInMd 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.2s forwards;
+    }
+  }
+  @keyframes planeInMd {
+    from { opacity: 0; transform: translateX(-55%) translateY(20px); }
+    to   { opacity: 1; transform: translateX(-45%) translateY(0); }
+  }
+  @media (max-width: 700px) {
+    .plane-bg {
+      position: relative;
+      top: auto;
+      left: auto;
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto -2rem;
+      display: block;
+      animation: planeInMobile 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.2s forwards;
+    }
+  }
+  @keyframes planeInMobile {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .contact .container {
+    position: relative;
+    z-index: 1;
+  }
+
+  .contact-form {
+    background: var(--cream-warm);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 2.5rem;
+  }
+  .form-row { margin-bottom: 1.5rem; }
+  .form-row label {
+    display: block;
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--brown-light);
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+  }
+  .form-row label .req { color: var(--orange); }
+  .form-row input,
+  .form-row textarea {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--line);
+    padding: 0.7rem 0;
+    font: inherit;
+    color: var(--brown);
+    transition: border-color .35s var(--ease);
+  }
+  .form-row textarea {
+    resize: vertical;
+    min-height: 100px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 0.85rem 1rem;
+  }
+  .form-row input:focus,
+  .form-row textarea:focus {
+    outline: none;
+    border-color: var(--brown);
+  }
+  /* Smaller submit button */
+  .form-submit {
+    margin-top: 0.5rem;
+    padding: 0.7rem 1.4rem;
+    background: var(--brown);
+    color: var(--cream);
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all .3s var(--ease);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .form-submit .arrow { width: 12px; height: 12px; }
+  .form-submit:hover {
+    background: var(--orange);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 22px -10px rgba(241, 90, 45, 0.5);
+  }
+
+  @media (max-width: 900px) {
+    .contact-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+    .contact-form { padding: 1.75rem; }
+  }
+
+  /* =============================================================
+     FOOTER
+     ============================================================= */
+  footer {
+    background: var(--brown);
+    color: rgba(255, 247, 232, 0.7);
+    padding: clamp(3rem, 6vh, 5rem) 0 2rem;
+  }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr;
+    gap: 3rem;
+    margin-bottom: 4rem;
+  }
+  .footer-brand { color: var(--cream); }
+  .footer-brand .brand { color: var(--cream); margin-bottom: 1.25rem; }
+  .footer-brand .brand-text span { color: rgba(255, 247, 232, 0.5); }
+  .footer-tagline {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 1.05rem;
+    color: rgba(255, 247, 232, 0.6);
+    max-width: 32ch;
+  }
+  .footer-col h4 {
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--blue);
+    font-weight: 500;
+    margin-bottom: 1rem;
+  }
+  .footer-col p,
+  .footer-col a {
+    font-size: 0.92rem;
+    line-height: 1.65;
+    color: rgba(255, 247, 232, 0.7);
+    transition: color .35s var(--ease);
+  }
+  .footer-col a:hover { color: var(--blue); }
+  .footer-bottom {
+    border-top: 1px solid var(--line-dark);
+    padding-top: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    font-size: 0.85rem;
+    color: rgba(255, 247, 232, 0.5);
+  }
+  .footer-bottom ul {
+    display: flex;
+    gap: 1.5rem;
+    list-style: none;
+  }
+  @media (max-width: 800px) {
+    .footer-grid { grid-template-columns: 1fr 1fr; gap: 2rem; }
+  }
+  @media (max-width: 500px) {
+    .footer-grid { grid-template-columns: 1fr; }
+  }
+
+  /* =============================================================
+     ANIMATIONS
+     ============================================================= */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes markIn {
+    from { opacity: 0; transform: translateY(calc(-50% + 30px)) scale(0.85); }
+    to   { opacity: 1; transform: translateY(calc(-50% + 30px)) scale(1); }
+  }
+  @keyframes spinProp {
+    to { transform: rotate(360deg); }
+  }
+
+  [data-reveal] {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity .9s var(--ease), transform .9s var(--ease);
+  }
+  [data-reveal].in { opacity: 1; transform: translateY(0); }
+  [data-reveal][data-delay="1"] { transition-delay: .08s; }
+  [data-reveal][data-delay="2"] { transition-delay: .16s; }
+  [data-reveal][data-delay="3"] { transition-delay: .24s; }
+  [data-reveal][data-delay="4"] { transition-delay: .32s; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+    [data-reveal] { opacity: 1; transform: none; }
+    .hero-mark img,
+    .plane-bg { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ========== NAV ========== -->
+<nav id="nav">
+  <div class="container">
+    <a href="#" class="brand" aria-label="Barnstorm Foundry home">
+      <img class="brand-logo" src="NAV.png" alt="Barnstorm Foundry">
+    </a>
+    <ul class="nav-links">
+      <li><a href="#approach">Process</a></li>
+      <li><a href="#ventures">Ventures</a></li>
+      <li><a href="#team">Team</a></li>
+      <li><a href="#contact" class="nav-cta">Get in touch</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ========== HERO ========== -->
+<section class="hero">
+  <!-- Decorative propeller mark -->
+  <div class="hero-mark" aria-hidden="true">
+    <img src="LOGO.png" alt="">
+  </div>
+
+  <div class="container">
+    <h1>Reimagining<br><em>Health</em></h1>
+    <p class="hero-lead">
+      We're a venture foundry propelled by <a href="https://cornucopiancapital.com/" target="_blank" rel="noopener">Cornucopian Capital</a> and located adjacent to the <a href="https://www.ucdavis.edu/" target="_blank" rel="noopener">University of California, Davis</a>. We collaborate with entrepreneurs and leading scientific and domain experts to launch new businesses that deliver first-in-class health benefits to consumers through food, consumer health, and healthcare offerings.
+    </p>
+    <div class="hero-actions">
+      <a href="#contact" class="btn btn-primary">
+        Build with us
+        <svg class="arrow" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6">
+          <path d="M3 11L11 3M11 3H5M11 3V9"/>
+        </svg>
+      </a>
+      <a href="#ventures" class="btn btn-ghost">See our ventures</a>
+    </div>
+
+  </div>
+</section>
+
+<!-- ========== PROCESS ========== -->
+<section class="approach" id="approach">
+  <div class="container">
+    <div class="section-head">
+      <div data-reveal>
+        <div class="marker">01 / How we work</div>
+        <h2>A stage-gated path from <em>spark</em> to scale.</h2>
+      </div>
+      <p data-reveal data-delay="1">
+        Each venture earns its way forward by clearing milestones across science, demand, product, team, finance, and operations — built on a unique partnership with the UC Davis Innovation Institute for Food and Health.
+      </p>
+    </div>
+
+    <div class="approach-grid">
+      <div class="step" data-reveal data-delay="1">
+        <span class="step-num">01</span>
+        <h3>Explore</h3>
+        <p>Identify market gaps and emerging science. Validate the opportunity through market research, persona work, and expert review — then a pitch to partners.</p>
+      </div>
+      <div class="step" data-reveal data-delay="2">
+        <span class="step-num">02</span>
+        <h3>Prototype</h3>
+        <p>Initial brand design, in-hand tested prototype, packaging mock-ups. Secure IP and identify the founding EIR or CEO.</p>
+      </div>
+      <div class="step" data-reveal data-delay="3">
+        <span class="step-num">03</span>
+        <h3>Validate</h3>
+        <p>Full pre-pilot review: IP defensibility, product-market fit, brand, and consumer feedback. NewCo formation and pre-seed financing.</p>
+      </div>
+      <div class="step" data-reveal data-delay="4">
+        <span class="step-num">04</span>
+        <h3>Pilot</h3>
+        <p>Test the go-to-market strategy. Stand up supply chain. Evaluate team performance. Pre-seed financing from advisors and strategic partners.</p>
+      </div>
+      <div class="step" data-reveal data-delay="5">
+        <span class="step-num">05</span>
+        <h3>Launch</h3>
+        <p>Full product launch. First institutional financing, talent acquisition, and the operational support to scale into a category leader.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== VENTURES ========== -->
+<section class="ventures" id="ventures">
+  <div class="container">
+    <div class="section-head">
+      <div data-reveal>
+        <div class="marker">02 / Our Ventures</div>
+        <h2>Ventures in <em>motion</em>.</h2>
+      </div>
+      <p data-reveal data-delay="1">
+        Each venture began as a question at the intersection of food, biology, and consumer health — and matured through our stage-gated process into a standalone company.
+      </p>
+    </div>
+
+    <div class="ventures-grid">
+
+      <article class="venture" data-reveal data-delay="1">
+        <div class="venture-logo" aria-hidden="true">
+          <!-- KetoTap Core: drop / continuous monitor mark -->
+          <svg viewBox="0 0 36 36" fill="none">
+            <path d="M18 4 C12 14, 8 20, 8 24 A10 10 0 0 0 28 24 C28 20, 24 14, 18 4 Z" fill="#35C3E3"/>
+            <circle cx="18" cy="24" r="3" fill="#FFF7E8"/>
+            <path d="M14 28 Q18 30, 22 28" stroke="#3C2222" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="venture-stage">Seed · 2023</div>
+        <h3>KetoTap Core</h3>
+        <div class="venture-tag">Continuous ketone monitoring</div>
+        <p>The first non-invasive continuous ketone monitor — bringing real-time metabolic data to athletes, clinicians, and people managing diabetes, epilepsy, and metabolic health. Built on a defensible IP foundation developed alongside the underlying sensor science, with patent strategy spanning hardware, biochemistry, and signal interpretation.</p>
+      </article>
+
+      <article class="venture" data-reveal data-delay="2">
+        <div class="venture-logo" aria-hidden="true">
+          <!-- Caffree: coffee bean / decaf mark -->
+          <svg viewBox="0 0 36 36" fill="none">
+            <ellipse cx="18" cy="18" rx="11" ry="14" fill="#3C2222"/>
+            <path d="M18 5 Q22 18 18 31" stroke="#FFF7E8" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            <circle cx="27" cy="9" r="6" fill="#F15A2D"/>
+            <path d="M24 9 L30 9 M27 6 L27 12" stroke="#FFF7E8" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="venture-stage">Incubation · 2025</div>
+        <h3>Caffree</h3>
+        <div class="venture-tag">Precision decaffeination</div>
+        <p>An enzyme-based decaffeination technology developed in partnership with UC Davis researchers. Caffree lets consumers fine-tune caffeine levels at the cup — without sacrificing the flavor, ritual, or health benefits of their coffee.</p>
+        <a href="https://caffree.com/" target="_blank" rel="noopener" class="venture-link">
+          Visit caffree.com
+          <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 11L11 3M11 3H5M11 3V9"/></svg>
+        </a>
+      </article>
+
+      <article class="venture" data-reveal data-delay="3">
+        <div class="venture-logo" aria-hidden="true">
+          <!-- AminoSense: protein / amino acid molecule mark -->
+          <svg viewBox="0 0 36 36" fill="none">
+            <circle cx="11" cy="12" r="4" fill="#35C3E3"/>
+            <circle cx="25" cy="12" r="4" fill="#35C3E3"/>
+            <circle cx="18" cy="25" r="4" fill="#F15A2D"/>
+            <line x1="11" y1="12" x2="25" y2="12" stroke="#3C2222" stroke-width="1.6"/>
+            <line x1="11" y1="12" x2="18" y2="25" stroke="#3C2222" stroke-width="1.6"/>
+            <line x1="25" y1="12" x2="18" y2="25" stroke="#3C2222" stroke-width="1.6"/>
+          </svg>
+        </div>
+        <div class="venture-stage">Incubation · 2026</div>
+        <h3>AminoSense</h3>
+        <div class="venture-tag">Measuring protein synthesis</div>
+        <p>A new measurement platform for amino acid metabolism and protein synthesis — the body's most fundamental signal of recovery, growth, and aging. Currently in stealth, with a science team incubated through Barnstorm.</p>
+        <span class="venture-link" style="color: var(--brown-light); cursor: default;">
+          Coming soon
+        </span>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ========== TEAM ========== -->
+<section class="team" id="team">
+  <div class="container">
+    <div class="section-head">
+      <div data-reveal>
+        <div class="marker">03 / The Team</div>
+        <h2>Founders, scientists, <em>operators.</em></h2>
+      </div>
+      <p data-reveal data-delay="1">
+        A collective of builders working at the intersection of food, health, and discovery. Our team spans the full lifecycle of a venture — from the lab bench to the leadership team.
+      </p>
+    </div>
+
+    <!-- ===== Leadership ===== -->
+    <div class="team-group">
+      <div class="team-group-label">
+        Leadership
+      </div>
+      <div class="team-grid">
+
+        <article class="member" data-reveal data-delay="1">
+          <div class="member-mono">A</div>
+          <h3>Aryeh Ganz</h3>
+          <div class="member-role">Managing Partner &amp; Co-founder</div>
+          <div class="member-domain">Founder, Cornucopian Capital</div>
+          <p class="member-bio">Aryeh leads Barnstorm's operations and stage-gated process for company building. He is also Managing Partner of Cornucopian Capital and principal of SAGEN Trust Company, the family office founded after his family's 2000 sale of Slim Fast Foods. UC Davis '93.</p>
+        </article>
+
+        <article class="member" data-reveal data-delay="2">
+          <div class="member-mono">J</div>
+          <h3>Justin Siegel, PhD</h3>
+          <div class="member-role">Co-founder</div>
+          <div class="member-domain">Biochemistry &amp; Molecular Medicine</div>
+          <p class="member-bio">A founder of Barnstorm and serial scientific entrepreneur. Justin is Faculty Director of the Innovation Institute for Food and Health and an Associate Professor at UC Davis, with previous companies including BioArchitecture Labs, PvP Biologics, Digestiva, and Peak B. UC Davis '05; PhD, University of Washington '10.</p>
+        </article>
+
+      </div>
+    </div>
+
+    <!-- ===== Venture Partners ===== -->
+    <div class="team-group">
+      <div class="team-group-label">
+        Venture Partners
+      </div>
+      <div class="team-grid">
+
+        <article class="member" data-reveal data-delay="1">
+          <div class="member-mono">G</div>
+          <h3>Giovanni Battistini</h3>
+          <div class="member-role">Venture Partner · since 2023</div>
+          <div class="member-domain">CEO, KetoTap Core</div>
+          <p class="member-bio">Thirty years at the intersection of business and technology. Previously SVP of Open Innovation at Ferrero and Global VP of Taste Modulation at Firmenich. Managing Director of Better Gambit, an NYC-based venture creation firm. M.S., Università di Pavia; Executive Program at Sloan/MIT.</p>
+        </article>
+
+        <article class="member" data-reveal data-delay="2">
+          <div class="member-mono">E</div>
+          <h3>Eric Quick</h3>
+          <div class="member-role">Venture Partner · since 2025</div>
+          <div class="member-domain">CEO, Caffree</div>
+          <p class="member-bio">Twenty-plus years operating across McDonald's, Disney, Revolution Foods, and SOURCE Global, with advisory roles for more than one hundred startups. Founder of Cloud 9 Performance Solutions and a lecturer in Leadership Development at San Jose State. M.S., USC Jimmy Iovine and Andre Young Academy.</p>
+        </article>
+
+        <article class="member" data-reveal data-delay="3">
+          <div class="member-mono">A</div>
+          <h3>Avi Rosenbaum, PhD</h3>
+          <div class="member-role">Venture Partner · 2026 EIR</div>
+          <div class="member-domain">COO, AminoSense</div>
+          <p class="member-bio">Decades of experience in molecular health, food ingredients, and scientific wellness. Founder of advisors.bio and a Mentor at Endless Frontier Labs. Previously led an R&amp;D team at Ion Torrent (now Thermo Fisher). PhD, Harvard, in George Church's lab on personal genome sequencing.</p>
+        </article>
+
+      </div>
+    </div>
+
+    <!-- ===== Scientific Co-founders ===== -->
+    <div class="team-group">
+      <div class="team-group-label">
+        Scientific Co-founders
+      </div>
+      <div class="team-grid">
+
+        <article class="member" data-reveal data-delay="1">
+          <div class="member-mono">R</div>
+          <h3>Robbie Devine, PhD</h3>
+          <div class="member-role">Scientific Co-founder</div>
+          <div class="member-domain">Biosensing &amp; Metabolic Measurement</div>
+          <p class="member-bio">A bench scientist turned company-builder, Robbie partners with Barnstorm to translate UC Davis research into ventures. His work spans biosensor design, assay development, and the experimental groundwork that turns a paper into a product — currently focused on continuous-monitoring platforms for metabolic health.</p>
+        </article>
+
+        <article class="member" data-reveal data-delay="2">
+          <div class="member-mono">A</div>
+          <h3>Augustine Arredondo</h3>
+          <div class="member-role">Scientific Co-founder</div>
+          <div class="member-domain">Enzyme &amp; Ingredient Innovation</div>
+          <p class="member-bio">Augustine brings expertise in enzyme engineering and food ingredient science to Barnstorm's earliest-stage explorations. He works with operators-in-residence to take laboratory discoveries through technical de-risking and into pilot production, with a focus on translating bench results into manufacturable processes.</p>
+        </article>
+
+      </div>
+    </div>
+
+    <!-- ===== Advisors ===== -->
+    <div class="team-group">
+      <div class="team-group-label">
+        Advisors
+      </div>
+      <div class="team-grid">
+
+        <article class="member" data-reveal data-delay="1">
+          <div class="member-mono">P</div>
+          <h3>Phil Johnston</h3>
+          <div class="member-role">Advisor</div>
+          <div class="member-domain">Life Sciences Talent</div>
+          <p class="member-bio">Senior Partner at Spencer Stuart in San Francisco, specializing in Biopharma and CEO/Board recruitment. Phil supports Barnstorm's talent acquisition and company-building capabilities, drawing on a career placing senior leaders across life sciences. B.A. and M.A., University of Minnesota / Carlson School. Hudson certified executive coach.</p>
+        </article>
+
+        <article class="member" data-reveal data-delay="2">
+          <div class="member-mono">P</div>
+          <h3>Peter Christey</h3>
+          <div class="member-role">Advisor</div>
+          <div class="member-domain">Food Science &amp; Operations</div>
+          <p class="member-bio">A long-time food industry operator who advises Barnstorm on the practicalities of moving novel ingredients from lab to shelf — manufacturing partnerships, supply-chain design, and the regulatory questions that determine whether a great product ever reaches its market. Decades of category-building across consumer health and food.</p>
+        </article>
+
+        <article class="member" data-reveal data-delay="3">
+          <div class="member-mono">E</div>
+          <h3>Erich Veitenheimer III</h3>
+          <div class="member-role">Advisor</div>
+          <div class="member-domain">Biotech IP</div>
+          <p class="member-bio">Founder of VEIT3IP LLC; previously a Senior Partner at Cooley LLP, where he built the firm's life sciences patent practice. Career across DeKalb-Pfizer Genetics, the USPTO, and global IP counsel for biotech and food science. J.D., Georgetown; PhD, Wisconsin-Madison; B.S., Washington State.</p>
+        </article>
+
+        <article class="member" data-reveal data-delay="4">
+          <div class="member-mono">L</div>
+          <h3>Len Nannarone</h3>
+          <div class="member-role">Advisor</div>
+          <div class="member-domain">Commercial &amp; Brand Strategy</div>
+          <p class="member-bio">Len advises Barnstorm's portfolio on commercial strategy, brand positioning, and go-to-market design. He brings a career of operating experience inside consumer health and CPG businesses — translating clinical and scientific differentiation into stories consumers act on, and building the channels to deliver them at scale.</p>
+        </article>
+
+        <article class="member" data-reveal data-delay="5">
+          <div class="member-mono">H</div>
+          <h3>Harold Schmitz, PhD</h3>
+          <div class="member-role">Advisor</div>
+          <div class="member-domain">Food &amp; Health Innovation</div>
+          <p class="member-bio">Co-founder and General Partner at The March Fund and a Senior Scholar at the UC Davis Graduate School of Management. Life Member of the Council on Foreign Relations; advisor to the Bio Innovation Institute (Novo Nordisk Foundation) and the AI Institute for Next-Generation Food Systems. Former CSO, Mars.</p>
+        </article>
+
+        <article class="member" data-reveal data-delay="6">
+          <div class="member-mono">J</div>
+          <h3>Joe Wang, PhD</h3>
+          <div class="member-role">Advisor</div>
+          <div class="member-domain">Biosensors &amp; Wearable Diagnostics</div>
+          <p class="member-bio">A pioneering researcher in electrochemical biosensors and wearable diagnostics, Joe advises Barnstorm on continuous-monitoring platforms and the underlying sensor science. His decades of work in analytical chemistry inform the technical foundation of ventures translating real-time physiological measurement into consumer health products.</p>
+        </article>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ========== CONTACT ========== -->
+<section class="contact" id="contact">
+  <img class="plane-bg" src="PLANE.png" alt="" aria-hidden="true">
+  <div class="container">
+    <div class="contact-grid">
+      <div data-reveal>
+        <div class="section-head" style="display:block; margin-bottom:0;">
+          <div class="marker">04 / Get in touch</div>
+        </div>
+        <h2>Let's <em>build</em><br>something.</h2>
+        <p class="contact-lead">
+          If you're passionate about building food, beverage, or consumer health businesses to advance health, we'd love to hear from you.
+        </p>
+        <a href="mailto:build@barnstormfoundry.com" class="contact-email">build@barnstormfoundry.com</a>
+
+      </div>
+
+      <form class="contact-form" data-reveal data-delay="1" onsubmit="event.preventDefault(); const b=this.querySelector('.form-submit'); b.textContent='Sent — thank you'; setTimeout(()=>{this.reset(); b.innerHTML='Send <svg class=&quot;arrow&quot; viewBox=&quot;0 0 14 14&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.6&quot;><path d=&quot;M3 11L11 3M11 3H5M11 3V9&quot;/></svg>';},2200);">
+        <div class="form-row">
+          <label for="f-name">Name <span class="req">*</span></label>
+          <input type="text" id="f-name" name="name" required>
+        </div>
+        <div class="form-row">
+          <label for="f-email">Email <span class="req">*</span></label>
+          <input type="email" id="f-email" name="email" required>
+        </div>
+        <div class="form-row">
+          <label for="f-msg">Message</label>
+          <textarea id="f-msg" name="message" placeholder="Hi, I'd like to chat about…"></textarea>
+        </div>
+        <button type="submit" class="form-submit">
+          Send
+          <svg class="arrow" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6">
+            <path d="M3 11L11 3M11 3H5M11 3V9"/>
+          </svg>
+        </button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ========== FOOTER ========== -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="#" class="brand">
+          <img class="brand-mark-only" src="FOOTER.png" alt="" style="margin-right: 0.7rem;">
+        </a>
+        <p class="footer-tagline">Reimagining health, one venture at a time.</p>
+      </div>
+
+      <div class="footer-col">
+        <h4>California</h4>
+        <p>221 1st Street,<br>Suite A<br>Davis, CA 95616</p>
+      </div>
+
+      <div class="footer-col">
+        <h4>New Jersey</h4>
+        <p>491 Bloomfield Ave,<br>Concourse 1<br>Montclair, NJ 07042</p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Connect</h4>
+        <a href="mailto:build@barnstormfoundry.com">build@barnstormfoundry.com</a>
+        <a href="https://cornucopiancapital.com/" target="_blank" rel="noopener">Cornucopian Capital</a>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <span>© Barnstorm Foundry, L.P. 2026</span>
+      <ul>
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">Terms of Use</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const nav = document.getElementById('nav');
+  const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 24);
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('in');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('[data-reveal]').forEach(el => io.observe(el));
+</script>
+
+</body>
+</html>
