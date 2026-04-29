@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aminosense Web Reader v4.12</title>
+    <title>Aminosense Web Reader v4.13</title>
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
@@ -75,44 +75,51 @@
         </div>
 
         <div class="panel">
-            <label>Equil. Delay (s): <input type="number" id="inputDelay" value="1" min="0" style="width: 45px;"></label>
-            <label style="margin-left: 15px;">Run Time (s): <input type="number" id="inputRunTime" value="60" min="1" style="width: 45px;"></label>
-            
-            <label style="margin-left: 15px;">Rate:
-                <select id="inputSampleRate">
-                    <option value="0.1">10 Hz (Ultra)</option> <option value="0.2">5 Hz (Fast)</option>
-                    <option value="0.5" selected>2 Hz (Std)</option>
-                    <option value="1.0">1 Hz (Slow)</option>
-                </select>
-            </label>
-
-            <label style="margin-left: 15px;">Port:
-                <select id="inputChannel">
-                    <option value="0" selected>Left (Ch 1)</option>
-                    <option value="1">Right (Ch 2)</option>
-                </select>
-            </label>
-
-            <div style="margin-top: 10px;">
-                <label style="color: #dc3545;"><strong>Potential (mV):</strong> <input type="number" id="inputPotential" value="-650" style="width: 55px;"></label>
-                
-                <label style="margin-left: 15px; color: #28a745;"><strong>Current Range:</strong>
-                    <select id="inputCurrentRange" style="width: 80px;">
-                        <option value="1m">1 mA</option>
-                        <option value="100u">100 µA</option>
-                        <option value="10u" selected>10 µA</option>
-                        <option value="1u">1 µA</option>
-                        <option value="100n">100 nA</option>
-                    </select>
-                </label>
-
-                <label style="margin-left: 15px; color: #007ACC;"><strong>Cal Factor:</strong> <input type="number" id="inputCalFactor" value="1.0" step="0.1" style="width: 50px;"></label>
-                
-                <label style="margin-left: 15px; color: #666;"><strong>Overlay:</strong>
-                    <select id="inputReference" style="width: 150px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <label style="color: #444; font-size: 14px;"><strong>Reference Overlay:</strong>
+                    <select id="inputReference" style="width: 250px; margin-left: 5px;">
                         <option value="-1">None</option>
                     </select>
                 </label>
+                
+                <label style="color: #dc3545; font-size: 12px; cursor: pointer; border: 1px solid #f5c6cb; padding: 4px 8px; border-radius: 4px; background-color: #f8d7da;">
+                    <input type="checkbox" id="chkRDMode" onchange="document.getElementById('advancedSettings').style.display = this.checked ? 'block' : 'none'"> 
+                    <strong>R&D Mode</strong>
+                </label>
+            </div>
+
+            <div id="advancedSettings" style="display: none; margin-top: 15px; padding-top: 15px; border-top: 1px dashed #ccc;">
+                <div style="margin-bottom: 10px;">
+                    <label>Equil. Delay (s): <input type="number" id="inputDelay" value="1" min="0" style="width: 45px;"></label>
+                    <label style="margin-left: 15px;">Run Time (s): <input type="number" id="inputRunTime" value="60" min="1" style="width: 45px;"></label>
+                    <label style="margin-left: 15px;">Rate:
+                        <select id="inputSampleRate">
+                            <option value="0.1">10 Hz (Ultra)</option>
+                            <option value="0.2">5 Hz (Fast)</option>
+                            <option value="0.5" selected>2 Hz (Std)</option>
+                            <option value="1.0">1 Hz (Slow)</option>
+                        </select>
+                    </label>
+                    <label style="margin-left: 15px;">Port:
+                        <select id="inputChannel">
+                            <option value="0" selected>Left (Ch 1)</option>
+                            <option value="1">Right (Ch 2)</option>
+                        </select>
+                    </label>
+                </div>
+                <div>
+                    <label style="color: #dc3545;"><strong>Potential (mV):</strong> <input type="number" id="inputPotential" value="-650" style="width: 55px;"></label>
+                    <label style="margin-left: 15px; color: #28a745;"><strong>Current Range:</strong>
+                        <select id="inputCurrentRange" style="width: 80px;">
+                            <option value="1m">1 mA</option>
+                            <option value="100u">100 µA</option>
+                            <option value="10u">10 µA</option>
+                            <option value="1u" selected>1 µA</option>
+                            <option value="100n">100 nA</option>
+                        </select>
+                    </label>
+                    <label style="margin-left: 15px; color: #007ACC;"><strong>Cal Factor:</strong> <input type="number" id="inputCalFactor" value="1.0" step="0.1" style="width: 50px;"></label>
+                </div>
             </div>
         </div>
 
@@ -199,7 +206,7 @@
 
     <div class="footer-container">
         <span>For Research Use Only. Not for diagnostic use.</span>
-        <span>v4.12</span>
+        <span>v4.13</span>
     </div>
 
     <script>
@@ -515,12 +522,9 @@
             let selectedChannel = document.getElementById('inputChannel').value;
             let portName = selectedChannel === "1" ? "Right" : "Left";
             
-            // NEW: Get the selected Current Range!
             let crString = document.getElementById('inputCurrentRange').value;
 
             let waitCommand = delaySecs > 0 ? `wait ${delaySecs}\n` : "";
-            
-            // THE FIX: Notice the addition of "set_cr ${crString}" to manually set the ADC precision
             const script = `e\nvar p\nvar c\nset_pgstat_chan ${selectedChannel}\nset_pgstat_mode 2\nset_cr ${crString}\nset_e ${vString}\ncell_on\n${waitCommand}meas_loop_ca p c ${vString} ${msString} ${runSecs}\npck_start\npck_add p\npck_add c\npck_end\nendloop\ncell_off\n\n`;
 
             try {
