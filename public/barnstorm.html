@@ -483,21 +483,24 @@
     border-color: rgba(60, 34, 34, 0.18);
   }
   .venture-logo {
-    height: 40px;
+    height: 44px;
     margin-bottom: 1.75rem;
     display: flex;
     align-items: center;
+    flex-shrink: 0;
   }
   .venture-logo-img {
-    max-height: 100%;
-    max-width: 200px;
+    height: 100%;
+    max-width: 220px;
     width: auto;
     object-fit: contain;
+    object-position: left center;
+    display: block;
   }
   /* Caffree's logo has tagline padding under the wordmark, so it reads smaller
      at the same height; bump it up to visually align with the others */
-  .venture-logo-img[src="CF.png"] {
-    max-height: 130%;
+  .venture-logo-img[src$="CF.png"] {
+    height: 130%;
     transform: translateY(2px);
   }
 
