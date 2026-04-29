@@ -267,7 +267,7 @@
     width: 100%;
     height: 100%;
     object-fit: contain;
-    animation: spinProp 60s linear infinite;
+    animation: spinProp 15s linear infinite;
     transform-origin: center center;
   }
 
@@ -387,13 +387,15 @@
   .step {
     background: var(--cream);
     border-radius: 16px;
-    padding: 1.75rem 1.5rem;
+    padding: 2rem 1.5rem;
     border: 1px solid var(--line);
     position: relative;
     transition: transform .4s var(--ease), box-shadow .4s var(--ease), border-color .4s var(--ease);
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    min-height: 160px;
+    justify-content: space-between;
   }
   .step::before {
     content: '';
@@ -417,8 +419,20 @@
     letter-spacing: 0.18em;
     color: var(--orange);
     line-height: 1;
-    margin-bottom: 1.25rem;
+    margin-bottom: 1rem;
     display: block;
+  }
+  .step-icon {
+    width: 38px;
+    height: 38px;
+    color: var(--blue);
+    margin-bottom: 0.9rem;
+    display: block;
+    transition: transform .4s var(--ease), color .4s var(--ease);
+  }
+  .step:hover .step-icon {
+    color: var(--orange);
+    transform: translateY(-2px) scale(1.05);
   }
   .step h3 {
     font-family: var(--serif);
@@ -497,12 +511,6 @@
     object-position: left center;
     display: block;
   }
-  /* Caffree's logo has tagline padding under the wordmark, so it reads smaller
-     at the same height; bump it up to visually align with the others */
-  .venture-logo-img[src$="CF.png"] {
-    height: 130%;
-    transform: translateY(2px);
-  }
 
   .venture-stage {
     display: inline-flex;
@@ -532,8 +540,7 @@
   }
   .venture-tag {
     font-family: var(--serif);
-    font-style: italic;
-    font-size: 1rem;
+    font-size: 1.15rem;
     color: var(--blue-deep);
     margin-bottom: 1.25rem;
   }
@@ -664,8 +671,7 @@
   }
   .member-domain {
     font-family: var(--serif);
-    font-style: italic;
-    font-size: 0.92rem;
+    font-size: 1.05rem;
     color: var(--blue);
     margin-bottom: 1.1rem;
   }
@@ -975,7 +981,7 @@
   <div class="container">
     <h1>Reimagining<br><em>Health</em></h1>
     <p class="hero-lead">
-      We're a venture foundry propelled by <a href="https://cornucopiancapital.com/" target="_blank" rel="noopener">Cornucopian Capital</a> and located adjacent to the <a href="https://www.ucdavis.edu/" target="_blank" rel="noopener">University of California, Davis</a>. We collaborate with entrepreneurs and leading scientific and domain experts to launch new businesses that deliver first-in-class health benefits to consumers through food, consumer health, and healthcare offerings.
+      Propelled by <a href="https://cornucopiancapital.com/" target="_blank" rel="noopener">Cornucopian Capital</a>, we collaborate with entrepreneurs and leading industry and scientific experts to launch new businesses that deliver first-in-class health benefits through food, metabolic health, and personalized care offerings.
     </p>
     <div class="hero-actions">
       <a href="#contact" class="btn btn-primary">
@@ -1006,28 +1012,48 @@
     <div class="approach-grid">
       <div class="step" data-reveal data-delay="1">
         <span class="step-num">01</span>
+        <svg class="step-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="20" cy="20" r="11"/>
+          <path d="M28.5 28.5 L40 40"/>
+          <path d="M14 20 H26 M20 14 V26" opacity="0.5"/>
+        </svg>
         <h3>Explore</h3>
-        <p>Identify market gaps and emerging science. Validate the opportunity through market research, persona work, and expert review — then a pitch to partners.</p>
       </div>
       <div class="step" data-reveal data-delay="2">
         <span class="step-num">02</span>
+        <svg class="step-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M19 6 H29 M21 6 V18 L13 36 A4 4 0 0 0 17 42 H31 A4 4 0 0 0 35 36 L27 18 V6"/>
+          <path d="M16 28 H32" opacity="0.5"/>
+          <circle cx="20" cy="34" r="1.2" fill="currentColor"/>
+          <circle cx="27" cy="36" r="1.2" fill="currentColor"/>
+        </svg>
         <h3>Prototype</h3>
-        <p>Initial brand design, in-hand tested prototype, packaging mock-ups. Secure IP and identify the founding EIR or CEO.</p>
       </div>
       <div class="step" data-reveal data-delay="3">
         <span class="step-num">03</span>
+        <svg class="step-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="24" cy="24" r="18"/>
+          <path d="M16 24 L22 30 L33 18"/>
+        </svg>
         <h3>Validate</h3>
-        <p>Full pre-pilot review: IP defensibility, product-market fit, brand, and consumer feedback. NewCo formation and pre-seed financing.</p>
       </div>
       <div class="step" data-reveal data-delay="4">
         <span class="step-num">04</span>
+        <svg class="step-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M6 24 L42 8 L30 42 L24 28 Z"/>
+          <path d="M24 28 L42 8" opacity="0.5"/>
+        </svg>
         <h3>Pilot</h3>
-        <p>Test the go-to-market strategy. Stand up supply chain. Evaluate team performance. Pre-seed financing from advisors and strategic partners.</p>
       </div>
       <div class="step" data-reveal data-delay="5">
         <span class="step-num">05</span>
+        <svg class="step-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M24 6 C30 12 33 19 33 27 V36 H15 V27 C15 19 18 12 24 6 Z"/>
+          <circle cx="24" cy="22" r="3"/>
+          <path d="M15 32 L10 38 L15 36 M33 32 L38 38 L33 36" opacity="0.7"/>
+          <path d="M21 38 V42 M27 38 V42" opacity="0.5"/>
+        </svg>
         <h3>Launch</h3>
-        <p>Full product launch. First institutional financing, talent acquisition, and the operational support to scale into a category leader.</p>
       </div>
     </div>
   </div>
@@ -1042,7 +1068,7 @@
         <h2>Ventures in <em>motion</em>.</h2>
       </div>
       <p data-reveal data-delay="1">
-        Each venture began as a question at the intersection of food, biology, and consumer health — and matured through our stage-gated process into a standalone company.
+        Each venture begins with solving a probelm at the intersection of food, biology, and consumer health — and matured through our stage-gated process into a standalone company.
       </p>
     </div>
 
@@ -1054,8 +1080,8 @@
         </div>
         <div class="venture-stage">Seed · 2023</div>
         <h3>KetoTap Core</h3>
-        <div class="venture-tag">Continuous ketone monitoring</div>
-        <p>The enzyme that makes continuous ketone monitoring viable. A novel BHB oxidase developed with UC Davis, Codexis, and EvoEnzyme — drop-in technology for blood meter manufacturers and continuous monitor developers, with the same electrochemistry as glucose oxidase and none of the dehydrogenase complexity.</p>
+        <div class="venture-tag">Enabling continuous ketone monitoring</div>
+        <p>The novel BHB oxidase engineered at UC Davis that makes continuous ketone monitoring viable drop-in technology for blood meter manufacturers and continuous monitor developers, with the same electrochemistry as a glucose oxidase and none of the dehydrogenase complexity.</p>
         <a href="https://www.phenotap.com/" target="_blank" rel="noopener" class="venture-link">
           Visit phenotap.com
           <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 11L11 3M11 3H5M11 3V9"/></svg>
@@ -1069,7 +1095,7 @@
         <div class="venture-stage">Incubation · 2025</div>
         <h3>Caffree</h3>
         <div class="venture-tag">Precision decaffeination</div>
-        <p>An enzyme-based decaffeination technology developed in partnership with UC Davis researchers. Caffree gives consumers and producers a way to dial in caffeine levels precisely without sacrificing the flavor, ritual, or health benefits that make coffee what it is to the people who drink it.</p>
+        <p>An enzyme-based decaffeination technology developed in partnership with UC Davis researchers. Caffree gives consumers and producers a way to dial in caffeine levels precisely without sacrificing the flavor, ritual, or health benefits that make coffee sp popular.</p>
         <a href="https://caffree.com/" target="_blank" rel="noopener" class="venture-link">
           Visit caffree.com
           <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 11L11 3M11 3H5M11 3V9"/></svg>
@@ -1083,7 +1109,7 @@
         <div class="venture-stage">Incubation · 2026</div>
         <h3>AminoSense</h3>
         <div class="venture-tag">Measuring amino acid levels</div>
-        <p>A new measurement platform for amino acids — the body's most fundamental signal of recovery, growth, and aging. Currently in stealth, with a science team incubated through Barnstorm and a technology stack rooted in UC Davis biochemistry research.</p>
+        <p>A new bio-measurement platform for amino acids — the body's most fundamental signal of recovery, growth, and aging. Currently in stealth, with a science team building a technology stack rooted in UC Davis biochemistry and UC San Diego biosensing electrochemistry research.</p>
         <span class="venture-link" style="color: var(--brown-light); cursor: default;">
           Coming soon
         </span>
@@ -1117,14 +1143,14 @@
           <h3>Aryeh Ganz</h3>
           <div class="member-role">Managing Partner &amp; Co-founder</div>
           <div class="member-domain">Founder, Cornucopian Capital</div>
-          <p class="member-bio">Aryeh leads Barnstorm's operations and stage-gated process for company building. He is also Managing Partner of Cornucopian Capital and principal of SAGEN Trust Company, the family office founded after his family's 2000 sale of Slim Fast Foods. UC Davis '93.</p>
+          <p class="member-bio">Aryeh leads Barnstorm's operations and stage-gated process for company building. He is also Managing Partner of Cornucopian Capital and principal of SAGEN Trust Company, a family office founded after his family's 2000 sale of SlimFast Foods. UC Davis '93.</p>
         </article>
 
         <article class="member" data-reveal data-delay="2">
           <h3>Justin Siegel, PhD</h3>
           <div class="member-role">Co-founder</div>
           <div class="member-domain">Biochemistry &amp; Molecular Medicine</div>
-          <p class="member-bio">A founder of Barnstorm and serial scientific entrepreneur. Justin is Faculty Director of the Innovation Institute for Food and Health and an Associate Professor at UC Davis, with previous companies including BioArchitecture Labs, PvP Biologics, Digestiva, and Peak B. UC Davis '05; PhD, University of Washington '10.</p>
+          <p class="member-bio">A serial scientific entrepreneur. Justin is Faculty Director of the Innovation Institute for Food and Health and an Associate Professor at UC Davis, with previous companies including BioArchitecture Labs, PvP Biologics, Digestiva, and Peak B. UC Davis '05; PhD, University of Washington '10.</p>
         </article>
 
       </div>
@@ -1140,22 +1166,29 @@
         <article class="member" data-reveal data-delay="1">
           <h3>Giovanni Battistini</h3>
           <div class="member-role">Venture Partner · since 2023</div>
-          <div class="member-domain">CEO, KetoTap Core</div>
+          <div class="member-domain">CEO, Phenotap</div>
           <p class="member-bio">Thirty years at the intersection of business and technology. Previously SVP of Open Innovation at Ferrero and Global VP of Taste Modulation at Firmenich. Managing Director of Better Gambit, an NYC-based venture creation firm. M.S., Università di Pavia; Executive Program at Sloan/MIT.</p>
         </article>
 
         <article class="member" data-reveal data-delay="2">
           <h3>Eric Quick</h3>
           <div class="member-role">Venture Partner · since 2025</div>
-          <div class="member-domain">CEO, Caffree</div>
+          <div class="member-domain">CEO, Caffree Co.</div>
           <p class="member-bio">Twenty-plus years operating across McDonald's, Disney, Revolution Foods, and SOURCE Global, with advisory roles for more than one hundred startups. Founder of Cloud 9 Performance Solutions and a lecturer in Leadership Development at San Jose State. M.S., USC Jimmy Iovine and Andre Young Academy.</p>
         </article>
 
         <article class="member" data-reveal data-delay="3">
+          <h3>Ingrid Swanson Pultz, PhD</h3>
+          <div class="member-role">Venture Partner · since 2025</div>
+          <div class="member-domain">CSO, Caffree Co.</div>
+          <p class="member-bio">Founder and former CSO of PvP Biologics (acquired by Takeda), where she led development of Kuma062, an engineered enzyme therapeutic for celiac disease. Translational Investigator at the Institute for Protein Design at UW. PhD, Microbiology, University of Washington; postdoc in computational enzyme design with David Baker.</p>
+        </article>
+
+        <article class="member" data-reveal data-delay="4">
           <h3>Avi Rosenbaum, PhD</h3>
           <div class="member-role">Venture Partner · 2026 EIR</div>
-          <div class="member-domain">COO, AminoSense</div>
-          <p class="member-bio">Decades of experience in molecular health, food ingredients, and scientific wellness. Founder of advisors.bio and a Mentor at Endless Frontier Labs. Previously led an R&amp;D team at Ion Torrent (now Thermo Fisher). PhD, Harvard, in George Church's lab on personal genome sequencing.</p>
+          <div class="member-domain">COO, AminoSense Inc.</div>
+          <p class="member-bio">Decades of experience in molecular health, food ingredients, and diagnostics. Founder of advisors.bio and a Mentor at Endless Frontier Labs. Previously led an R&amp;D team at Ion Torrent (now Thermo Fisher). PhD, Harvard, in George Church's lab on personal genome sequencing.</p>
         </article>
 
       </div>
@@ -1169,17 +1202,17 @@
       <div class="team-grid">
 
         <article class="member" data-reveal data-delay="1">
-          <h3>Robbie Devine, PhD</h3>
-          <div class="member-role">Scientific Co-founder</div>
-          <div class="member-domain">Biosensing &amp; Metabolic Measurement</div>
-          <p class="member-bio">A bench scientist turned company-builder, Robbie partners with Barnstorm to translate UC Davis research into ventures. His work spans biosensor design, assay development, and the experimental groundwork that turns a paper into a product — currently focused on continuous-monitoring platforms for metabolic health.</p>
+          <h3>Robby Divine, PhD</h3>
+          <div class="member-role">Scientific Co-founder, Caffree Co.</div>
+          <div class="member-domain">Enzyme &amp; Ingredient Innovation</div>
+          <p class="member-bio">A bench scientist turned company-builder, Robby partners with Barnstorm to translate UC Davis research into ventures. His work spans biosensor design, assay development, and the experimental groundwork that turns a paper into a product. PhD in Biochemistry from the Baker Lab at the University of Washington; postdoctoral work in the Siegel Lab at UC Davis.</p>
         </article>
 
         <article class="member" data-reveal data-delay="2">
           <h3>Augustine Arredondo</h3>
-          <div class="member-role">Scientific Co-founder</div>
-          <div class="member-domain">Enzyme &amp; Ingredient Innovation</div>
-          <p class="member-bio">Augustine brings expertise in enzyme engineering and food ingredient science to Barnstorm's earliest-stage explorations. He works with operators-in-residence to take laboratory discoveries through technical de-risking and into pilot production, with a focus on translating bench results into manufacturable processes.</p>
+          <div class="member-role">Scientific Co-founder, AminoSense Inc.</div>
+          <div class="member-domain">Biosensing &amp; Metabolic Measurement</div>
+          <p class="member-bio">Augustine brings expertise in enzyme engineering to Barnstorm's earliest-stage explorations. He works with operators-in-residence to take laboratory discoveries through technical de-risking and into pilot production, with a focus on translating bench results into manufacturable processes — currently focused on continuous-monitoring platforms for metabolic health.</p>
         </article>
 
       </div>
@@ -1196,11 +1229,11 @@
           <h3>Phil Johnston</h3>
           <div class="member-role">Advisor</div>
           <div class="member-domain">Life Sciences Talent</div>
-          <p class="member-bio">Senior Partner at Spencer Stuart in San Francisco, specializing in Biopharma and CEO/Board recruitment. Phil supports Barnstorm's talent acquisition and company-building capabilities, drawing on a career placing senior leaders across life sciences. B.A. and M.A., University of Minnesota / Carlson School. Hudson certified executive coach.</p>
+          <p class="member-bio">Founder of the Shelbourne Group, LLC, previously a Senior Partner at Spencer Stuart in San Francisco, specializing in Biopharma and CEO/Board recruitment. Phil supports Barnstorm's talent acquisition and company-building capabilities, drawing on a career placing senior leaders across life sciences. B.A. and M.A., University of Minnesota / Carlson School. Hudson certified executive coach.</p>
         </article>
 
         <article class="member" data-reveal data-delay="2">
-          <h3>Peter Christey, PhD, MBA</h3>
+          <h3>Peter Christey</h3>
           <div class="member-role">Advisor</div>
           <div class="member-domain">Life Sciences Commercialization</div>
           <p class="member-bio">Co-founder and CEO of GALT, with two decades commercializing research instruments. Previously led the DNA Sequencing Business Unit and DNA forensic product line at Life Technologies, with earlier roles at Guava Technologies, Chiron, and Applied Biosystems. B.Sc., Otago; PhD, Cambridge; MBA, INSEAD.</p>
@@ -1217,7 +1250,7 @@
           <h3>Len Nannarone</h3>
           <div class="member-role">Advisor</div>
           <div class="member-domain">Corporate Law &amp; M&amp;A</div>
-          <p class="member-bio">Founder of Disruptive Legal Fees, advising Barnstorm and its ventures on corporate matters, M&amp;A, and securities law. Earlier career in M&amp;A at Kirkland &amp; Ellis and Intel; since then has taken numerous startups from formation to exit, with acquirers including Uber, Yahoo, Google, Apple, and major pharma.</p>
+          <p class="member-bio">Founder of Oak &amp; Hill, PC, advising Barnstorm and its ventures on corporate matters, M&amp;A, and securities law. Earlier career in M&amp;A at Kirkland &amp; Ellis and Intel; since then has taken numerous startups from formation to exit, with acquirers including Uber, Yahoo, Google, Apple, and major pharma.</p>
         </article>
 
         <article class="member" data-reveal data-delay="5">
