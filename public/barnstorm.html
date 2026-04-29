@@ -548,9 +548,13 @@
     font-size: 0.85rem;
     font-weight: 500;
     color: var(--brown);
-    transition: color .35s var(--ease), gap .35s var(--ease);
+    transition: color .35s var(--ease);
   }
-  .venture-link:hover { color: var(--orange); gap: 0.7rem; }
+  .venture-link svg {
+    transition: transform .3s var(--ease);
+  }
+  .venture-link:hover { color: var(--orange); }
+  .venture-link[href]:hover svg { transform: translate(3px, -3px); }
 
   @media (max-width: 1000px) {
     .ventures-grid { grid-template-columns: 1fr 1fr; }
