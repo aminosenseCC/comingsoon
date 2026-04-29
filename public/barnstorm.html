@@ -836,12 +836,17 @@
     align-items: center;
     gap: 0.5rem;
   }
-  .form-submit .arrow { width: 12px; height: 12px; }
+  .form-submit .arrow {
+    width: 12px;
+    height: 12px;
+    transition: transform .3s var(--ease);
+  }
   .form-submit:hover {
     background: var(--orange);
     transform: translateY(-2px);
     box-shadow: 0 10px 22px -10px rgba(241, 90, 45, 0.5);
   }
+  .form-submit:hover .arrow { transform: translate(3px, -3px); }
 
   @media (max-width: 900px) {
     .contact-grid { grid-template-columns: 1fr; gap: 2.5rem; }
@@ -936,16 +941,17 @@
     [data-reveal] {
       animation: revealUp linear both;
       animation-timeline: view();
-      animation-range: entry 0% cover 22%;
+      animation-range: entry 0% cover 18%;
     }
-    /* Stagger via animation-range — later items wait until they're a bit
-       further into view before completing */
-    [data-reveal][data-delay="1"] { animation-range: entry 0% cover 28%; }
-    [data-reveal][data-delay="2"] { animation-range: entry 0% cover 34%; }
-    [data-reveal][data-delay="3"] { animation-range: entry 0% cover 40%; }
-    [data-reveal][data-delay="4"] { animation-range: entry 0% cover 46%; }
-    [data-reveal][data-delay="5"] { animation-range: entry 0% cover 52%; }
-    [data-reveal][data-delay="6"] { animation-range: entry 0% cover 58%; }
+    /* Tight stagger — keep all items finishing inside a similar viewport
+       window so later items aren't stuck mid-animation when they end up
+       near the section's bottom edge */
+    [data-reveal][data-delay="1"] { animation-range: entry 0% cover 22%; }
+    [data-reveal][data-delay="2"] { animation-range: entry 0% cover 26%; }
+    [data-reveal][data-delay="3"] { animation-range: entry 0% cover 30%; }
+    [data-reveal][data-delay="4"] { animation-range: entry 0% cover 34%; }
+    [data-reveal][data-delay="5"] { animation-range: entry 0% cover 38%; }
+    [data-reveal][data-delay="6"] { animation-range: entry 0% cover 42%; }
   }
 
   @media (prefers-reduced-motion: reduce) {
