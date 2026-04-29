@@ -410,7 +410,7 @@
   /* Orange overlay that draws forward then retracts backward.
      Cycle (17s):
        0-44%:   forward draw  (orange line tracks behind plane)
-       44-55%:  hold full orange (plane has landed, all 5 waypoints lit)
+       44-55%:  hold full orange (plane has reached end, all 5 lit)
        55-92%:  reverse retract (orange recedes from end back to start)
        92-100%: pause (everything blue, plane invisible) before loop */
   .flight-path-overlay {
@@ -421,10 +421,10 @@
     animation: flightOverlay 17s linear infinite;
   }
   @keyframes flightOverlay {
-    0%        { stroke-dasharray: 0 1; }    /* invisible (zero-length dash at start) */
-    44%       { stroke-dasharray: 1 0; }    /* fully drawn — matches plane reaching end */
-    55%       { stroke-dasharray: 1 0; }    /* hold */
-    92%, 100% { stroke-dasharray: 0 1; }    /* retracted from end (dash shrinks back to nothing) */
+    0%        { stroke-dasharray: 0 1; }
+    44%       { stroke-dasharray: 1 0; }
+    55%       { stroke-dasharray: 1 0; }
+    92%, 100% { stroke-dasharray: 0 1; }
   }
 
   /* Plane riding along the path, drawn inside the SVG */
@@ -450,6 +450,7 @@
     position: relative;
     text-align: center;
   }
+  /* Alternate vertical offset so waypoints meander above/below the path centerline */
   .waypoint:nth-child(odd)  { transform: translateY(-2.5rem); }
   .waypoint:nth-child(even) { transform: translateY(2.5rem); }
 
@@ -471,6 +472,7 @@
     flex-direction: column;
     z-index: 2;
   }
+  /* Outer dashed concentric ring — rotates and turns orange on activation */
   .waypoint-node::before {
     content: '';
     position: absolute;
@@ -480,103 +482,55 @@
     pointer-events: none;
   }
 
-  .waypoint-num {
+  .waypoint-name-inline {
     font-family: var(--serif);
-    font-style: italic;
-    font-size: 3rem;
+    font-size: 1.4rem;
     line-height: 1;
     color: var(--brown);
-    font-weight: 400;
-    letter-spacing: -0.02em;
-  }
-  .waypoint-label {
-    font-family: var(--sans);
-    font-size: 0.72rem;
-    text-transform: uppercase;
-    letter-spacing: 0.22em;
-    color: var(--brown-light);
-    font-weight: 500;
-    margin-top: 0.45rem;
-  }
-  .waypoint-name {
-    margin-top: 1.5rem;
-    font-family: var(--serif);
-    font-size: 1.6rem;
-    line-height: 1.05;
-    color: var(--brown);
     letter-spacing: -0.01em;
+    text-align: center;
+    padding: 0 0.5rem;
   }
 
   /* Each waypoint gets activated as the plane passes (forward leg)
      and deactivated as the blue redraws back (reverse leg).
-     Total cycle: 17s. Forward leg occupies 0-50%, reverse leg 50-100%.
-
-     Activation timing on forward leg:
-       waypoint 1 active at  0%   (plane at start)
-       waypoint 2 active at  12.5%
-       waypoint 3 active at  25%
-       waypoint 4 active at  37.5%
-       waypoint 5 active at  50%   (plane at end)
-
-     Deactivation timing on reverse leg (orange retracts from end):
-       waypoint 5 deactivates at 50%
-       waypoint 4 deactivates at 62.5%
-       waypoint 3 deactivates at 75%
-       waypoint 2 deactivates at 87.5%
-       waypoint 1 deactivates at 100% */
+     Total cycle: 17s. */
   .waypoint-node {
     animation-duration: 17s;
     animation-timing-function: linear;
     animation-iteration-count: infinite;
   }
-  .waypoint-num,
-  .waypoint-name {
-    animation-duration: 17s;
-    animation-timing-function: linear;
-    animation-iteration-count: infinite;
-  }
-  /* Waypoint 1 — active 0-100% (the start; lights at 0%, deactivates at 100%) */
-  .waypoint:nth-child(1) .waypoint-node { animation-name: nodeActive1; }
-  .waypoint:nth-child(1) .waypoint-node::before { animation-name: ringActive1; }
-  .waypoint:nth-child(1) .waypoint-num,
-  .waypoint:nth-child(1) .waypoint-name { animation-name: textActive1; }
-  /* Waypoint 2 — active 12.5%-87.5% */
-  .waypoint:nth-child(2) .waypoint-node { animation-name: nodeActive2; }
-  .waypoint:nth-child(2) .waypoint-node::before { animation-name: ringActive2; }
-  .waypoint:nth-child(2) .waypoint-num,
-  .waypoint:nth-child(2) .waypoint-name { animation-name: textActive2; }
-  /* Waypoint 3 — active 25%-75% */
-  .waypoint:nth-child(3) .waypoint-node { animation-name: nodeActive3; }
-  .waypoint:nth-child(3) .waypoint-node::before { animation-name: ringActive3; }
-  .waypoint:nth-child(3) .waypoint-num,
-  .waypoint:nth-child(3) .waypoint-name { animation-name: textActive3; }
-  /* Waypoint 4 — active 37.5%-62.5% */
-  .waypoint:nth-child(4) .waypoint-node { animation-name: nodeActive4; }
-  .waypoint:nth-child(4) .waypoint-node::before { animation-name: ringActive4; }
-  .waypoint:nth-child(4) .waypoint-num,
-  .waypoint:nth-child(4) .waypoint-name { animation-name: textActive4; }
-  /* Waypoint 5 — active 50% (just an instant; immediately reverses) */
-  .waypoint:nth-child(5) .waypoint-node { animation-name: nodeActive5; }
-  .waypoint:nth-child(5) .waypoint-node::before { animation-name: ringActive5; }
-  .waypoint:nth-child(5) .waypoint-num,
-  .waypoint:nth-child(5) .waypoint-name { animation-name: textActive5; }
-
-  /* The ring (::before) shares the parent node's animation duration/iteration */
   .waypoint-node::before {
     animation-duration: 17s;
     animation-timing-function: var(--ease);
     animation-iteration-count: infinite;
   }
+  .waypoint-name-inline {
+    animation-duration: 17s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+  }
+  /* Waypoint 1 */
+  .waypoint:nth-child(1) .waypoint-node { animation-name: nodeActive1; }
+  .waypoint:nth-child(1) .waypoint-node::before { animation-name: ringActive1; }
+  .waypoint:nth-child(1) .waypoint-name-inline { animation-name: textActive1; }
+  /* Waypoint 2 */
+  .waypoint:nth-child(2) .waypoint-node { animation-name: nodeActive2; }
+  .waypoint:nth-child(2) .waypoint-node::before { animation-name: ringActive2; }
+  .waypoint:nth-child(2) .waypoint-name-inline { animation-name: textActive2; }
+  /* Waypoint 3 */
+  .waypoint:nth-child(3) .waypoint-node { animation-name: nodeActive3; }
+  .waypoint:nth-child(3) .waypoint-node::before { animation-name: ringActive3; }
+  .waypoint:nth-child(3) .waypoint-name-inline { animation-name: textActive3; }
+  /* Waypoint 4 */
+  .waypoint:nth-child(4) .waypoint-node { animation-name: nodeActive4; }
+  .waypoint:nth-child(4) .waypoint-node::before { animation-name: ringActive4; }
+  .waypoint:nth-child(4) .waypoint-name-inline { animation-name: textActive4; }
+  /* Waypoint 5 */
+  .waypoint:nth-child(5) .waypoint-node { animation-name: nodeActive5; }
+  .waypoint:nth-child(5) .waypoint-node::before { animation-name: ringActive5; }
+  .waypoint:nth-child(5) .waypoint-name-inline { animation-name: textActive5; }
 
-  /* Activation timing per waypoint (17s cycle), with ~5% smooth transitions:
-     Forward leg 0-44%. Hold (all 5 active) 44-55%. Reverse leg 55-92%. Pause 92-100%.
-
-       waypoint 1: light 0%→5%   → dim 87%→92%  (then 8% all-blue pause)
-       waypoint 2: light 6%→11%  → dim 82.75%→87.75%
-       waypoint 3: light 17%→22% → dim 73.5%→78.5%
-       waypoint 4: light 28%→33% → dim 64.25%→69.25%
-       waypoint 5: light 39%→44% → dim 55%→60%
-  */
   /* Activation timing per waypoint (17s cycle), with ~5% smooth transitions:
      Forward leg 0-44%. Hold (all 5 active) 44-55%. Reverse leg 55-92%. Pause 92-100%.
 
@@ -643,59 +597,61 @@
                   box-shadow: 0 0 0 6px rgba(53, 195, 227, 0.08), 0 18px 38px -16px rgba(60, 34, 34, 0.22);
                   transform: scale(1); }
   }
-  /* Text color keyframes — same timing pattern */
+  /* Text color keyframes */
   @keyframes textActive1 {
-    0%      { color: var(--brown); }
+    0%          { color: var(--brown); }
     2.5%, 89.5% { color: var(--orange); }
     94.5%, 100% { color: var(--brown); }
   }
   @keyframes textActive2 {
-    0%, 8.5%   { color: var(--brown); }
+    0%, 8.5%      { color: var(--brown); }
     13.5%, 80.25% { color: var(--orange); }
-    85.25%, 100% { color: var(--brown); }
+    85.25%, 100%  { color: var(--brown); }
   }
   @keyframes textActive3 {
-    0%, 19.5%  { color: var(--brown); }
-    24.5%, 71% { color: var(--orange); }
-    76%, 100% { color: var(--brown); }
+    0%, 19.5%   { color: var(--brown); }
+    24.5%, 71%  { color: var(--orange); }
+    76%, 100%   { color: var(--brown); }
   }
   @keyframes textActive4 {
-    0%, 30.5%  { color: var(--brown); }
+    0%, 30.5%     { color: var(--brown); }
     35.5%, 61.75% { color: var(--orange); }
-    66.75%, 100% { color: var(--brown); }
+    66.75%, 100%  { color: var(--brown); }
   }
   @keyframes textActive5 {
-    0%, 41.5%  { color: var(--brown); }
+    0%, 41.5%    { color: var(--brown); }
     46.5%, 52.5% { color: var(--orange); }
-    57.5%, 100% { color: var(--brown); }
+    57.5%, 100%  { color: var(--brown); }
   }
 
-  /* Ring (::before) keyframes */
+  /* Ring (::before) keyframes — dashed concentric ring rotates 180° and turns
+     orange while waypoint is active, mirroring the original hover behavior. */
   @keyframes ringActive1 {
-    0%      { transform: rotate(0deg);   border-color: rgba(53, 195, 227, 0.3); }
+    0%          { transform: rotate(0deg);   border-color: rgba(53, 195, 227, 0.3); }
     2.5%, 89.5% { transform: rotate(180deg); border-color: rgba(241, 90, 45, 0.45); }
     94.5%, 100% { transform: rotate(360deg); border-color: rgba(53, 195, 227, 0.3); }
   }
   @keyframes ringActive2 {
-    0%, 8.5%   { transform: rotate(0deg);   border-color: rgba(53, 195, 227, 0.3); }
+    0%, 8.5%      { transform: rotate(0deg);   border-color: rgba(53, 195, 227, 0.3); }
     13.5%, 80.25% { transform: rotate(180deg); border-color: rgba(241, 90, 45, 0.45); }
-    85.25%, 100% { transform: rotate(360deg); border-color: rgba(53, 195, 227, 0.3); }
+    85.25%, 100%  { transform: rotate(360deg); border-color: rgba(53, 195, 227, 0.3); }
   }
   @keyframes ringActive3 {
-    0%, 19.5%  { transform: rotate(0deg);   border-color: rgba(53, 195, 227, 0.3); }
-    24.5%, 71% { transform: rotate(180deg); border-color: rgba(241, 90, 45, 0.45); }
-    76%, 100% { transform: rotate(360deg); border-color: rgba(53, 195, 227, 0.3); }
+    0%, 19.5%   { transform: rotate(0deg);   border-color: rgba(53, 195, 227, 0.3); }
+    24.5%, 71%  { transform: rotate(180deg); border-color: rgba(241, 90, 45, 0.45); }
+    76%, 100%   { transform: rotate(360deg); border-color: rgba(53, 195, 227, 0.3); }
   }
   @keyframes ringActive4 {
-    0%, 30.5%  { transform: rotate(0deg);   border-color: rgba(53, 195, 227, 0.3); }
+    0%, 30.5%     { transform: rotate(0deg);   border-color: rgba(53, 195, 227, 0.3); }
     35.5%, 61.75% { transform: rotate(180deg); border-color: rgba(241, 90, 45, 0.45); }
-    66.75%, 100% { transform: rotate(360deg); border-color: rgba(53, 195, 227, 0.3); }
+    66.75%, 100%  { transform: rotate(360deg); border-color: rgba(53, 195, 227, 0.3); }
   }
   @keyframes ringActive5 {
-    0%, 41.5%  { transform: rotate(0deg);   border-color: rgba(53, 195, 227, 0.3); }
+    0%, 41.5%    { transform: rotate(0deg);   border-color: rgba(53, 195, 227, 0.3); }
     46.5%, 52.5% { transform: rotate(180deg); border-color: rgba(241, 90, 45, 0.45); }
-    57.5%, 100% { transform: rotate(360deg); border-color: rgba(53, 195, 227, 0.3); }
+    57.5%, 100%  { transform: rotate(360deg); border-color: rgba(53, 195, 227, 0.3); }
   }
+
   /* Responsive */
   @media (max-width: 1100px) {
     .flight-waypoints { grid-template-columns: repeat(3, 1fr); row-gap: 4rem; }
@@ -704,13 +660,12 @@
     .flight-path-svg { display: none; }
     .approach-flight { padding: 3rem 0; }
     /* Disable the cycle on small screens — path is hidden so animation has no anchor */
-    .waypoint-node, .waypoint-node::before, .waypoint-num, .waypoint-name { animation: none !important; }
+    .waypoint-node, .waypoint-node::before, .waypoint-name-inline { animation: none !important; }
   }
   @media (max-width: 700px) {
     .flight-waypoints { grid-template-columns: repeat(2, 1fr); row-gap: 3rem; }
     .waypoint-node { width: 110px; height: 110px; }
-    .waypoint-num { font-size: 2.4rem; }
-    .waypoint-name { font-size: 1.3rem; }
+    .waypoint-name-inline { font-size: 1.2rem; }
   }
   @media (max-width: 460px) {
     .flight-waypoints { grid-template-columns: 1fr; row-gap: 2.25rem; }
@@ -720,8 +675,7 @@
     .flight-plane-group,
     .waypoint-node,
     .waypoint-node::before,
-    .waypoint-num,
-    .waypoint-name { animation: none !important; }
+    .waypoint-name-inline { animation: none !important; }
   }
 
   /* =============================================================
@@ -1335,6 +1289,8 @@
                 <circle cx="0" cy="0" r="1.2" fill="#3C2222"/>
               </g>
             </g>
+            <!-- Plane flies continuously across the path during forward leg
+                 (0-44% of cycle), then stays hidden at end (44%-100%). -->
             <animateMotion dur="17s" repeatCount="indefinite" rotate="auto"
                            keyTimes="0;0.44;1"
                            keyPoints="0;1;1"
@@ -1348,38 +1304,28 @@
       <div class="flight-waypoints">
         <div class="waypoint" data-reveal data-delay="1">
           <div class="waypoint-node">
-            <span class="waypoint-num">01</span>
-            <span class="waypoint-label">Stage</span>
+            <span class="waypoint-name-inline">Explore</span>
           </div>
-          <h3 class="waypoint-name">Explore</h3>
         </div>
         <div class="waypoint" data-reveal data-delay="2">
           <div class="waypoint-node">
-            <span class="waypoint-num">02</span>
-            <span class="waypoint-label">Stage</span>
+            <span class="waypoint-name-inline">Prototype</span>
           </div>
-          <h3 class="waypoint-name">Prototype</h3>
         </div>
         <div class="waypoint" data-reveal data-delay="3">
           <div class="waypoint-node">
-            <span class="waypoint-num">03</span>
-            <span class="waypoint-label">Stage</span>
+            <span class="waypoint-name-inline">Validate</span>
           </div>
-          <h3 class="waypoint-name">Validate</h3>
         </div>
         <div class="waypoint" data-reveal data-delay="4">
           <div class="waypoint-node">
-            <span class="waypoint-num">04</span>
-            <span class="waypoint-label">Stage</span>
+            <span class="waypoint-name-inline">Pilot</span>
           </div>
-          <h3 class="waypoint-name">Pilot</h3>
         </div>
         <div class="waypoint" data-reveal data-delay="5">
           <div class="waypoint-node">
-            <span class="waypoint-num">05</span>
-            <span class="waypoint-label">Stage</span>
+            <span class="waypoint-name-inline">Launch</span>
           </div>
-          <h3 class="waypoint-name">Launch</h3>
         </div>
       </div>
     </div>
@@ -1405,10 +1351,10 @@
         <div class="venture-logo" aria-hidden="true">
           <img src="KT.png" alt="" class="venture-logo-img">
         </div>
-        <div class="venture-stage">Seed · 2023</div>
+        <div class="venture-stage">Contract Research · 2023</div>
         <h3>KetoTap Core</h3>
         <div class="venture-tag">Enabling continuous ketone monitoring</div>
-        <p>A novel BHB oxidase engineered at UC Davis that makes continuous ketone monitoring viable. This drop-in technology for blood meter manufacturers and continuous monitor developers will enable next-gen ketone monitoring.</p>
+        <p>A novel BHB oxidase engineered at UC Davis that makes continuous ketone monitoring more viable. Funded by Cornucopian Capital on behalf of its portfolio company Phenotap. This drop-in technology for blood meter manufacturers and continuous monitor developers will enable next-gen ketone monitoring.</p>
         <a href="https://www.phenotap.com/" target="_blank" rel="noopener" class="venture-link">
           Visit phenotap.com
           <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 11L11 3M11 3H5M11 3V9"/></svg>
@@ -1435,7 +1381,7 @@
         </div>
         <div class="venture-stage">Incubation · 2026</div>
         <h3>AminoSense, Inc.</h3>
-        <div class="venture-tag">Measuring amino acid levels</div>
+        <div class="venture-tag">Amino Acid Biosensor</div>
         <p>A new bio-measurement platform for amino acids — the body's most fundamental signal of recovery, growth, and aging. Currently in stealth, with a science team building a technology stack rooted in UC Davis biochemistry and UC San Diego biosensing electrochemistry research.</p>
         <span class="venture-link" style="color: var(--brown-light); cursor: default;">
           Coming soon
@@ -1470,7 +1416,7 @@
           <h3>Aryeh Ganz</h3>
           <div class="member-role">Managing Partner &amp; Co-founder</div>
           <div class="member-domain">Founder, Cornucopian Capital</div>
-          <p class="member-bio">Aryeh is a serial VC investor and entrepreneur, and is presently managing partner of Corncucopian Capital. He leads Barnstorm's operations and stage-gated process for company building. He is also the principal of SAGEN Trust Company, a family office founded after his family's 2000 sale of SlimFast Foods. UC Davis '93.</p>
+          <p class="member-bio">Aryeh is a serial VC investor and entrepreneur, and is presently the Managing Partner of Corncucopian Capital. He leads Barnstorm's operations and stage-gated process for company building. He is also the principal of SAGEN Trust Company, a family office founded after his family's 2000 sale of SlimFast Foods. UC Davis '93.</p>
         </article>
 
         <article class="member" data-reveal data-delay="2">
