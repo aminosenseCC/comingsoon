@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aminosense Web Reader v4.15</title>
+    <title>Aminosense Web Reader v4.16</title>
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
@@ -170,7 +170,8 @@
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                 <h3 style="margin: 0; color: #003366;">Run Library</h3>
                 <div>
-                    <button id="btnDownloadMaster" class="btn-warning">Export / Share Master Log</button>
+                    <button id="btnDownloadSelected" class="btn-success">Export Selected (PSTrace Format)</button>
+                    <button id="btnDownloadMaster" class="btn-warning">Export Master Log</button>
                     <button id="btnClearMaster" class="btn-danger">Reset Log</button>
                 </div>
             </div>
@@ -206,7 +207,7 @@
 
     <div class="footer-container">
         <span>For Research Use Only. Not for diagnostic use.</span>
-        <span>v4.15</span>
+        <span>v4.16</span>
     </div>
 
     <script>
@@ -283,7 +284,6 @@
                 const tr = document.createElement('tr');
                 let currentCal = run.cal_factor !== undefined ? run.cal_factor : "1.0";
                 
-                // UPDATED: Re-mapped the logical reading for older Dashboard data
                 let portName = run.port === "1" ? "Left" : "Right";
                 
                 tr.innerHTML = `
@@ -419,6 +419,7 @@
         const btnAbort = document.getElementById('btnAbort');
         const btnDownload = document.getElementById('btnDownload');
         const btnDownloadMaster = document.getElementById('btnDownloadMaster');
+        const btnDownloadSelected = document.getElementById('btnDownloadSelected');
         const btnClearMaster = document.getElementById('btnClearMaster');
         const statusText = document.getElementById('statusText');
         const logDiv = document.getElementById('log');
@@ -522,8 +523,6 @@
             let vString = appliedVoltage_mV + "m"; 
 
             let selectedChannel = document.getElementById('inputChannel').value;
-            
-            // UPDATED: Swapped port mapping here for the UI text log!
             let portName = selectedChannel === "1" ? "Left" : "Right";
             
             let crString = document.getElementById('inputCurrentRange').value;
@@ -665,16 +664,67 @@
             exportData(csv, `Aminosense_Data_${new Date().getTime()}.csv`);
         });
 
+        // NEW: Side-by-Side Exporter for Selected Runs (PSTrace Format)
+        btnDownloadSelected.addEventListener('click', () => {
+            let masterLog = JSON.parse(localStorage.getItem('aminosenseMasterLog')) || [];
+            const checkboxes = document.querySelectorAll('.plot-check');
+            let selectedRuns = [];
+
+            // 1. Gather all currently checked runs
+            checkboxes.forEach(chk => {
+                if (chk.checked) {
+                    const run = masterLog[chk.getAttribute('data-index')];
+                    if (run) selectedRuns.push(run);
+                }
+            });
+
+            if (selectedRuns.length === 0) {
+                alert("Please select at least one run from the table to export.");
+                return;
+            }
+
+            // 2. Build the PSTrace-style headers
+            let row1 = []; // Run Names
+            let row2 = []; // Axis Titles
+            let maxLength = 0;
+
+            selectedRuns.forEach(run => {
+                row1.push(`"${run.subject} - ${run.condition} (${run.variable})"`, ""); // Put the name in Col A, leave Col B blank
+                row2.push("Time (s)", "Current (µA)");
+                
+                // Find out which run is the longest so we know how many rows to build
+                if (run.rawData && run.rawData.length > maxLength) {
+                    maxLength = run.rawData.length;
+                }
+            });
+
+            let csv = row1.join(",") + "\n" + row2.join(",") + "\n";
+
+            // 3. Loop through the data and build the rows side-by-side
+            for (let i = 0; i < maxLength; i++) {
+                let rowData = [];
+                selectedRuns.forEach(run => {
+                    if (run.rawData && i < run.rawData.length) {
+                        let interval = run.interval_s || 0.5;
+                        rowData.push((i * interval).toFixed(1), run.rawData[i].toFixed(4));
+                    } else {
+                        // If this run is shorter than the others, fill its columns with blanks
+                        rowData.push("", ""); 
+                    }
+                });
+                csv += rowData.join(",") + "\n";
+            }
+
+            exportData(csv, `Aminosense_SelectedRuns_${new Date().getTime()}.csv`);
+        });
+
         btnDownloadMaster.addEventListener('click', () => {
             let masterLog = JSON.parse(localStorage.getItem('aminosenseMasterLog')) || [];
             if (masterLog.length === 0) { alert("Master Log is empty!"); return; }
             let csv = "Timestamp,SubjectID,Port,Condition,VariableValue,EquilDelay_s,CalFactor,FinalCurrent_uA,FinalConc_uM,Time_s,RawCurrent_uA\n";
             masterLog.forEach(run => { 
                 let delayStr = run.delay_s !== undefined ? run.delay_s : "N/A", calStr = run.cal_factor !== undefined ? run.cal_factor : "1.0"; 
-                
-                // UPDATED: Swapped port mapping here for the CSV exports!
                 let portName = run.port === "1" ? "Left" : "Right"; 
-                
                 if (run.rawData && run.rawData.length > 0) {
                     let interval = run.interval_s || 0.5; 
                     for (let i = 0; i < run.rawData.length; i++) csv += `"${run.timestamp}","${run.subject}","${portName}","${run.condition}",${run.variable},${delayStr},${calStr},${run.result_uA},${run.result_uM},${(i*interval).toFixed(1)},${run.rawData[i].toFixed(4)}\n`;
