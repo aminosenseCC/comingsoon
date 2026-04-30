@@ -1,219 +1,695 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AminoSense — Amino Acid Biosensing</title>
-<link rel="icon" type="image/png" href="Icon.png">
-<style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aminosense Web Reader v4.15</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+    
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; background-color: #f9f9f9;}
+        
+        .btn-primary { background-color: #003366; }        
+        .btn-secondary { background-color: #007ACC; }        
+        .btn-success { background-color: #28a745; }       
+        .btn-warning { background-color: #ff9900; } 
+        .btn-danger { background-color: #dc3545; }
 
-:root {
-  --purple: #4B3F73;
-  --crimson: #B20834;
-  --gold: #F2C94C;
-  --white: #FFFFFF;
-  --text-muted: #6B6280;
-}
+        button { color: white; border: none; padding: 10px 15px; font-size: 14px; font-weight: bold; cursor: pointer; border-radius: 5px; margin-right: 5px; margin-bottom: 5px; transition: opacity 0.2s;}
+        button:hover { opacity: 0.9; }
+        button:disabled { background-color: #cccccc !important; color: #777 !important; cursor: not-allowed; }
+        
+        .header-container { padding-bottom: 15px; border-bottom: 2px solid #eaeaea; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;}
+        .logo-area { display: flex; align-items: center; }
+        .logo { max-height: 45px; margin-right: 15px; }
+        
+        .nav-tabs { display: flex; margin-bottom: 20px; border-bottom: 2px solid #ddd; }
+        .nav-tab { background: none; border: none; color: #555; padding: 10px 20px; font-size: 16px; font-weight: bold; border-radius: 5px 5px 0 0; margin-bottom: -2px; cursor: pointer; }
+        .nav-tab.active { color: #007ACC; border-bottom: 3px solid #007ACC; }
+        .nav-tab:hover:not(.active) { background-color: #eee; }
 
-body {
-  font-family: 'Segoe UI Semilight', 'Segoe UI', system-ui, sans-serif;
-  color: var(--purple);
-  margin: 0;
-  min-height: 100vh;
-  overflow-x: hidden;
-}
-
-/* Full-screen hero with background image */
-.hero {
-  min-height: 100vh;
-  background: url('BG.png') center right / cover no-repeat;
-  background-color: #e8e8ec;
-  display: flex;
-  align-items: center;
-  padding: 80px 8vw;
-  position: relative;
-}
-
-/* Gradient overlay so text is readable over any part of the image */
-.hero::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    105deg,
-    rgba(255,255,255,0.95) 0%,
-    rgba(255,255,255,0.85) 30%,
-    rgba(255,255,255,0.4) 55%,
-    transparent 70%
-  );
-  pointer-events: none;
-}
-
-.hero-content {
-  position: relative;
-  z-index: 1;
-  max-width: 540px;
-}
-
-.logo {
-  margin-bottom: 48px;
-  animation: fadeUp 0.8s ease both;
-}
-.logo img {
-  height: auto;
-  width: 340px;
-}
-
-h1 {
-  font-family: 'Segoe UI Semilight', 'Segoe UI', system-ui, sans-serif;
-  font-weight: 300;
-  font-size: clamp(32px, 4.5vw, 52px);
-  line-height: 1.15;
-  color: var(--purple);
-  margin-bottom: 20px;
-  animation: fadeUp 0.8s 0.1s ease both;
-}
-h1 em {
-  font-style: italic;
-  color: var(--crimson);
-}
-
-.subtitle {
-  font-size: 17px;
-  line-height: 1.65;
-  color: var(--text-muted);
-  margin-bottom: 36px;
-  max-width: 440px;
-  animation: fadeUp 0.8s 0.2s ease both;
-}
-
-.cta {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-bottom: 48px;
-  animation: fadeUp 0.8s 0.3s ease both;
-}
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 14px 32px;
-  border-radius: 8px;
-  font-family: 'Segoe UI Semibold', 'Segoe UI', system-ui, sans-serif;
-  font-weight: 600;
-  font-size: 14px;
-  text-decoration: none;
-  transition: all 0.25s;
-  cursor: pointer;
-  border: none;
-}
-.btn-primary {
-  background: var(--crimson);
-  color: var(--white);
-}
-.btn-primary:hover {
-  background: #8f062a;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(178,8,52,0.2);
-}
-.btn-portal {
-  background: var(--purple);
-  color: var(--white);
-}
-.btn-portal:hover {
-  background: #3a3160;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(75,63,115,0.2);
-}
-
-.ruo {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 10px;
-  font-family: 'Segoe UI Semibold', 'Segoe UI', system-ui, sans-serif;
-  font-weight: 600;
-  color: var(--crimson);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  background: rgba(178,8,52,0.06);
-  padding: 5px 14px;
-  border-radius: 4px;
-  animation: fadeUp 0.8s 0.4s ease both;
-}
-
-.landing-footer {
-  position: absolute;
-  bottom: 32px;
-  left: 8vw;
-  font-size: 11px;
-  color: var(--text-muted);
-  z-index: 1;
-  animation: fadeUp 0.8s 0.5s ease both;
-}
-
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Mobile: stack vertically, show device below */
-@media (max-width: 768px) {
-  .hero {
-    background-position: center bottom;
-    background-size: 80%;
-    align-items: flex-start;
-    padding: 60px 24px 40vh;
-  }
-  .hero::before {
-    background: linear-gradient(
-      180deg,
-      rgba(255,255,255,0.97) 0%,
-      rgba(255,255,255,0.9) 50%,
-      rgba(255,255,255,0.3) 75%,
-      transparent 100%
-    );
-  }
-  .hero-content {
-    max-width: 100%;
-  }
-  .logo img {
-    width: 60vw;
-  }
-  h1 { font-size: clamp(28px, 7vw, 40px); }
-  .subtitle { font-size: 15px; }
-  .landing-footer {
-    left: 24px;
-  }
-}
-</style>
+        .panel { background-color: white; padding: 15px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);}
+        #log { background-color: #333; color: #0f0; border: 1px solid #222; padding: 10px; height: 150px; overflow-y: scroll; font-size: 12px; font-family: monospace; border-radius: 5px; margin-top: 15px;}
+        .status { margin-top: 10px; font-weight: bold; font-size: 18px; color: #555; text-align: center; }
+        label { font-size: 13px; font-weight: 600; color: #444;}
+        input[type="text"], input[type="number"], select { padding: 4px; border: 1px solid #ccc; border-radius: 4px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #003366; color: white; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+        .editable { cursor: pointer; color: #007ACC; font-weight: 600; text-decoration: underline dotted; }
+        .editable:hover { background-color: #eef7ff; }
+        
+        .footer-container { margin-top: 30px; padding-top: 15px; border-top: 1px solid #eaeaea; display: flex; justify-content: space-between; color: #888; font-size: 11px; }
+    </style>
 </head>
 <body>
 
-<section class="hero">
-  <div class="hero-content">
-    <div class="logo">
-      <img src="Logo_Full.png" alt="AminoSense">
+    <div class="header-container">
+        <div class="logo-area">
+            <img src="AminoSense_Logo.png" alt="AminoSense Logo" class="logo" onerror="this.style.display='none'">
+            <h2 style="color: #333; margin: 0;">Aminosense Cloud</h2>
+        </div>
     </div>
 
-    <h1>Amino acid detection,<br><em>reimagined.</em></h1>
+    <div class="nav-tabs">
+        <button class="nav-tab active" id="tabAcquisition">Data Acquisition</button>
+        <button class="nav-tab" id="tabDashboard">Analysis Dashboard</button>
+    </div>
+    
+    <div id="view-acquisition">
+        <div class="panel" style="background-color: #eef7ff; border-color: #bce8f1;">
+            <div style="margin-bottom: 10px;">
+                <label>Subject ID: <input type="text" id="tbSubjectID" value="Subj_001"></label>
+                <label style="margin-left: 15px;">Condition: <input type="text" id="tbCondition" value="Control"></label>
+            </div>
+            <div>
+                <label>Variable Value: <input type="number" id="tbVarValue" value="0" style="width: 60px;"></label>
+                <label style="margin-left: 20px;"><input type="checkbox" id="chkAutoIncrement"> Auto-Increment by:</label>
+                <input type="number" id="tbStepValue" value="30" style="width: 50px;">
+            </div>
+        </div>
 
-    <p class="subtitle">Real-time amino acid quantification from a finger prick — at a fraction of the cost of current methods.</p>
+        <div class="panel">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <label style="color: #444; font-size: 14px;"><strong>Reference Overlay:</strong>
+                    <select id="inputReference" style="width: 250px; margin-left: 5px;">
+                        <option value="-1">None</option>
+                    </select>
+                </label>
+                
+                <label style="color: #dc3545; font-size: 12px; cursor: pointer; border: 1px solid #f5c6cb; padding: 4px 8px; border-radius: 4px; background-color: #f8d7da;">
+                    <input type="checkbox" id="chkRDMode" onchange="document.getElementById('advancedSettings').style.display = this.checked ? 'block' : 'none'"> 
+                    <strong>R&D Mode</strong>
+                </label>
+            </div>
 
-    <div class="cta">
-      <a href="mailto:matei@aminosense.bio?subject=Demo%20Request%20%E2%80%94%20AminoSense" class="btn btn-primary">Request a Demo</a>
-      <a href="portal.html" class="btn btn-portal">Research Portal</a>
+            <div id="advancedSettings" style="display: none; margin-top: 15px; padding-top: 15px; border-top: 1px dashed #ccc;">
+                <div style="margin-bottom: 10px;">
+                    <label>Equil. Delay (s): <input type="number" id="inputDelay" value="1" min="0" style="width: 45px;"></label>
+                    <label style="margin-left: 15px;">Run Time (s): <input type="number" id="inputRunTime" value="60" min="1" style="width: 45px;"></label>
+                    <label style="margin-left: 15px;">Rate:
+                        <select id="inputSampleRate">
+                            <option value="0.1">10 Hz (Ultra)</option>
+                            <option value="0.2">5 Hz (Fast)</option>
+                            <option value="0.5" selected>2 Hz (Std)</option>
+                            <option value="1.0">1 Hz (Slow)</option>
+                        </select>
+                    </label>
+                    <label style="margin-left: 15px;">Port:
+                        <select id="inputChannel">
+                            <option value="0" selected>Right (Ch 1)</option>
+                            <option value="1">Left (Ch 2)</option>
+                        </select>
+                    </label>
+                </div>
+                <div>
+                    <label style="color: #dc3545;"><strong>Potential (mV):</strong> <input type="number" id="inputPotential" value="-650" style="width: 55px;"></label>
+                    <label style="margin-left: 15px; color: #28a745;"><strong>Current Range:</strong>
+                        <select id="inputCurrentRange" style="width: 80px;">
+                            <option value="1m">1 mA</option>
+                            <option value="100u">100 µA</option>
+                            <option value="10u">10 µA</option>
+                            <option value="1u" selected>1 µA</option>
+                            <option value="100n">100 nA</option>
+                        </select>
+                    </label>
+                    <label style="margin-left: 15px; color: #007ACC;"><strong>Cal Factor:</strong> <input type="number" id="inputCalFactor" value="1.0" step="0.1" style="width: 50px;"></label>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <button id="btnConnect" class="btn-primary">1. Connect Sensor</button>
+            <button id="btnMeasure" class="btn-secondary" disabled>2. Start Test</button>
+            <button id="btnAbort" class="btn-danger" disabled>Abort Test</button>
+            <button id="btnDownload" class="btn-success" disabled>3. Export / Share Run</button>
+        </div>
+
+        <div class="status" id="statusText">Result: -- uM</div>
+
+        <div class="panel" style="height: 300px;">
+            <canvas id="liveChart"></canvas>
+        </div>
+
+        <div id="log">System Ready... Waiting for hardware connection.</div>
     </div>
 
-    <div class="ruo">For Research Use Only</div>
-  </div>
+    <div id="view-dashboard" style="display: none;">
+        
+        <div class="panel" style="height: 320px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h4 style="margin: 0; color: #444;">Raw Decay Curves (Time vs. Current)</h4>
+                <button class="btn-secondary" style="padding: 5px 10px; font-size: 12px; margin: 0;" onclick="dashboardChart.resetZoom()">Reset Zoom</button>
+            </div>
+            <div style="height: 250px;">
+                <canvas id="dashboardChart"></canvas>
+            </div>
+        </div>
 
-  <div class="landing-footer">
-    <p>&copy; 2026 AminoSense, Inc.</p>
-  </div>
-</section>
+        <div class="panel" style="height: 320px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h4 style="margin: 0; color: #444;">Trend Analysis (Variable vs. Result)</h4>
+                <div>
+                    <label style="font-size: 13px; margin-right: 15px; cursor: pointer; color: #003366;">
+                        <input type="checkbox" id="chkBaselineToggle" onchange="updateDashboardChart()"> <strong>View as Baseline Change</strong>
+                    </label>
+                    <button class="btn-secondary" style="padding: 5px 10px; font-size: 12px; margin: 0;" onclick="trendChart.resetZoom()">Reset Zoom</button>
+                </div>
+            </div>
+            <div style="height: 250px;">
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
 
+        <div class="panel">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h3 style="margin: 0; color: #003366;">Run Library</h3>
+                <div>
+                    <button id="btnDownloadMaster" class="btn-warning">Export / Share Master Log</button>
+                    <button id="btnClearMaster" class="btn-danger">Reset Log</button>
+                </div>
+            </div>
+            <p style="font-size: 12px; color: #666; margin-top: 0;"><em>Use mouse-wheel or pinch to zoom graphs. Click and drag to pan. Click on a Subject ID or Condition below to edit.</em></p>
+            
+            <div id="statsPanel" style="display: none; background-color: #eef7ff; border: 1px solid #bce8f1; padding: 10px 15px; border-radius: 5px; margin-bottom: 15px; justify-content: space-around; font-size: 14px; color: #003366;">
+                <span><strong>Selected Replicates:</strong> <span id="statCount">0</span></span>
+                <span><strong>Mean:</strong> <span id="statMean">0.00</span> µM</span>
+                <span><strong>Std Dev:</strong> <span id="statSD">0.00</span></span>
+                <span><strong>% CV:</strong> <span id="statCV">0.00</span>%</span>
+            </div>
+            
+            <div style="overflow-x: auto; max-height: 300px; overflow-y: scroll;">
+                <table id="runTable">
+                    <thead>
+                        <tr>
+                            <th>Plot</th>
+                            <th>Time/Date</th>
+                            <th>Subject ID</th>
+                            <th>Port</th>
+                            <th>Condition</th>
+                            <th>Variable</th>
+                            <th>Cal Factor</th>
+                            <th>Result (µM)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="runTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-container">
+        <span>For Research Use Only. Not for diagnostic use.</span>
+        <span>v4.15</span>
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. TAB SWITCHING LOGIC
+        // ==========================================
+        const tabAcquisition = document.getElementById('tabAcquisition');
+        const tabDashboard = document.getElementById('tabDashboard');
+        const viewAcquisition = document.getElementById('view-acquisition');
+        const viewDashboard = document.getElementById('view-dashboard');
+
+        tabAcquisition.addEventListener('click', () => {
+            tabAcquisition.classList.add('active');
+            tabDashboard.classList.remove('active');
+            viewAcquisition.style.display = 'block';
+            viewDashboard.style.display = 'none';
+        });
+
+        tabDashboard.addEventListener('click', () => {
+            tabDashboard.classList.add('active');
+            tabAcquisition.classList.remove('active');
+            viewDashboard.style.display = 'block';
+            viewAcquisition.style.display = 'none';
+            refreshDashboard(); 
+        });
+
+        // ==========================================
+        // 2. DASHBOARD LOGIC
+        // ==========================================
+        const zoomOptions = {
+            pan: { enabled: true, mode: 'xy' },
+            zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'xy' }
+        };
+
+        const ctxDash = document.getElementById('dashboardChart').getContext('2d');
+        const dashboardChart = new Chart(ctxDash, {
+            type: 'line',
+            data: { datasets: [] }, 
+            options: { 
+                responsive: true, maintainAspectRatio: false, animation: false, 
+                interaction: { mode: 'nearest', axis: 'xy', intersect: false }, 
+                scales: { x: { type: 'linear', title: { display: true, text: 'Time (s)' } }, y: { title: { display: true, text: 'Current (µA)' } } },
+                plugins: { zoom: zoomOptions, tooltip: { enabled: true } }
+            }
+        });
+
+        const ctxTrend = document.getElementById('trendChart').getContext('2d');
+        const trendChart = new Chart(ctxTrend, {
+            type: 'scatter', 
+            data: { datasets: [] },
+            options: { 
+                responsive: true, maintainAspectRatio: false, animation: false, 
+                interaction: { mode: 'nearest', axis: 'xy', intersect: false },
+                scales: { x: { type: 'linear', title: { display: true, text: 'Variable Value' } }, y: { title: { display: true, text: 'Final Result (µM)' } } },
+                plugins: { zoom: zoomOptions, tooltip: { enabled: true } }
+            }
+        });
+
+        const chartColors = ['#007ACC', '#dc3545', '#28a745', '#ff9900', '#6f42c1', '#17a2b8', '#e83e8c', '#fd7e14'];
+
+        function refreshDashboard() {
+            let masterLog = JSON.parse(localStorage.getItem('aminosenseMasterLog')) || [];
+            const tbody = document.getElementById('runTableBody');
+            tbody.innerHTML = ""; 
+
+            if(masterLog.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='8' style='text-align:center;'>No runs saved yet.</td></tr>";
+                updateDashboardChart();
+                return;
+            }
+
+            for (let i = masterLog.length - 1; i >= 0; i--) {
+                const run = masterLog[i];
+                const tr = document.createElement('tr');
+                let currentCal = run.cal_factor !== undefined ? run.cal_factor : "1.0";
+                
+                // UPDATED: Re-mapped the logical reading for older Dashboard data
+                let portName = run.port === "1" ? "Left" : "Right";
+                
+                tr.innerHTML = `
+                    <td style="text-align:center;"><input type="checkbox" class="plot-check" data-index="${i}" onchange="updateDashboardChart()"></td>
+                    <td>${run.timestamp}</td>
+                    <td class="editable" contenteditable="true" onblur="saveEdit(${i}, 'subject', this.innerText)">${run.subject}</td>
+                    <td>${portName}</td>
+                    <td class="editable" contenteditable="true" onblur="saveEdit(${i}, 'condition', this.innerText)">${run.condition}</td>
+                    <td class="editable" contenteditable="true" onblur="saveEdit(${i}, 'variable', this.innerText)">${run.variable}</td>
+                    <td class="editable" contenteditable="true" onblur="saveEdit(${i}, 'cal_factor', this.innerText)">${currentCal}</td>
+                    <td><strong>${run.result_uM}</strong></td>
+                `;
+                tbody.appendChild(tr);
+            }
+            updateDashboardChart();
+        }
+
+        window.saveEdit = function(index, field, newValue) {
+            let masterLog = JSON.parse(localStorage.getItem('aminosenseMasterLog')) || [];
+            if (masterLog[index]) {
+                masterLog[index][field] = newValue.trim();
+                if (field === 'cal_factor') {
+                    let newCal = parseFloat(newValue) || 1.0;
+                    let rawMicroamps = parseFloat(masterLog[index].result_uA) || 0;
+                    masterLog[index].result_uM = (rawMicroamps * newCal).toFixed(2);
+                }
+                localStorage.setItem('aminosenseMasterLog', JSON.stringify(masterLog));
+                if (field === 'cal_factor') refreshDashboard(); else if (field === 'condition' || field === 'variable') updateDashboardChart(); 
+                populateOverlayMenu();
+            }
+        };
+
+        window.updateDashboardChart = function() {
+            let masterLog = JSON.parse(localStorage.getItem('aminosenseMasterLog')) || [];
+            const checkboxes = document.querySelectorAll('.plot-check');
+            const isBaselineView = document.getElementById('chkBaselineToggle') ? document.getElementById('chkBaselineToggle').checked : false; 
+            
+            dashboardChart.data.datasets = [];
+            let trendDatasets = {};
+            let tColorIndex = 0;
+            let dColorIndex = 0;
+            let selectedResults = []; 
+
+            checkboxes.forEach(chk => {
+                if (chk.checked) {
+                    const run = masterLog[chk.getAttribute('data-index')];
+                    if (run) {
+                        selectedResults.push(parseFloat(run.result_uM));
+
+                        if (run.rawData) {
+                            let interval = run.interval_s || 0.5; 
+                            let mappedData = run.rawData.map((val, idx) => ({
+                                x: parseFloat((idx * interval).toFixed(1)),
+                                y: val
+                            }));
+
+                            dashboardChart.data.datasets.push({
+                                label: `${run.subject} (Var: ${run.variable})`,
+                                data: mappedData, borderColor: chartColors[dColorIndex % chartColors.length], borderWidth: 2, pointRadius: 0, fill: false, tension: 0.1
+                            });
+                            dColorIndex++;
+                        }
+
+                        let groupName = run.condition || "Unknown Condition";
+                        if (!trendDatasets[groupName]) {
+                            trendDatasets[groupName] = {
+                                label: groupName, data: [], backgroundColor: chartColors[tColorIndex % chartColors.length], borderColor: chartColors[tColorIndex % chartColors.length], showLine: true, tension: 0.1
+                            };
+                            tColorIndex++;
+                        }
+                        trendDatasets[groupName].data.push({ x: parseFloat(run.variable), y: parseFloat(run.result_uM) });
+                    }
+                }
+            });
+
+            dashboardChart.update();
+
+            Object.values(trendDatasets).forEach(ds => {
+                ds.data.sort((a, b) => a.x - b.x);
+                if (isBaselineView && ds.data.length > 0) {
+                    let baselineY = ds.data[0].y;
+                    ds.data.forEach(pt => { pt.y = parseFloat((pt.y - baselineY).toFixed(2)); });
+                }
+                
+                let auc = 0;
+                for (let i = 0; i < ds.data.length - 1; i++) {
+                    let x1 = ds.data[i].x; let y1 = ds.data[i].y; let x2 = ds.data[i+1].x; let y2 = ds.data[i+1].y;
+                    auc += ((y1 + y2) / 2) * (x2 - x1);
+                }
+                if (ds.data.length > 1) ds.label = `${ds.label} (AUC: ${auc.toFixed(1)})`;
+            });
+
+            if (trendChart.options && trendChart.options.scales && trendChart.options.scales.y && trendChart.options.scales.y.title) {
+                trendChart.options.scales.y.title.text = isBaselineView ? 'Change from Baseline (µM)' : 'Final Result (µM)';
+            }
+            trendChart.data.datasets = Object.values(trendDatasets);
+            trendChart.update();
+
+            const statsPanel = document.getElementById('statsPanel');
+            if (selectedResults.length >= 2) {
+                let n = selectedResults.length;
+                let sum = selectedResults.reduce((a, b) => a + b, 0);
+                let mean = sum / n;
+                let varianceSum = selectedResults.reduce((a, b) => a + Math.pow(b - mean, 2), 0);
+                let sd = Math.sqrt(varianceSum / (n - 1));
+                let cv = (mean === 0) ? 0 : (sd / mean) * 100;
+
+                document.getElementById('statCount').innerText = n;
+                document.getElementById('statMean').innerText = mean.toFixed(2);
+                document.getElementById('statSD').innerText = sd.toFixed(2);
+                document.getElementById('statCV').innerText = cv.toFixed(2);
+                statsPanel.style.display = 'flex';
+            } else {
+                if (statsPanel) statsPanel.style.display = 'none';
+            }
+        };
+
+        // ==========================================
+        // 3. HARDWARE & ACQUISITION LOGIC
+        // ==========================================
+        const SERVICE_UUID = '569a1101-b87f-490c-92cb-11ba5ea5167c'; 
+        const RX_UUID      = '569a2001-b87f-490c-92cb-11ba5ea5167c'; 
+        const TX_UUID      = '569a2000-b87f-490c-92cb-11ba5ea5167c'; 
+
+        let bleDevice, bleServer, rxCharacteristic, txCharacteristic;
+        let dataBuffer = "", currentDataPoints = []; 
+        let currentInterval = 0.5; 
+        
+        let isAborting = false; 
+
+        const btnConnect = document.getElementById('btnConnect');
+        const btnMeasure = document.getElementById('btnMeasure');
+        const btnAbort = document.getElementById('btnAbort');
+        const btnDownload = document.getElementById('btnDownload');
+        const btnDownloadMaster = document.getElementById('btnDownloadMaster');
+        const btnClearMaster = document.getElementById('btnClearMaster');
+        const statusText = document.getElementById('statusText');
+        const logDiv = document.getElementById('log');
+
+        const ctxLive = document.getElementById('liveChart').getContext('2d');
+        const liveChart = new Chart(ctxLive, {
+            type: 'line', 
+            data: { 
+                datasets: [
+                    { label: 'Live Current (µA)', data: [], borderColor: '#dc3545', borderWidth: 2, pointRadius: 0, fill: false, tension: 0.1 },
+                    { label: 'Reference Ghost', data: [], borderColor: '#adb5bd', borderWidth: 2, borderDash: [5, 5], pointRadius: 0, fill: false, tension: 0.1 }
+                ] 
+            },
+            options: { 
+                responsive: true, maintainAspectRatio: false, animation: false, 
+                interaction: { mode: 'nearest', axis: 'xy', intersect: false }, 
+                scales: { 
+                    x: { type: 'linear', title: { display: true, text: 'Time (s)' } }, 
+                    y: { title: { display: true, text: 'Current (µA)' } } 
+                } 
+            }
+        });
+
+        function log(message) { logDiv.innerHTML += `<div>> ${message}</div>`; logDiv.scrollTop = logDiv.scrollHeight; }
+
+        function populateOverlayMenu() {
+            let masterLog = JSON.parse(localStorage.getItem('aminosenseMasterLog')) || [];
+            const selectRef = document.getElementById('inputReference');
+            
+            let currentValue = selectRef.value; 
+            selectRef.innerHTML = '<option value="-1">None</option>';
+            
+            for (let i = masterLog.length - 1; i >= 0; i--) {
+                const run = masterLog[i];
+                let option = document.createElement('option');
+                option.value = i;
+                option.text = `${run.subject} - ${run.condition} (${run.variable})`;
+                selectRef.appendChild(option);
+            }
+            
+            if(document.querySelector(`#inputReference option[value="${currentValue}"]`)) {
+                selectRef.value = currentValue;
+            }
+        }
+        
+        populateOverlayMenu();
+
+        btnConnect.addEventListener('click', async () => {
+            try {
+                log("Requesting Bluetooth Device...");
+                bleDevice = await navigator.bluetooth.requestDevice({ filters: [{ namePrefix: 'PS-' }], optionalServices: [SERVICE_UUID] });
+                log(`Connecting to ${bleDevice.name}...`);
+                bleServer = await bleDevice.gatt.connect();
+                const service = await bleServer.getPrimaryService(SERVICE_UUID);
+                rxCharacteristic = await service.getCharacteristic(RX_UUID);
+                txCharacteristic = await service.getCharacteristic(TX_UUID);
+                txCharacteristic.addEventListener('characteristicvaluechanged', handleIncomingData);
+                await txCharacteristic.startNotifications();
+                btnConnect.disabled = true; btnMeasure.disabled = false;
+                log("Hardware Ready!");
+            } catch (error) { log(`Connection Error: ${error.message}`); }
+        });
+
+        btnMeasure.addEventListener('click', async () => {
+            if (!rxCharacteristic) return;
+            
+            currentDataPoints = []; 
+            liveChart.data.datasets[0].data = []; 
+            liveChart.data.datasets[1].data = []; 
+            
+            const refIndex = document.getElementById('inputReference').value;
+            if (refIndex !== "-1") {
+                let masterLog = JSON.parse(localStorage.getItem('aminosenseMasterLog')) || [];
+                let refRun = masterLog[refIndex];
+                if (refRun && refRun.rawData) {
+                    let refInterval = refRun.interval_s || 0.5;
+                    liveChart.data.datasets[1].data = refRun.rawData.map((val, idx) => ({
+                        x: parseFloat((idx * refInterval).toFixed(1)),
+                        y: val
+                    }));
+                    liveChart.data.datasets[1].label = `Ref: ${refRun.subject} (${refRun.condition})`;
+                    log(`Loaded ghost overlay for ${refRun.subject}`);
+                }
+            } else {
+                liveChart.data.datasets[1].label = "Reference Ghost";
+            }
+            liveChart.update();
+            
+            isAborting = false;
+            btnMeasure.disabled = true; 
+            btnAbort.disabled = false; 
+            btnDownload.disabled = true; 
+            statusText.innerText = `Result: Testing...`;
+
+            let delaySecs = parseFloat(document.getElementById('inputDelay').value);
+            let runSecs = parseFloat(document.getElementById('inputRunTime').value);
+            currentInterval = parseFloat(document.getElementById('inputSampleRate').value);
+            let msString = (currentInterval * 1000) + "m";
+            
+            let appliedVoltage_mV = document.getElementById('inputPotential').value;
+            let vString = appliedVoltage_mV + "m"; 
+
+            let selectedChannel = document.getElementById('inputChannel').value;
+            
+            // UPDATED: Swapped port mapping here for the UI text log!
+            let portName = selectedChannel === "1" ? "Left" : "Right";
+            
+            let crString = document.getElementById('inputCurrentRange').value;
+
+            let waitCommand = delaySecs > 0 ? `wait ${delaySecs}\n` : "";
+            const script = `e\nvar p\nvar c\nset_pgstat_chan ${selectedChannel}\nset_pgstat_mode 2\nset_cr ${crString}\nset_e ${vString}\ncell_on\n${waitCommand}meas_loop_ca p c ${vString} ${msString} ${runSecs}\npck_start\npck_add p\npck_add c\npck_end\nendloop\ncell_off\n\n`;
+
+            try {
+                log(`Sending parameters (Port: ${portName}, Rate: ${currentInterval}s, Range: ${crString}, Potential: ${appliedVoltage_mV}mV)...`);
+                const scriptBytes = new TextEncoder().encode(script);
+                for (let i = 0; i < scriptBytes.length; i += 20) {
+                    await rxCharacteristic.writeValue(scriptBytes.slice(i, i + 20));
+                    await new Promise(resolve => setTimeout(resolve, 20));
+                }
+                log(`Test Started on ${portName} Port!`);
+            } catch (error) { log(`Send Error: ${error.message}`); btnMeasure.disabled = false; btnAbort.disabled = true;}
+        });
+
+        btnAbort.addEventListener('click', async () => {
+            if (!rxCharacteristic) return;
+            try {
+                isAborting = true;
+                log("Sending strict Abort Command to hardware...");
+                
+                btnAbort.disabled = true;
+                btnMeasure.disabled = true; 
+                statusText.innerText = `Result: Aborting...`;
+
+                const abortBytes = new TextEncoder().encode("\nZ\n");
+                if (rxCharacteristic.properties.writeWithoutResponse) { await rxCharacteristic.writeValueWithoutResponse(abortBytes); } 
+                else { await rxCharacteristic.writeValue(abortBytes); }
+                
+                setTimeout(() => {
+                    if (isAborting) {
+                        log("Hardware abort timeout. Forcing UI unlock.");
+                        isAborting = false;
+                        btnMeasure.disabled = false;
+                        statusText.innerText = `Result: Force Aborted`;
+                    }
+                }, 3000);
+            } catch (error) { log(`Abort Error: ${error.message}`); }
+        });
+
+        function handleIncomingData(event) {
+            dataBuffer += new TextDecoder('utf-8').decode(event.target.value);
+            if (dataBuffer.includes('\n')) {
+                let lines = dataBuffer.split('\n'); dataBuffer = lines.pop(); 
+                for (let line of lines) {
+                    line = line.trim();
+                    if (line === "*") {
+                        calculateFinalResult();
+                    } else if (line.startsWith("P") && line.includes("ba")) {
+                        if (isAborting) continue;
+
+                        let baIndex = line.indexOf("ba"), hexStr = line.substring(baIndex + 2, baIndex + 9), prefix = line.charAt(baIndex + 9);
+                        let rawInt = parseInt(hexStr, 16) - 134217728; 
+                        
+                        let mult = prefix === 'a' ? 1e-18 : prefix === 'f' ? 1e-15 : prefix === 'p' ? 1e-12 : prefix === 'n' ? 1e-9 : prefix === 'u' ? 1e-6 : prefix === 'm' ? 1e-3 : 1;
+                        let uA = (rawInt * mult) * 1e6;
+                        currentDataPoints.push(uA);
+                        
+                        let currentX = parseFloat((currentDataPoints.length * currentInterval).toFixed(1));
+                        liveChart.data.datasets[0].data.push({ x: currentX, y: uA }); 
+                        liveChart.update();
+                    }
+                }
+            }
+        }
+
+        function calculateFinalResult() {
+            btnAbort.disabled = true; 
+
+            if (isAborting) {
+                log("Hardware confirmed abort. Data discarded.");
+                isAborting = false;
+                btnMeasure.disabled = false;
+                btnDownload.disabled = true;
+                statusText.innerText = `Result: Aborted`;
+                return;
+            }
+
+            if (currentDataPoints.length === 0) { log("Error: No data."); btnMeasure.disabled = false; return; }
+            let pointsToTake = Math.min(3, currentDataPoints.length);
+            let averageRaw = currentDataPoints.slice(-pointsToTake).reduce((a, b) => a + b, 0) / pointsToTake;
+            let calFactor = parseFloat(document.getElementById('inputCalFactor').value) || 1.0; 
+            let finalConc = averageRaw * calFactor;
+
+            statusText.innerText = `Result: ${finalConc.toFixed(2)} µM`;
+            btnMeasure.disabled = false; btnDownload.disabled = false;
+            log(`Test Complete! Result: ${finalConc.toFixed(2)} µM`);
+
+            let masterLog = JSON.parse(localStorage.getItem('aminosenseMasterLog')) || [];
+            masterLog.push({
+                id: Date.now(), timestamp: new Date().toLocaleString(),
+                subject: document.getElementById('tbSubjectID').value, 
+                port: document.getElementById('inputChannel').value, 
+                condition: document.getElementById('tbCondition').value,
+                variable: document.getElementById('tbVarValue').value, delay_s: document.getElementById('inputDelay').value,
+                cal_factor: calFactor, result_uA: averageRaw.toFixed(4), result_uM: finalConc.toFixed(2), 
+                interval_s: currentInterval, 
+                rawData: [...currentDataPoints]
+            });
+            localStorage.setItem('aminosenseMasterLog', JSON.stringify(masterLog));
+
+            populateOverlayMenu();
+
+            const chkAuto = document.getElementById('chkAutoIncrement');
+            if (chkAuto && chkAuto.checked) {
+                let tbVar = document.getElementById('tbVarValue');
+                tbVar.value = (parseFloat(tbVar.value) + parseFloat(document.getElementById('tbStepValue').value)).toString();
+            }
+        }
+
+        // ==========================================
+        // 4. EXPORT & SHARE LOGIC
+        // ==========================================
+        function forceDownload(blob, fileName) {
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob); 
+            link.download = fileName;
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        }
+
+        function exportData(csvContent, fileName) {
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const file = new File([blob], fileName, { type: 'text/csv' });
+            
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+            if (isMobile && navigator.canShare && navigator.canShare({ files: [file] })) {
+                navigator.share({ title: 'Aminosense Data Export', text: 'Attached is the latest Aminosense CSV data export.', files: [file] })
+                .catch((error) => { console.log('Sharing failed, falling back to download', error); forceDownload(blob, fileName); });
+            } else { forceDownload(blob, fileName); }
+        }
+
+        btnDownload.addEventListener('click', () => {
+            let csv = "Aminosense Raw Data Report\nTimestamp:,\"" + new Date().toLocaleString() + "\"\nTime (s),Current (uA)\n\n";
+            for (let i = 0; i < currentDataPoints.length; i++) csv += `${(i * currentInterval).toFixed(1)},${currentDataPoints[i].toFixed(4)}\n`;
+            exportData(csv, `Aminosense_Data_${new Date().getTime()}.csv`);
+        });
+
+        btnDownloadMaster.addEventListener('click', () => {
+            let masterLog = JSON.parse(localStorage.getItem('aminosenseMasterLog')) || [];
+            if (masterLog.length === 0) { alert("Master Log is empty!"); return; }
+            let csv = "Timestamp,SubjectID,Port,Condition,VariableValue,EquilDelay_s,CalFactor,FinalCurrent_uA,FinalConc_uM,Time_s,RawCurrent_uA\n";
+            masterLog.forEach(run => { 
+                let delayStr = run.delay_s !== undefined ? run.delay_s : "N/A", calStr = run.cal_factor !== undefined ? run.cal_factor : "1.0"; 
+                
+                // UPDATED: Swapped port mapping here for the CSV exports!
+                let portName = run.port === "1" ? "Left" : "Right"; 
+                
+                if (run.rawData && run.rawData.length > 0) {
+                    let interval = run.interval_s || 0.5; 
+                    for (let i = 0; i < run.rawData.length; i++) csv += `"${run.timestamp}","${run.subject}","${portName}","${run.condition}",${run.variable},${delayStr},${calStr},${run.result_uA},${run.result_uM},${(i*interval).toFixed(1)},${run.rawData[i].toFixed(4)}\n`;
+                } else csv += `"${run.timestamp}","${run.subject}","${portName}","${run.condition}",${run.variable},${delayStr},${calStr},${run.result_uA},${run.result_uM},,\n`;
+            });
+            exportData(csv, `Aminosense_Detailed_MasterLog_${new Date().getTime()}.csv`);
+        });
+
+        btnClearMaster.addEventListener('click', () => {
+            if (confirm("Permanently delete all saved runs?")) { 
+                localStorage.removeItem('aminosenseMasterLog'); 
+                refreshDashboard(); 
+                populateOverlayMenu(); 
+            }
+        });
+    </script>
 </body>
 </html>
