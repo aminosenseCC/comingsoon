@@ -46,6 +46,19 @@
   }
   img, svg { max-width: 100%; display: block; }
   a { color: inherit; text-decoration: none; }
+  .inline-link {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: var(--blue);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+    transition: color .25s var(--ease), text-decoration-color .25s var(--ease), text-decoration-thickness .25s var(--ease);
+  }
+  .inline-link:hover {
+    color: var(--orange);
+    text-decoration-color: var(--orange);
+    text-decoration-thickness: 2px;
+  }
   button { font: inherit; cursor: pointer; border: none; background: none; }
 
   .container {
@@ -80,7 +93,7 @@
   }
   .brand-logo {
     display: block;
-    height: 38px;
+    height: 52px;
     width: auto;
   }
   /* Footer uses mark only (horizontal logo's brown text wouldn't read on dark bg) */
@@ -128,15 +141,21 @@
     transform: scaleX(1);
     transform-origin: left;
   }
-  .nav-cta {
+  .nav-links a.nav-cta {
     padding: 0.55rem 1.1rem !important;
+    background: var(--brown);
+    color: var(--cream) !important;
     border: 1px solid var(--brown);
     border-radius: 999px;
     transition: all .3s var(--ease);
   }
-  .nav-cta:hover {
-    background: var(--brown);
+  .nav-links a.nav-cta:hover,
+  .nav-links a.nav-cta:active {
+    background: var(--orange);
+    border-color: var(--orange);
     color: var(--cream) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px -10px rgba(241, 90, 45, 0.5);
   }
 
   @media (max-width: 800px) {
@@ -198,14 +217,9 @@
     margin-bottom: 3rem;
     animation: fadeUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.35s both;
   }
-  .hero-lead a {
-    color: var(--brown);
-    font-weight: 600;
-    border-bottom: 1px solid var(--blue);
-    padding-bottom: 1px;
-    transition: color .35s var(--ease);
-  }
-  .hero-lead a:hover { color: var(--blue-deep); }
+  /* Cornucopian Capital sits in a long lead paragraph; bumping weight slightly
+     so the link reads as the named partner without disrupting the prose. */
+  .hero-lead .inline-link { font-weight: 600; color: var(--brown); }
 
   .hero-actions {
     display: flex;
@@ -385,8 +399,8 @@
      ============================================================ */
   .approach-flight {
     position: relative;
-    margin: 4rem 0 2rem;
-    padding: 5rem 0 6rem;
+    margin: 3rem 0 1rem;
+    padding: 4rem 0 3rem;
   }
 
   /* SVG covers the section; overflow visible so plane can sit slightly off path */
@@ -407,33 +421,24 @@
     stroke-dasharray: 8 10;
     opacity: 0.6;
   }
-  /* Orange overlay that draws forward then retracts backward.
-     Cycle (17s):
-       0-44%:   forward draw  (orange line tracks behind plane)
-       44-55%:  hold full orange (plane has reached end, all 5 lit)
-       55-92%:  reverse retract (orange recedes from end back to start)
-       92-100%: pause (everything blue, plane invisible) before loop */
+  /* Orange overlay that draws forward then fades out at end of cycle.
+     Animation is now driven by SMIL <animate> elements inside the SVG so the
+     line's drawn fraction matches the plane's animateMotion exactly. */
   .flight-path-overlay {
     stroke: var(--orange);
     stroke-width: 3;
     stroke-linecap: round;
     fill: none;
-    animation: flightOverlay 17s linear infinite;
-  }
-  @keyframes flightOverlay {
-    0%        { stroke-dasharray: 0 1; }
-    44%       { stroke-dasharray: 1 0; }
-    55%       { stroke-dasharray: 1 0; }
-    92%, 100% { stroke-dasharray: 0 1; }
   }
 
-  /* Plane riding along the path, drawn inside the SVG */
+  /* Plane riding along the path, drawn inside the SVG.
+     Visible during forward + hold, fades out together with the line. */
   .flight-plane-group {
     animation: flightPlaneVisibility 17s linear infinite;
   }
   @keyframes flightPlaneVisibility {
-    0%, 44% { opacity: 1; }
-    46%, 100% { opacity: 0; }
+    0%, 75% { opacity: 1; }
+    85%, 100% { opacity: 0; }
   }
 
   /* Waypoint grid */
@@ -462,7 +467,7 @@
     border-radius: 50%;
     background:
       radial-gradient(circle at 30% 30%, rgba(255, 247, 232, 0.95), var(--cream) 70%);
-    border: 2px solid var(--blue);
+    border: 3px solid var(--blue);
     box-shadow:
       0 0 0 6px rgba(53, 195, 227, 0.08),
       0 18px 38px -16px rgba(60, 34, 34, 0.22);
@@ -478,13 +483,14 @@
     position: absolute;
     inset: -14px;
     border-radius: 50%;
-    border: 1.5px dashed rgba(53, 195, 227, 0.3);
+    border: 2px dashed rgba(53, 195, 227, 0.4);
     pointer-events: none;
   }
 
   .waypoint-name-inline {
     font-family: var(--serif);
-    font-size: 1.4rem;
+    font-size: 1.55rem;
+    font-weight: 500;
     line-height: 1;
     color: var(--brown);
     letter-spacing: -0.01em;
@@ -531,125 +537,122 @@
   .waypoint:nth-child(5) .waypoint-node::before { animation-name: ringActive5; }
   .waypoint:nth-child(5) .waypoint-name-inline { animation-name: textActive5; }
 
-  /* Activation timing per waypoint (17s cycle), with ~5% smooth transitions:
-     Forward leg 0-44%. Hold (all 5 active) 44-55%. Reverse leg 55-92%. Pause 92-100%.
+  /* Activation timing per waypoint (17s cycle):
+     Forward leg 0-44%. Hold (all 5 active) 44-75%. Synchronized fade-out 75-85%. Rest 85-100%.
 
      Plane reaches each waypoint at:
        wp1: 0%, wp2: 11%, wp3: 22%, wp4: 33%, wp5: 44%
-     Reverse line passes each waypoint at:
-       wp5: 55%, wp4: 64.25%, wp3: 73.5%, wp2: 82.75%, wp1: 92%
 
-     Activation transitions are CENTERED on these moments — starts 2.5% before
-     plane arrives, fully lit 2.5% after. Same for deactivation around line-pass.
-  */
+     Activation transitions are CENTERED on plane arrival (±2.5%).
+     ALL waypoints deactivate together over 75%→85%. */
   @keyframes nodeActive1 {
-    0%      { border-color: var(--blue);
-              box-shadow: 0 0 0 6px rgba(53, 195, 227, 0.08), 0 18px 38px -16px rgba(60, 34, 34, 0.22);
-              transform: scale(1); }
-    2.5%, 89.5% { border-color: var(--orange);
+    0%          { border-color: var(--blue);
+                  box-shadow: 0 0 0 6px rgba(53, 195, 227, 0.08), 0 18px 38px -16px rgba(60, 34, 34, 0.22);
+                  transform: scale(1); }
+    4%, 75%     { border-color: var(--orange);
                   box-shadow: 0 0 0 8px rgba(241, 90, 45, 0.12), 0 24px 48px -16px rgba(241, 90, 45, 0.35);
                   transform: scale(1.06); }
-    94.5%, 100% { border-color: var(--blue);
+    85%, 100%   { border-color: var(--blue);
                   box-shadow: 0 0 0 6px rgba(53, 195, 227, 0.08), 0 18px 38px -16px rgba(60, 34, 34, 0.22);
                   transform: scale(1); }
   }
   @keyframes nodeActive2 {
-    0%, 8.5%   { border-color: var(--blue);
-                 box-shadow: 0 0 0 6px rgba(53, 195, 227, 0.08), 0 18px 38px -16px rgba(60, 34, 34, 0.22);
-                 transform: scale(1); }
-    13.5%, 80.25% { border-color: var(--orange);
-                    box-shadow: 0 0 0 8px rgba(241, 90, 45, 0.12), 0 24px 48px -16px rgba(241, 90, 45, 0.35);
-                    transform: scale(1.06); }
-    85.25%, 100% { border-color: var(--blue);
-                   box-shadow: 0 0 0 6px rgba(53, 195, 227, 0.08), 0 18px 38px -16px rgba(60, 34, 34, 0.22);
-                   transform: scale(1); }
+    0%, 8.5%    { border-color: var(--blue);
+                  box-shadow: 0 0 0 6px rgba(53, 195, 227, 0.08), 0 18px 38px -16px rgba(60, 34, 34, 0.22);
+                  transform: scale(1); }
+    13.5%, 75%  { border-color: var(--orange);
+                  box-shadow: 0 0 0 8px rgba(241, 90, 45, 0.12), 0 24px 48px -16px rgba(241, 90, 45, 0.35);
+                  transform: scale(1.06); }
+    85%, 100%   { border-color: var(--blue);
+                  box-shadow: 0 0 0 6px rgba(53, 195, 227, 0.08), 0 18px 38px -16px rgba(60, 34, 34, 0.22);
+                  transform: scale(1); }
   }
   @keyframes nodeActive3 {
-    0%, 19.5%  { border-color: var(--blue);
-                 box-shadow: 0 0 0 6px rgba(53, 195, 227, 0.08), 0 18px 38px -16px rgba(60, 34, 34, 0.22);
-                 transform: scale(1); }
-    24.5%, 71% { border-color: var(--orange);
-                 box-shadow: 0 0 0 8px rgba(241, 90, 45, 0.12), 0 24px 48px -16px rgba(241, 90, 45, 0.35);
-                 transform: scale(1.06); }
-    76%, 100% { border-color: var(--blue);
-                box-shadow: 0 0 0 6px rgba(53, 195, 227, 0.08), 0 18px 38px -16px rgba(60, 34, 34, 0.22);
-                transform: scale(1); }
+    0%, 19.5%   { border-color: var(--blue);
+                  box-shadow: 0 0 0 6px rgba(53, 195, 227, 0.08), 0 18px 38px -16px rgba(60, 34, 34, 0.22);
+                  transform: scale(1); }
+    24.5%, 75%  { border-color: var(--orange);
+                  box-shadow: 0 0 0 8px rgba(241, 90, 45, 0.12), 0 24px 48px -16px rgba(241, 90, 45, 0.35);
+                  transform: scale(1.06); }
+    85%, 100%   { border-color: var(--blue);
+                  box-shadow: 0 0 0 6px rgba(53, 195, 227, 0.08), 0 18px 38px -16px rgba(60, 34, 34, 0.22);
+                  transform: scale(1); }
   }
   @keyframes nodeActive4 {
-    0%, 30.5%  { border-color: var(--blue);
-                 box-shadow: 0 0 0 6px rgba(53, 195, 227, 0.08), 0 18px 38px -16px rgba(60, 34, 34, 0.22);
-                 transform: scale(1); }
-    35.5%, 61.75% { border-color: var(--orange);
-                    box-shadow: 0 0 0 8px rgba(241, 90, 45, 0.12), 0 24px 48px -16px rgba(241, 90, 45, 0.35);
-                    transform: scale(1.06); }
-    66.75%, 100% { border-color: var(--blue);
-                   box-shadow: 0 0 0 6px rgba(53, 195, 227, 0.08), 0 18px 38px -16px rgba(60, 34, 34, 0.22);
-                   transform: scale(1); }
+    0%, 30.5%   { border-color: var(--blue);
+                  box-shadow: 0 0 0 6px rgba(53, 195, 227, 0.08), 0 18px 38px -16px rgba(60, 34, 34, 0.22);
+                  transform: scale(1); }
+    35.5%, 75%  { border-color: var(--orange);
+                  box-shadow: 0 0 0 8px rgba(241, 90, 45, 0.12), 0 24px 48px -16px rgba(241, 90, 45, 0.35);
+                  transform: scale(1.06); }
+    85%, 100%   { border-color: var(--blue);
+                  box-shadow: 0 0 0 6px rgba(53, 195, 227, 0.08), 0 18px 38px -16px rgba(60, 34, 34, 0.22);
+                  transform: scale(1); }
   }
   @keyframes nodeActive5 {
-    0%, 41.5%  { border-color: var(--blue);
-                 box-shadow: 0 0 0 6px rgba(53, 195, 227, 0.08), 0 18px 38px -16px rgba(60, 34, 34, 0.22);
-                 transform: scale(1); }
-    46.5%, 52.5% { border-color: var(--orange);
-                   box-shadow: 0 0 0 8px rgba(241, 90, 45, 0.12), 0 24px 48px -16px rgba(241, 90, 45, 0.35);
-                   transform: scale(1.06); }
-    57.5%, 100% { border-color: var(--blue);
+    0%, 41.5%   { border-color: var(--blue);
+                  box-shadow: 0 0 0 6px rgba(53, 195, 227, 0.08), 0 18px 38px -16px rgba(60, 34, 34, 0.22);
+                  transform: scale(1); }
+    46.5%, 75%  { border-color: var(--orange);
+                  box-shadow: 0 0 0 8px rgba(241, 90, 45, 0.12), 0 24px 48px -16px rgba(241, 90, 45, 0.35);
+                  transform: scale(1.06); }
+    85%, 100%   { border-color: var(--blue);
                   box-shadow: 0 0 0 6px rgba(53, 195, 227, 0.08), 0 18px 38px -16px rgba(60, 34, 34, 0.22);
                   transform: scale(1); }
   }
   /* Text color keyframes */
   @keyframes textActive1 {
-    0%          { color: var(--brown); }
-    2.5%, 89.5% { color: var(--orange); }
-    94.5%, 100% { color: var(--brown); }
+    0%         { color: var(--brown); }
+    4%, 75%    { color: var(--orange); }
+    85%, 100%  { color: var(--brown); }
   }
   @keyframes textActive2 {
-    0%, 8.5%      { color: var(--brown); }
-    13.5%, 80.25% { color: var(--orange); }
-    85.25%, 100%  { color: var(--brown); }
+    0%, 8.5%   { color: var(--brown); }
+    13.5%, 75% { color: var(--orange); }
+    85%, 100%  { color: var(--brown); }
   }
   @keyframes textActive3 {
-    0%, 19.5%   { color: var(--brown); }
-    24.5%, 71%  { color: var(--orange); }
-    76%, 100%   { color: var(--brown); }
+    0%, 19.5%  { color: var(--brown); }
+    24.5%, 75% { color: var(--orange); }
+    85%, 100%  { color: var(--brown); }
   }
   @keyframes textActive4 {
-    0%, 30.5%     { color: var(--brown); }
-    35.5%, 61.75% { color: var(--orange); }
-    66.75%, 100%  { color: var(--brown); }
+    0%, 30.5%  { color: var(--brown); }
+    35.5%, 75% { color: var(--orange); }
+    85%, 100%  { color: var(--brown); }
   }
   @keyframes textActive5 {
-    0%, 41.5%    { color: var(--brown); }
-    46.5%, 52.5% { color: var(--orange); }
-    57.5%, 100%  { color: var(--brown); }
+    0%, 41.5%  { color: var(--brown); }
+    46.5%, 75% { color: var(--orange); }
+    85%, 100%  { color: var(--brown); }
   }
 
   /* Ring (::before) keyframes — dashed concentric ring rotates 180° and turns
      orange while waypoint is active, mirroring the original hover behavior. */
   @keyframes ringActive1 {
-    0%          { transform: rotate(0deg);   border-color: rgba(53, 195, 227, 0.3); }
-    2.5%, 89.5% { transform: rotate(180deg); border-color: rgba(241, 90, 45, 0.45); }
-    94.5%, 100% { transform: rotate(360deg); border-color: rgba(53, 195, 227, 0.3); }
+    0%         { transform: rotate(0deg);   border-color: rgba(53, 195, 227, 0.3); }
+    4%, 75%    { transform: rotate(180deg); border-color: rgba(241, 90, 45, 0.45); }
+    85%, 100%  { transform: rotate(360deg); border-color: rgba(53, 195, 227, 0.3); }
   }
   @keyframes ringActive2 {
-    0%, 8.5%      { transform: rotate(0deg);   border-color: rgba(53, 195, 227, 0.3); }
-    13.5%, 80.25% { transform: rotate(180deg); border-color: rgba(241, 90, 45, 0.45); }
-    85.25%, 100%  { transform: rotate(360deg); border-color: rgba(53, 195, 227, 0.3); }
+    0%, 8.5%   { transform: rotate(0deg);   border-color: rgba(53, 195, 227, 0.3); }
+    13.5%, 75% { transform: rotate(180deg); border-color: rgba(241, 90, 45, 0.45); }
+    85%, 100%  { transform: rotate(360deg); border-color: rgba(53, 195, 227, 0.3); }
   }
   @keyframes ringActive3 {
-    0%, 19.5%   { transform: rotate(0deg);   border-color: rgba(53, 195, 227, 0.3); }
-    24.5%, 71%  { transform: rotate(180deg); border-color: rgba(241, 90, 45, 0.45); }
-    76%, 100%   { transform: rotate(360deg); border-color: rgba(53, 195, 227, 0.3); }
+    0%, 19.5%  { transform: rotate(0deg);   border-color: rgba(53, 195, 227, 0.3); }
+    24.5%, 75% { transform: rotate(180deg); border-color: rgba(241, 90, 45, 0.45); }
+    85%, 100%  { transform: rotate(360deg); border-color: rgba(53, 195, 227, 0.3); }
   }
   @keyframes ringActive4 {
-    0%, 30.5%     { transform: rotate(0deg);   border-color: rgba(53, 195, 227, 0.3); }
-    35.5%, 61.75% { transform: rotate(180deg); border-color: rgba(241, 90, 45, 0.45); }
-    66.75%, 100%  { transform: rotate(360deg); border-color: rgba(53, 195, 227, 0.3); }
+    0%, 30.5%  { transform: rotate(0deg);   border-color: rgba(53, 195, 227, 0.3); }
+    35.5%, 75% { transform: rotate(180deg); border-color: rgba(241, 90, 45, 0.45); }
+    85%, 100%  { transform: rotate(360deg); border-color: rgba(53, 195, 227, 0.3); }
   }
   @keyframes ringActive5 {
-    0%, 41.5%    { transform: rotate(0deg);   border-color: rgba(53, 195, 227, 0.3); }
-    46.5%, 52.5% { transform: rotate(180deg); border-color: rgba(241, 90, 45, 0.45); }
-    57.5%, 100%  { transform: rotate(360deg); border-color: rgba(53, 195, 227, 0.3); }
+    0%, 41.5%  { transform: rotate(0deg);   border-color: rgba(53, 195, 227, 0.3); }
+    46.5%, 75% { transform: rotate(180deg); border-color: rgba(241, 90, 45, 0.45); }
+    85%, 100%  { transform: rotate(360deg); border-color: rgba(53, 195, 227, 0.3); }
   }
 
   /* Responsive */
@@ -788,7 +791,7 @@
      TEAM — equal-height cards, no read more, brown bg
      ============================================================= */
   .team {
-    background: var(--brown);
+    background: #4a2d2d;
     color: var(--cream);
     position: relative;
     padding: clamp(5rem, 10vh, 8rem) 0;
@@ -799,8 +802,7 @@
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(circle at 85% 15%, rgba(241, 90, 45, 0.15) 0%, transparent 35%),
-      radial-gradient(circle at 10% 85%, rgba(53, 195, 227, 0.12) 0%, transparent 40%);
+      radial-gradient(circle at 85% 15%, rgba(241, 90, 45, 0.07) 0%, transparent 50%);
     pointer-events: none;
   }
   .team .section-head h2 { color: var(--cream); }
@@ -830,8 +832,8 @@
   }
 
   .member {
-    background: rgba(255, 247, 232, 0.04);
-    border: 1px solid rgba(255, 247, 232, 0.1);
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 247, 232, 0.08);
     border-radius: 16px;
     padding: 1.75rem;
     transition: background .4s var(--ease), transform .4s var(--ease), border-color .4s var(--ease);
@@ -843,22 +845,14 @@
     flex-direction: column;
     min-height: 360px;
   }
-  /* Animated gradient border that traces the full perimeter on hover.
-     Uses a conic-gradient sweeping around the card, masked to a 1.5px frame. */
+  /* Solid orange perimeter on hover (replaces previous rainbow gradient sweep) */
   .member::before {
     content: '';
     position: absolute;
     inset: 0;
     border-radius: 16px;
     padding: 1.5px;
-    background: conic-gradient(
-      from var(--angle, 0deg),
-      transparent 0deg,
-      var(--orange) 60deg,
-      var(--blue) 180deg,
-      var(--orange) 300deg,
-      transparent 360deg
-    );
+    background: var(--orange);
     -webkit-mask:
       linear-gradient(#000, #000) content-box,
       linear-gradient(#000, #000);
@@ -868,27 +862,16 @@
       linear-gradient(#000, #000);
             mask-composite: exclude;
     opacity: 0;
-    transition: opacity .4s var(--ease);
+    transition: opacity .35s var(--ease);
     pointer-events: none;
   }
   .member:hover {
-    background: rgba(255, 247, 232, 0.07);
+    background: rgba(0, 0, 0, 0.35);
     border-color: transparent;
     transform: translateY(-4px);
   }
   .member:hover::before {
     opacity: 1;
-    animation: borderSpin 3s linear infinite;
-  }
-  @keyframes borderSpin {
-    to { --angle: 360deg; }
-  }
-  /* Register --angle so it can animate; without this, conic-gradient
-     keyframe interpolation would jump rather than rotate smoothly */
-  @property --angle {
-    syntax: '<angle>';
-    initial-value: 0deg;
-    inherits: false;
   }
 
   /* (member-mono initials removed from design) */
@@ -911,8 +894,8 @@
     margin-bottom: 0.4rem;
   }
   .member-domain {
-    font-family: var(--serif);
-    font-size: 1.05rem;
+    font-family: var(--sans);
+    font-size: 0.92rem;
     color: var(--blue);
     margin-bottom: 1.1rem;
   }
@@ -920,6 +903,9 @@
     font-size: 0.88rem;
     line-height: 1.55;
     color: rgba(255, 247, 232, 0.72);
+    text-align: justify;
+    hyphens: auto;
+    -webkit-hyphens: auto;
     flex: 1;
   }
 
@@ -979,14 +965,13 @@
   }
   .contact-email:hover { color: var(--orange); }
 
-  /* Plane image — anchored to top-left of the section, breaks out past the
-     viewport's left edge so the propeller logo is slightly cut off.
-     Mirrors original site's approach. */
+  /* Plane image — anchored to top-left of the section. Positioned so the full
+     plane silhouette including the tail is visible inside the viewport. */
   .plane-bg {
     position: absolute;
     top: 90px;
-    left: -120px;
-    width: 620px;
+    left: 0;
+    width: 560px;
     height: auto;
     pointer-events: none;
     z-index: 0;
@@ -998,8 +983,8 @@
   }
   @media (max-width: 1100px) {
     .plane-bg {
-      left: -140px;
-      width: 540px;
+      left: 0;
+      width: 480px;
     }
   }
   @media (max-width: 900px) {
@@ -1118,12 +1103,13 @@
   }
   .footer-col p,
   .footer-col a {
+    display: block;
     font-size: 0.92rem;
     line-height: 1.65;
     color: rgba(255, 247, 232, 0.7);
     transition: color .35s var(--ease);
   }
-  .footer-col a:hover { color: var(--blue); }
+  .footer-col a:hover { color: var(--orange); }
   .footer-bottom {
     border-top: 1px solid var(--line-dark);
     padding-top: 2rem;
@@ -1140,6 +1126,11 @@
     gap: 1.5rem;
     list-style: none;
   }
+  .footer-bottom a {
+    color: inherit;
+    transition: color .35s var(--ease);
+  }
+  .footer-bottom a:hover { color: var(--orange); }
   @media (max-width: 800px) {
     .footer-grid { grid-template-columns: 1fr 1fr; gap: 2rem; }
   }
@@ -1220,7 +1211,7 @@
   <div class="container">
     <h1>Reimagining<br><em>Health</em></h1>
     <p class="hero-lead">
-      Propelled by <a href="https://cornucopiancapital.com/" target="_blank" rel="noopener">Cornucopian Capital</a>, we collaborate with entrepreneurs and leading industry and scientific experts to launch new businesses that deliver first-in-class innovations in food, metabolic health, and personalized care offerings.
+      Propelled by <a href="https://cornucopiancapital.com/" target="_blank" rel="noopener" class="inline-link">Cornucopian Capital</a>, we collaborate with entrepreneurs and leading industry and scientific experts to launch new businesses that deliver first-in-class innovations in food, metabolic health, and personalized care offerings.
     </p>
     <div class="hero-actions">
       <a href="#contact" class="btn btn-primary">
@@ -1244,7 +1235,7 @@
         <h2>A stage-gated path from <em>spark</em> to scale.</h2>
       </div>
       <p data-reveal data-delay="1">
-        Each venture moves forward by clearing milestones across key dimensions: science &amp; technology, demand, product, team, finance and operations — built on a unique partnership with the UC Davis Innovation Institute for Food and Health.
+        Each venture moves forward by clearing milestones across key dimensions: science &amp; technology, demand, product, team, finance and operations — built on a unique partnership with the <a href="https://foodandhealth.ucdavis.edu/" target="_blank" rel="noopener" class="inline-link">UC Davis Innovation Institute for Food and Health</a>.
       </p>
     </div>
 
@@ -1254,43 +1245,65 @@
         <!-- Static blue dashed background path -->
         <path class="flight-path-line"
               d="M 188 200 Q 376 60, 564 200 T 940 200 T 1316 200 T 1692 200"/>
-        <!-- Orange overlay that draws then retracts -->
+        <!-- Orange overlay — uses SMIL animation with same timing model as the
+             plane's animateMotion, so the line's drawn fraction always matches
+             the plane's path-position regardless of browser interpolation quirks. -->
         <path class="flight-path-overlay"
               d="M 188 200 Q 376 60, 564 200 T 940 200 T 1316 200 T 1692 200"
               pathLength="1"
-              stroke-dasharray="0 1"/>
+              stroke-dasharray="0 1">
+          <!-- Dasharray draws forward 0→44%, holds 44→85% (with opacity fade
+               75→85% taking the line to invisible), then SNAPS instantly from
+               "fully drawn but invisible" to "no length" at 85.1% — no smooth
+               retraction. Opacity stays at 0 until the very end of the cycle. -->
+          <animate attributeName="stroke-dasharray"
+                   values="0 1; 1 0; 1 0; 1 0; 0 1; 0 1"
+                   keyTimes="0; 0.44; 0.75; 0.85; 0.851; 1"
+                   dur="17s"
+                   calcMode="linear"
+                   repeatCount="indefinite"/>
+          <animate attributeName="opacity"
+                   values="1; 1; 1; 0; 0; 1"
+                   keyTimes="0; 0.44; 0.75; 0.85; 0.999; 1"
+                   dur="17s"
+                   calcMode="linear"
+                   repeatCount="indefinite"/>
+        </path>
         <!-- Biplane riding the path during the forward leg -->
         <g class="flight-plane-group">
           <g>
-            <!-- Plane geometry shifted -4 along x so the propeller hub
-                 sits ahead of the path point. The orange line ends at
-                 the path point; the plane's nose extends ~5 units beyond,
-                 making the plane clearly lead the line visually. -->
-            <g transform="translate(-4 0)">
-              <!-- Simple biplane silhouette pointing right -->
-              <!-- Tail fin -->
-              <polygon points="-16,-6 -12,-1.5 -12,1.5 -16,1.5" fill="#F15A2D"/>
-              <!-- Top wing -->
-              <rect x="-6" y="-7" width="14" height="2" fill="#F15A2D"/>
-              <!-- Bottom wing -->
-              <rect x="-6" y="5" width="14" height="2" fill="#F15A2D"/>
-              <!-- Wing struts connecting wings to fuselage -->
-              <rect x="-3" y="-5" width="1.4" height="10" fill="#F15A2D"/>
-              <rect x="4" y="-5" width="1.4" height="10" fill="#F15A2D"/>
-              <!-- Fuselage (drawn after struts so it overlaps cleanly at the body).
-                   Shortened so the propeller is the foremost part of the plane. -->
-              <rect x="-12" y="-1.5" width="20" height="3" fill="#F15A2D"/>
-              <!-- Spinning propeller at the nose -->
-              <g transform="translate(9 0)">
-                <line x1="0" y1="-5" x2="0" y2="5" stroke="#3C2222" stroke-width="1.4" stroke-linecap="round">
-                  <animateTransform attributeName="transform" type="rotate"
-                                    from="0" to="360" dur="0.18s" repeatCount="indefinite"/>
-                </line>
-                <circle cx="0" cy="0" r="1.2" fill="#3C2222"/>
+            <!-- Plane is wrapped in scale(2.0) to double the native size.
+                 The inner translate(-9 0) puts the propeller hub exactly at
+                 the path point: world position = 2.0 * (9-9) = 0, regardless
+                 of scale factor. The orange line ends at the path point, so
+                 it meets the plane's propeller hub directly. -->
+            <g transform="scale(2.0)">
+              <g transform="translate(-9 0)">
+                <!-- Simple biplane silhouette pointing right -->
+                <!-- Tail fin -->
+                <polygon points="-16,-6 -12,-1.5 -12,1.5 -16,1.5" fill="#F15A2D"/>
+                <!-- Top wing -->
+                <rect x="-6" y="-7" width="14" height="2" fill="#F15A2D"/>
+                <!-- Bottom wing -->
+                <rect x="-6" y="5" width="14" height="2" fill="#F15A2D"/>
+                <!-- Wing struts connecting wings to fuselage -->
+                <rect x="-3" y="-5" width="1.4" height="10" fill="#F15A2D"/>
+                <rect x="4" y="-5" width="1.4" height="10" fill="#F15A2D"/>
+                <!-- Fuselage (drawn after struts so it overlaps cleanly at the body).
+                     Shortened so the propeller is the foremost part of the plane. -->
+                <rect x="-12" y="-1.5" width="20" height="3" fill="#F15A2D"/>
+                <!-- Spinning propeller at the nose -->
+                <g transform="translate(9 0)">
+                  <line x1="0" y1="-5" x2="0" y2="5" stroke="#3C2222" stroke-width="1.4" stroke-linecap="round">
+                    <animateTransform attributeName="transform" type="rotate"
+                                      from="0" to="360" dur="0.18s" repeatCount="indefinite"/>
+                  </line>
+                  <circle cx="0" cy="0" r="1.2" fill="#3C2222"/>
+                </g>
               </g>
             </g>
             <!-- Plane flies continuously across the path during forward leg
-                 (0-44% of cycle), then stays hidden at end (44%-100%). -->
+                 (0-44% of cycle), holds at end through pause, then fades out. -->
             <animateMotion dur="17s" repeatCount="indefinite" rotate="auto"
                            keyTimes="0;0.44;1"
                            keyPoints="0;1;1"
@@ -1353,8 +1366,8 @@
         </div>
         <div class="venture-stage">Contract Research · 2023</div>
         <h3>KetoTap Core</h3>
-        <div class="venture-tag">Enabling continuous ketone monitoring</div>
-        <p>A novel BHB oxidase engineered at UC Davis that makes continuous ketone monitoring more viable. Funded by Cornucopian Capital on behalf of its portfolio company Phenotap. This drop-in technology for blood meter manufacturers and continuous monitor developers will enable next-gen ketone monitoring.</p>
+        <div class="venture-tag">Continuous ketone monitoring</div>
+        <p>A novel BHB oxidase engineered at UC Davis that makes continuous ketone monitoring more viable. Funded by Cornucopian Capital on behalf of its portfolio company, Phenotap, this drop-in technology for blood meter manufacturers and continuous monitor developers will enable next-gen ketone monitoring.</p>
         <a href="https://www.phenotap.com/" target="_blank" rel="noopener" class="venture-link">
           Visit phenotap.com
           <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 11L11 3M11 3H5M11 3V9"/></svg>
@@ -1365,10 +1378,10 @@
         <div class="venture-logo" aria-hidden="true">
           <img src="CF.png" alt="" class="venture-logo-img">
         </div>
-        <div class="venture-stage">Incubation · 2025</div>
-        <h3>Caffree, Co.</h3>
+        <div class="venture-stage">Incubation · 2024</div>
+        <h3>Caffree Co.</h3>
         <div class="venture-tag">Precision decaffeination</div>
-        <p>An enzyme-based decaffeination technology developed in partnership with UC Davis researchers. Caffree gives consumers and producers a way to dial in caffeine levels precisely without sacrificing the flavor, ritual, or health benefits that make coffee sp popular.</p>
+        <p>An enzyme-based decaffeination technology developed in partnership with UC Davis researchers. Caffree gives consumers and producers a healthier and cleaner way to dial in caffeine levels precisely without sacrificing the flavor, ritual, or health benefits that make coffee so popular. Raised a $6M Series A in 2026.</p>
         <a href="https://caffree.com/" target="_blank" rel="noopener" class="venture-link">
           Visit caffree.com
           <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 11L11 3M11 3H5M11 3V9"/></svg>
@@ -1379,10 +1392,10 @@
         <div class="venture-logo" aria-hidden="true">
           <img src="AS.png" alt="" class="venture-logo-img">
         </div>
-        <div class="venture-stage">Incubation · 2026</div>
+        <div class="venture-stage">Incubation · 2025</div>
         <h3>AminoSense, Inc.</h3>
         <div class="venture-tag">Amino Acid Biosensor</div>
-        <p>A new bio-measurement platform for amino acids — the body's most fundamental signal of recovery, growth, and aging. Currently in stealth, with a science team building a technology stack rooted in UC Davis biochemistry and UC San Diego biosensing electrochemistry research.</p>
+        <p>A new bio-measurement platform for amino acids — the body's most fundamental signal of recovery, growth, and aging. Currently in stealth, with a scientific team building a technology stack rooted in UC Davis biochemistry and UC San Diego biosensing electrochemistry research.</p>
         <span class="venture-link" style="color: var(--brown-light); cursor: default;">
           Coming soon
         </span>
@@ -1416,14 +1429,38 @@
           <h3>Aryeh Ganz</h3>
           <div class="member-role">Managing Partner &amp; Co-founder</div>
           <div class="member-domain">Founder, Cornucopian Capital</div>
-          <p class="member-bio">Aryeh is a serial VC investor and entrepreneur, and is presently the Managing Partner of Corncucopian Capital. He leads Barnstorm's operations and stage-gated process for company building. He is also the principal of SAGEN Trust Company, a family office founded after his family's 2000 sale of SlimFast Foods. UC Davis '93.</p>
+          <p class="member-bio">Aryeh is a serial VC investor and entrepreneur, and is presently the Managing Partner of Corncucopian Capital. He leads Barnstorm's operations and stage-gated process for company building. He is also the principal of SAGEN Trust Company, a family office founded after his family's 2000 sale of SlimFast Foods. UC Davis.</p>
         </article>
 
         <article class="member" data-reveal data-delay="2">
           <h3>Justin Siegel, PhD</h3>
           <div class="member-role">Co-founder</div>
           <div class="member-domain">Biochemistry &amp; Molecular Medicine</div>
-          <p class="member-bio">A serial scientific entrepreneur. Justin is Faculty Director of the Innovation Institute for Food and Health and an Associate Professor at UC Davis, with previous companies including BioArchitecture Labs, PvP Biologics, Digestiva, and Peak B. UC Davis '05; PhD, University of Washington '10.</p>
+          <p class="member-bio">A serial scientific entrepreneur. Justin is Faculty Director of the Innovation Institute for Food and Health and an Associate Professor at UC Davis, with previous companies including BioArchitecture Labs, PvP Biologics, Digestiva, and Peak B. UC Davis; PhD, University of Washington.</p>
+        </article>
+
+      </div>
+    </div>
+
+    <!-- ===== Scientific Co-founders ===== -->
+    <div class="team-group">
+      <div class="team-group-label">
+        Scientific Co-founders
+      </div>
+      <div class="team-grid">
+
+        <article class="member" data-reveal data-delay="1">
+          <h3>Robby Divine, PhD</h3>
+          <div class="member-role">Scientific Co-founder, Caffree</div>
+          <div class="member-domain">Enzyme &amp; Ingredient Innovation</div>
+          <p class="member-bio">Robby completed his PhD in biochemistry at the Baker Lab at UW and his postdoctoral work at the Siegel Lab at UCD, before becoming a leading innovator in coffee through his work at Starbucks' R&amp;D team. Robby chose to partner with Barnstorm Foundry in late 2022 to commercialize his patent-pending technology for decaffeinating coffee.</p>
+        </article>
+
+        <article class="member" data-reveal data-delay="2">
+          <h3>Augustine Arredondo, PhD</h3>
+          <div class="member-role">Scientific Co-founder, AminoSense</div>
+          <div class="member-domain">Enzyme &amp; Biosensing Innovation</div>
+          <p class="member-bio">Augustine's expertise in enzyme engineering has been crucial to Barnstorm's IP development projects. He is currently focused on continuous monitoring platforms for metabolic health, and is a co-inventor of patent-pending technologies currently being commercialized by Phenotap and AminoSense, Inc.</p>
         </article>
 
       </div>
@@ -1446,46 +1483,22 @@
         <article class="member" data-reveal data-delay="2">
           <h3>Eric Quick</h3>
           <div class="member-role">Venture Partner · since 2025</div>
-          <div class="member-domain">CEO, Caffree Co.</div>
+          <div class="member-domain">CEO, Caffree</div>
           <p class="member-bio">Twenty-plus years operating across McDonald's, Disney, Revolution Foods, and SOURCE Global, with advisory roles for dozens of startups. Founder of Cloud 9 Performance Solutions and a lecturer in Leadership Development at San Jose State.</p>
         </article>
 
         <article class="member" data-reveal data-delay="3">
-          <h3>Ingrid Swanson Pultz, PhD</h3>
-          <div class="member-role">Venture Partner · since 2025</div>
-          <div class="member-domain">CSO, Caffree Co.</div>
-          <p class="member-bio">Founder and former CSO of PvP Biologics (acquired by Takeda), where she led development of a therapeutic for celiac disease. Translational Investigator at the Institute for Protein Design at UW. PhD, Microbiology, University of Washington; postdoc in computational enzyme design with David Baker.</p>
-        </article>
-
-        <article class="member" data-reveal data-delay="4">
           <h3>Avi Rosenbaum, PhD</h3>
           <div class="member-role">Venture Partner · 2026 EIR</div>
-          <div class="member-domain">COO, AminoSense Inc.</div>
+          <div class="member-domain">COO, AminoSense</div>
           <p class="member-bio">Decades of experience in molecular health, food ingredients, and diagnostics. Founder of advisors.bio and a Mentor at Endless Frontier Labs. Previously led an R&amp;D team at Ion Torrent (now Thermo Fisher). PhD, Harvard, in George Church's lab on personal genome sequencing.</p>
         </article>
 
-      </div>
-    </div>
-
-    <!-- ===== Scientific Co-founders ===== -->
-    <div class="team-group">
-      <div class="team-group-label">
-        Scientific Co-founders
-      </div>
-      <div class="team-grid">
-
-        <article class="member" data-reveal data-delay="1">
-          <h3>Robby Divine, PhD</h3>
-          <div class="member-role">Scientific Co-founder, Caffree Co.</div>
-          <div class="member-domain">Enzyme &amp; Ingredient Innovation</div>
-          <p class="member-bio">Robby completed his PhD in biochemistry at the Baker Lab at UW and his postdoctoral work at the Siegel Lab at UCD, before becoming a leading innovator in coffee through his work at Starbucks' R&amp;D team. Robby chose to partner with Barnstorm Foundry in late 2022 to commercialize his patent-pending technology for decaffeinating coffee.</p>
-        </article>
-
-        <article class="member" data-reveal data-delay="2">
-          <h3>Augustine Arredondo</h3>
-          <div class="member-role">Scientific Co-founder, AminoSense Inc.</div>
-          <div class="member-domain">Enzyme and Biosensing Innovation</div>
-          <p class="member-bio">Augustine's expertise in enzyme engineering has been crucial to Barnstorm's IP development projects. He is currently focused on continuous monitoring platforms for metabolic health, and is a co-inventor of patented technologies currently being commercialized by Phenotap and AminoSense, Inc.</p>
+        <article class="member" data-reveal data-delay="4">
+          <h3>Ingrid Swanson Pultz, PhD</h3>
+          <div class="member-role">Venture Partner · since 2025</div>
+          <div class="member-domain">CSO, Caffree</div>
+          <p class="member-bio">Founder and former CSO of PvP Biologics (acquired by Takeda), where she led development of a therapeutic for celiac disease. Translational Investigator at the Institute for Protein Design at UW. PhD, Microbiology, University of Washington; postdoc in computational enzyme design with David Baker.</p>
         </article>
 
       </div>
@@ -1506,21 +1519,21 @@
         </article>
 
         <article class="member" data-reveal data-delay="2">
-          <h3>Peter Christey</h3>
+          <h3>Peter Christey, PhD</h3>
           <div class="member-role">Advisor</div>
           <div class="member-domain">Life Sciences Commercialization</div>
-          <p class="member-bio">Co-founder and CEO of GALT, with two decades commercializing research instruments. Previously led the DNA Sequencing Business Unit and DNA forensic product line at Life Technologies, with earlier roles at Guava Technologies, Chiron, and Applied Biosystems. B.Sc., Otago; PhD, Cambridge; MBA, INSEAD.</p>
+          <p class="member-bio">Co-founder and CEO of GALT, with two decades experience commercializing research instruments. Previously led the DNA Sequencing Business Unit and DNA forensic product line at Life Technologies, with earlier roles at Guava Technologies, Chiron, and Applied Biosystems. B.Sc., Otago; PhD, Cambridge; MBA, INSEAD.</p>
         </article>
 
         <article class="member" data-reveal data-delay="3">
-          <h3>Erich Veitenheimer III</h3>
+          <h3>Erich Veitenheimer III, PhD, JD</h3>
           <div class="member-role">Advisor</div>
           <div class="member-domain">Biotech IP</div>
           <p class="member-bio">Founder of VEIT3IP LLC; previously a Senior Partner at Cooley LLP, where he built the firm's life sciences patent practice. Career across DeKalb-Pfizer Genetics, the USPTO, and global IP counsel for biotech and food science. J.D., Georgetown; PhD, Wisconsin-Madison; B.S., Washington State.</p>
         </article>
 
         <article class="member" data-reveal data-delay="4">
-          <h3>Len Nannarone</h3>
+          <h3>Len Nannarone, JD</h3>
           <div class="member-role">Advisor</div>
           <div class="member-domain">Corporate Law &amp; M&amp;A</div>
           <p class="member-bio">Founder of Oak &amp; Hill, PC, advising Barnstorm and its ventures on corporate matters, M&amp;A, and securities law. Earlier career in M&amp;A at Kirkland &amp; Ellis and Intel; since then has taken numerous startups from formation to exit, with acquirers including Uber, Yahoo, Google, Apple, and major pharma.</p>
@@ -1537,7 +1550,7 @@
           <h3>Joe Wang, PhD</h3>
           <div class="member-role">Advisor</div>
           <div class="member-domain">Biosensors &amp; Wearable Diagnostics</div>
-          <p class="member-bio">A pioneering researcher in electrochemical biosensors and wearable diagnostics, Joe advises Barnstorm on continuous-monitoring platforms and the underlying sensor science. His decades of work in analytical chemistry inform the technical foundation of ventures translating real-time physiological measurement into consumer health products.</p>
+          <p class="member-bio">A pioneering researcher in electrochemical biosensors and wearable diagnostics, Joe advises Barnstorm on continuous-monitoring platforms and next generation sensor technologies. His decades of work in analytical chemistry inform the technical foundation of ventures translating real-time physiological measurement into biosensing health products.</p>
         </article>
 
       </div>
@@ -1557,7 +1570,7 @@
         </div>
         <h2>Let's <em>build</em><br>something.</h2>
         <p class="contact-lead">
-          If you're passionate about building food, beverage, or consumer health businesses to advance health, we'd love to hear from you.
+          If you're passionate about building food, beverage, or consumer wellness businesses to advance health, we'd love to hear from you.
         </p>
         <a href="mailto:build@barnstormfoundry.com" class="contact-email">build@barnstormfoundry.com</a>
 
@@ -1598,12 +1611,12 @@
 
       <div class="footer-col">
         <h4>Barnstorm Foundry</h4>
-        <p>221 1st Street,<br>Suite A<br>Davis, CA 95616</p>
+        <p>Davis, CA</p>
       </div>
 
       <div class="footer-col">
         <h4>Cornucopian Capital</h4>
-        <p>491 Bloomfield Ave,<br>Concourse 1<br>Montclair, NJ 07042</p>
+        <p>Montclair, NJ</p>
       </div>
 
       <div class="footer-col">
