@@ -927,10 +927,12 @@
   }
   .contact-grid {
     display: grid;
-    grid-template-columns: 1fr;
-    justify-items: end;
+    grid-template-columns: 580px 1fr;
+    gap: 3rem;
+    align-items: start;
   }
   .contact-text {
+    grid-column: 2;
     width: 100%;
     max-width: 36rem;
     position: relative;
@@ -986,6 +988,10 @@
       left: 0;
       width: 480px;
     }
+    .contact-grid {
+      grid-template-columns: 500px 1fr;
+      gap: 2rem;
+    }
   }
   @media (max-width: 900px) {
     .plane-bg {
@@ -998,7 +1004,11 @@
       display: block;
     }
     .contact-grid {
-      justify-items: stretch;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+    .contact-text {
+      grid-column: 1;
     }
   }
 
