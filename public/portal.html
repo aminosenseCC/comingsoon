@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aminosense Web Reader v4.13</title>
+    <title>Aminosense Web Reader v4.17</title>
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
@@ -45,6 +45,12 @@
         .editable:hover { background-color: #eef7ff; }
         
         .footer-container { margin-top: 30px; padding-top: 15px; border-top: 1px solid #eaeaea; display: flex; justify-content: space-between; color: #888; font-size: 11px; }
+
+        /* NEW: Trash Bin Modal Styling */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); }
+        .modal-content { background-color: #fefefe; margin: 5% auto; padding: 20px; border: 1px solid #888; width: 85%; max-width: 700px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; line-height: 20px;}
+        .close:hover, .close:focus { color: black; text-decoration: none; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -75,11 +81,10 @@
         </div>
 
         <div class="panel">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <label style="color: #444; font-size: 14px;"><strong>Reference Overlay:</strong>
-                    <select id="inputReference" style="width: 250px; margin-left: 5px;">
-                        <option value="-1">None</option>
-                    </select>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <label style="color: #444; font-size: 14px; display: flex; flex-direction: column;">
+                    <strong>Overlay Reference(s) (Ctrl+Click):</strong>
+                    <select id="inputReference" multiple size="3" style="width: 280px; margin-top: 5px; font-size: 12px; padding: 5px; height: 60px;"></select>
                 </label>
                 
                 <label style="color: #dc3545; font-size: 12px; cursor: pointer; border: 1px solid #f5c6cb; padding: 4px 8px; border-radius: 4px; background-color: #f8d7da;">
@@ -102,8 +107,8 @@
                     </label>
                     <label style="margin-left: 15px;">Port:
                         <select id="inputChannel">
-                            <option value="0" selected>Left (Ch 1)</option>
-                            <option value="1">Right (Ch 2)</option>
+                            <option value="0" selected>Right (Ch 1)</option>
+                            <option value="1">Left (Ch 2)</option>
                         </select>
                     </label>
                 </div>
@@ -170,7 +175,10 @@
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                 <h3 style="margin: 0; color: #003366;">Run Library</h3>
                 <div>
-                    <button id="btnDownloadMaster" class="btn-warning">Export / Share Master Log</button>
+                    <button id="btnViewTrash" class="btn-secondary" onclick="showTrash()">🗑️ View Trash</button>
+                    
+                    <button id="btnDownloadSelected" class="btn-success">Export Selected</button>
+                    <button id="btnDownloadMaster" class="btn-warning">Export Master Log</button>
                     <button id="btnClearMaster" class="btn-danger">Reset Log</button>
                 </div>
             </div>
@@ -195,7 +203,7 @@
                             <th>Variable</th>
                             <th>Cal Factor</th>
                             <th>Result (µM)</th>
-                        </tr>
+                            <th>Action</th> </tr>
                     </thead>
                     <tbody id="runTableBody">
                     </tbody>
@@ -204,9 +212,39 @@
         </div>
     </div>
 
+    <div id="trashModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="hideTrash()">&times;</span>
+            <h3 style="margin-top: 0; color: #dc3545;">🗑️ Trash Bin</h3>
+            <p style="font-size: 12px; color: #666; margin-bottom: 15px;">Deleted runs are stored here until you permanently empty the trash. You can restore accidental deletions back to the main library.</p>
+            
+            <div style="max-height: 300px; overflow-y: scroll; margin-bottom: 15px;">
+                <table style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>Time/Date</th>
+                            <th>Subject ID</th>
+                            <th>Condition</th>
+                            <th>Variable</th>
+                            <th>Result (µM)</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="trashTableBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="text-align: right; border-top: 1px solid #eee; padding-top: 15px;">
+                <button class="btn-danger" onclick="emptyTrash()">Permanently Empty All Trash</button>
+                <button class="btn-secondary" onclick="hideTrash()">Close</button>
+            </div>
+        </div>
+    </div>
+
     <div class="footer-container">
         <span>For Research Use Only. Not for diagnostic use.</span>
-        <span>v4.13</span>
+        <span>v4.17</span>
     </div>
 
     <script>
@@ -234,7 +272,7 @@
         });
 
         // ==========================================
-        // 2. DASHBOARD LOGIC
+        // 2. DASHBOARD & TRASH BIN LOGIC
         // ==========================================
         const zoomOptions = {
             pan: { enabled: true, mode: 'xy' },
@@ -273,7 +311,7 @@
             tbody.innerHTML = ""; 
 
             if(masterLog.length === 0) {
-                tbody.innerHTML = "<tr><td colspan='8' style='text-align:center;'>No runs saved yet.</td></tr>";
+                tbody.innerHTML = "<tr><td colspan='9' style='text-align:center;'>No runs saved yet.</td></tr>";
                 updateDashboardChart();
                 return;
             }
@@ -282,8 +320,10 @@
                 const run = masterLog[i];
                 const tr = document.createElement('tr');
                 let currentCal = run.cal_factor !== undefined ? run.cal_factor : "1.0";
-                let portName = run.port === "1" ? "Right" : "Left";
                 
+                let portName = run.port === "1" ? "Left" : "Right";
+                
+                // NEW: Individual Delete Button injected into the last column
                 tr.innerHTML = `
                     <td style="text-align:center;"><input type="checkbox" class="plot-check" data-index="${i}" onchange="updateDashboardChart()"></td>
                     <td>${run.timestamp}</td>
@@ -293,11 +333,102 @@
                     <td class="editable" contenteditable="true" onblur="saveEdit(${i}, 'variable', this.innerText)">${run.variable}</td>
                     <td class="editable" contenteditable="true" onblur="saveEdit(${i}, 'cal_factor', this.innerText)">${currentCal}</td>
                     <td><strong>${run.result_uM}</strong></td>
+                    <td style="text-align:center;">
+                        <button style="background: none; color: #dc3545; padding: 0; font-size: 16px; margin: 0; opacity: 0.7;" onclick="deleteRunToTrash(${i})" title="Move to Trash">🗑️</button>
+                    </td>
                 `;
                 tbody.appendChild(tr);
             }
             updateDashboardChart();
         }
+
+        // NEW: TRASH BIN FUNCTIONS
+        const modalTrash = document.getElementById('trashModal');
+        
+        window.showTrash = function() {
+            modalTrash.style.display = 'block';
+            refreshTrashBin();
+        };
+        
+        window.hideTrash = function() {
+            modalTrash.style.display = 'none';
+        };
+
+        window.deleteRunToTrash = function(index) {
+            let masterLog = JSON.parse(localStorage.getItem('aminosenseMasterLog')) || [];
+            let trashLog = JSON.parse(localStorage.getItem('aminosenseTrashBin')) || [];
+            
+            // Pluck the specific run out of the master log and drop it into the trash log
+            let removedRun = masterLog.splice(index, 1)[0];
+            trashLog.push(removedRun);
+            
+            localStorage.setItem('aminosenseMasterLog', JSON.stringify(masterLog));
+            localStorage.setItem('aminosenseTrashBin', JSON.stringify(trashLog));
+            
+            refreshDashboard();
+            populateOverlayMenu();
+        };
+
+        function refreshTrashBin() {
+            let trashLog = JSON.parse(localStorage.getItem('aminosenseTrashBin')) || [];
+            const tbody = document.getElementById('trashTableBody');
+            tbody.innerHTML = ""; 
+
+            if(trashLog.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='6' style='text-align:center;'>Trash is empty.</td></tr>";
+                return;
+            }
+
+            for (let i = trashLog.length - 1; i >= 0; i--) {
+                const run = trashLog[i];
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${run.timestamp}</td>
+                        <td>${run.subject}</td>
+                        <td>${run.condition}</td>
+                        <td>${run.variable}</td>
+                        <td><strong>${run.result_uM}</strong></td>
+                        <td>
+                            <button class="btn-success" style="padding: 4px 8px; font-size: 11px; margin: 0;" onclick="restoreRun(${i})">Restore</button>
+                            <button class="btn-danger" style="padding: 4px 8px; font-size: 11px; margin: 0;" onclick="permDeleteRun(${i})">Destroy</button>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        window.restoreRun = function(index) {
+            let masterLog = JSON.parse(localStorage.getItem('aminosenseMasterLog')) || [];
+            let trashLog = JSON.parse(localStorage.getItem('aminosenseTrashBin')) || [];
+            
+            let restoredRun = trashLog.splice(index, 1)[0];
+            masterLog.push(restoredRun);
+            
+            localStorage.setItem('aminosenseMasterLog', JSON.stringify(masterLog));
+            localStorage.setItem('aminosenseTrashBin', JSON.stringify(trashLog));
+            
+            refreshTrashBin();
+            refreshDashboard();
+            populateOverlayMenu();
+        };
+
+        window.permDeleteRun = function(index) {
+            if(confirm("Permanently destroy this run? This cannot be undone.")) {
+                let trashLog = JSON.parse(localStorage.getItem('aminosenseTrashBin')) || [];
+                trashLog.splice(index, 1);
+                localStorage.setItem('aminosenseTrashBin', JSON.stringify(trashLog));
+                refreshTrashBin();
+            }
+        };
+
+        window.emptyTrash = function() {
+            let trashLog = JSON.parse(localStorage.getItem('aminosenseTrashBin')) || [];
+            if(trashLog.length === 0) return;
+            if(confirm("Permanently destroy ALL runs in the trash? This cannot be undone.")) {
+                localStorage.removeItem('aminosenseTrashBin');
+                refreshTrashBin();
+            }
+        };
 
         window.saveEdit = function(index, field, newValue) {
             let masterLog = JSON.parse(localStorage.getItem('aminosenseMasterLog')) || [];
@@ -417,6 +548,7 @@
         const btnAbort = document.getElementById('btnAbort');
         const btnDownload = document.getElementById('btnDownload');
         const btnDownloadMaster = document.getElementById('btnDownloadMaster');
+        const btnDownloadSelected = document.getElementById('btnDownloadSelected');
         const btnClearMaster = document.getElementById('btnClearMaster');
         const statusText = document.getElementById('statusText');
         const logDiv = document.getElementById('log');
@@ -426,8 +558,7 @@
             type: 'line', 
             data: { 
                 datasets: [
-                    { label: 'Live Current (µA)', data: [], borderColor: '#dc3545', borderWidth: 2, pointRadius: 0, fill: false, tension: 0.1 },
-                    { label: 'Reference Ghost', data: [], borderColor: '#adb5bd', borderWidth: 2, borderDash: [5, 5], pointRadius: 0, fill: false, tension: 0.1 }
+                    { label: 'Live Current (µA)', data: [], borderColor: '#dc3545', borderWidth: 2, pointRadius: 0, fill: false, tension: 0.1 }
                 ] 
             },
             options: { 
@@ -446,8 +577,10 @@
             let masterLog = JSON.parse(localStorage.getItem('aminosenseMasterLog')) || [];
             const selectRef = document.getElementById('inputReference');
             
-            let currentValue = selectRef.value; 
-            selectRef.innerHTML = '<option value="-1">None</option>';
+            // Remember multiple selected items!
+            let selectedValues = Array.from(selectRef.selectedOptions).map(opt => opt.value);
+            
+            selectRef.innerHTML = '';
             
             for (let i = masterLog.length - 1; i >= 0; i--) {
                 const run = masterLog[i];
@@ -457,9 +590,10 @@
                 selectRef.appendChild(option);
             }
             
-            if(document.querySelector(`#inputReference option[value="${currentValue}"]`)) {
-                selectRef.value = currentValue;
-            }
+            // Re-select them if they still exist
+            Array.from(selectRef.options).forEach(opt => {
+                if (selectedValues.includes(opt.value)) opt.selected = true;
+            });
         }
         
         populateOverlayMenu();
@@ -484,24 +618,41 @@
             if (!rxCharacteristic) return;
             
             currentDataPoints = []; 
-            liveChart.data.datasets[0].data = []; 
-            liveChart.data.datasets[1].data = []; 
             
-            const refIndex = document.getElementById('inputReference').value;
-            if (refIndex !== "-1") {
+            // NEW: Support for MULTIPLE dynamic overlay lines!
+            liveChart.data.datasets = [{ label: 'Live Current (µA)', data: [], borderColor: '#dc3545', borderWidth: 2, pointRadius: 0, fill: false, tension: 0.1 }]; 
+            
+            const selectRef = document.getElementById('inputReference');
+            const selectedIndices = Array.from(selectRef.selectedOptions).map(opt => opt.value);
+            
+            if (selectedIndices.length > 0) {
                 let masterLog = JSON.parse(localStorage.getItem('aminosenseMasterLog')) || [];
-                let refRun = masterLog[refIndex];
-                if (refRun && refRun.rawData) {
-                    let refInterval = refRun.interval_s || 0.5;
-                    liveChart.data.datasets[1].data = refRun.rawData.map((val, idx) => ({
-                        x: parseFloat((idx * refInterval).toFixed(1)),
-                        y: val
-                    }));
-                    liveChart.data.datasets[1].label = `Ref: ${refRun.subject} (${refRun.condition})`;
-                    log(`Loaded ghost overlay for ${refRun.subject}`);
-                }
-            } else {
-                liveChart.data.datasets[1].label = "Reference Ghost";
+                
+                selectedIndices.forEach((refIndex, idx) => {
+                    let refRun = masterLog[refIndex];
+                    if (refRun && refRun.rawData) {
+                        let refInterval = refRun.interval_s || 0.5;
+                        let mappedData = refRun.rawData.map((val, i) => ({
+                            x: parseFloat((i * refInterval).toFixed(1)),
+                            y: val
+                        }));
+                        
+                        // Give each reference line a unique transparent color!
+                        let refColor = chartColors[idx % chartColors.length];
+                        
+                        liveChart.data.datasets.push({
+                            label: `Ref: ${refRun.subject} (${refRun.condition})`,
+                            data: mappedData,
+                            borderColor: refColor,
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            pointRadius: 0,
+                            fill: false,
+                            tension: 0.1
+                        });
+                        log(`Loaded ghost overlay: ${refRun.subject}`);
+                    }
+                });
             }
             liveChart.update();
             
@@ -520,7 +671,7 @@
             let vString = appliedVoltage_mV + "m"; 
 
             let selectedChannel = document.getElementById('inputChannel').value;
-            let portName = selectedChannel === "1" ? "Right" : "Left";
+            let portName = selectedChannel === "1" ? "Left" : "Right";
             
             let crString = document.getElementById('inputCurrentRange').value;
 
@@ -576,7 +727,8 @@
 
                         let baIndex = line.indexOf("ba"), hexStr = line.substring(baIndex + 2, baIndex + 9), prefix = line.charAt(baIndex + 9);
                         let rawInt = parseInt(hexStr, 16) - 134217728; 
-                        let mult = prefix === 'p' ? 1e-12 : prefix === 'n' ? 1e-9 : prefix === 'u' ? 1e-6 : prefix === 'm' ? 1e-3 : 1;
+                        
+                        let mult = prefix === 'a' ? 1e-18 : prefix === 'f' ? 1e-15 : prefix === 'p' ? 1e-12 : prefix === 'n' ? 1e-9 : prefix === 'u' ? 1e-6 : prefix === 'm' ? 1e-3 : 1;
                         let uA = (rawInt * mult) * 1e6;
                         currentDataPoints.push(uA);
                         
@@ -660,13 +812,60 @@
             exportData(csv, `Aminosense_Data_${new Date().getTime()}.csv`);
         });
 
+        btnDownloadSelected.addEventListener('click', () => {
+            let masterLog = JSON.parse(localStorage.getItem('aminosenseMasterLog')) || [];
+            const checkboxes = document.querySelectorAll('.plot-check');
+            let selectedRuns = [];
+
+            checkboxes.forEach(chk => {
+                if (chk.checked) {
+                    const run = masterLog[chk.getAttribute('data-index')];
+                    if (run) selectedRuns.push(run);
+                }
+            });
+
+            if (selectedRuns.length === 0) {
+                alert("Please select at least one run from the table to export.");
+                return;
+            }
+
+            let row1 = []; 
+            let row2 = []; 
+            let maxLength = 0;
+
+            selectedRuns.forEach(run => {
+                row1.push(`"${run.subject} - ${run.condition} (${run.variable})"`, ""); 
+                row2.push("Time (s)", "Current (µA)");
+                if (run.rawData && run.rawData.length > maxLength) {
+                    maxLength = run.rawData.length;
+                }
+            });
+
+            let csv = row1.join(",") + "\n" + row2.join(",") + "\n";
+
+            for (let i = 0; i < maxLength; i++) {
+                let rowData = [];
+                selectedRuns.forEach(run => {
+                    if (run.rawData && i < run.rawData.length) {
+                        let interval = run.interval_s || 0.5;
+                        rowData.push((i * interval).toFixed(1), run.rawData[i].toFixed(4));
+                    } else {
+                        rowData.push("", ""); 
+                    }
+                });
+                csv += rowData.join(",") + "\n";
+            }
+
+            exportData(csv, `Aminosense_SelectedRuns_${new Date().getTime()}.csv`);
+        });
+
         btnDownloadMaster.addEventListener('click', () => {
             let masterLog = JSON.parse(localStorage.getItem('aminosenseMasterLog')) || [];
             if (masterLog.length === 0) { alert("Master Log is empty!"); return; }
             let csv = "Timestamp,SubjectID,Port,Condition,VariableValue,EquilDelay_s,CalFactor,FinalCurrent_uA,FinalConc_uM,Time_s,RawCurrent_uA\n";
             masterLog.forEach(run => { 
                 let delayStr = run.delay_s !== undefined ? run.delay_s : "N/A", calStr = run.cal_factor !== undefined ? run.cal_factor : "1.0"; 
-                let portName = run.port === "1" ? "Right" : "Left"; 
+                let portName = run.port === "1" ? "Left" : "Right"; 
                 if (run.rawData && run.rawData.length > 0) {
                     let interval = run.interval_s || 0.5; 
                     for (let i = 0; i < run.rawData.length; i++) csv += `"${run.timestamp}","${run.subject}","${portName}","${run.condition}",${run.variable},${delayStr},${calStr},${run.result_uA},${run.result_uM},${(i*interval).toFixed(1)},${run.rawData[i].toFixed(4)}\n`;
@@ -676,7 +875,7 @@
         });
 
         btnClearMaster.addEventListener('click', () => {
-            if (confirm("Permanently delete all saved runs?")) { 
+            if (confirm("Permanently delete ALL saved runs? Consider using the Trash Bin for individual deletions instead!")) { 
                 localStorage.removeItem('aminosenseMasterLog'); 
                 refreshDashboard(); 
                 populateOverlayMenu(); 
