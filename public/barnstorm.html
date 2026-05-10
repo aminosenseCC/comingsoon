@@ -59,6 +59,35 @@
     text-decoration-color: var(--orange);
     text-decoration-thickness: 2px;
   }
+  /* Registered-trademark superscript — small, slightly raised, and excluded
+     from the link's underline so it reads as a mark rather than a character. */
+  .reg-mark {
+    font-size: 0.55em;
+    font-weight: 400;
+    vertical-align: super;
+    line-height: 0;
+    margin-left: 0.05em;
+    text-decoration: none;
+    display: inline-block;
+  }
+  /* When sitting next to the brand logo image, the mark needs explicit sizing
+     since em-relative font-size is tied to the nav context (~15px), too small
+     against a 52px logo. Position it at the top-right of the wordmark. */
+  .reg-mark-brand {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--brown);
+    align-self: flex-start;
+    margin-top: 6px;
+    margin-left: 4px;
+    line-height: 1;
+    vertical-align: baseline;
+  }
+  .reg-mark-footer {
+    color: var(--cream);
+    font-size: 16px;
+    margin-top: 10px;
+  }
   button { font: inherit; cursor: pointer; border: none; background: none; }
 
   .container {
@@ -158,10 +187,63 @@
     box-shadow: 0 12px 28px -10px rgba(241, 90, 45, 0.5);
   }
 
-  @media (max-width: 800px) {
-    .nav-links { gap: 1rem; }
-    .nav-links li:nth-child(2),
-    .nav-links li:nth-child(3) { display: none; }
+  /* Hamburger toggle — checkbox is the state holder, label is the visible icon.
+     Hidden by default; appears at the mobile breakpoint via the @media block
+     further down. Pure CSS, no JavaScript. */
+  .nav-toggle {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    width: 0;
+    height: 0;
+  }
+  .nav-hamburger {
+    display: none;       /* shown only at ≤640px */
+    width: 32px;
+    height: 32px;
+    position: relative;
+    cursor: pointer;
+    z-index: 102;
+  }
+  .nav-hamburger span {
+    position: absolute;
+    left: 4px;
+    right: 4px;
+    height: 2px;
+    background: var(--brown);
+    border-radius: 2px;
+    transition: transform .35s var(--ease), opacity .25s var(--ease), top .35s var(--ease);
+  }
+  .nav-hamburger span:nth-child(1) { top: 9px; }
+  .nav-hamburger span:nth-child(2) { top: 15px; }
+  .nav-hamburger span:nth-child(3) { top: 21px; }
+
+  /* When the checkbox is checked, transform the hamburger into an X */
+  .nav-toggle:checked ~ .nav-hamburger span:nth-child(1) {
+    top: 15px;
+    transform: rotate(45deg);
+  }
+  .nav-toggle:checked ~ .nav-hamburger span:nth-child(2) {
+    opacity: 0;
+  }
+  .nav-toggle:checked ~ .nav-hamburger span:nth-child(3) {
+    top: 15px;
+    transform: rotate(-45deg);
+  }
+
+  /* Backdrop overlay — tapping outside the panel closes the menu.
+     Hidden by default (no pointer events); visible + clickable when menu open. */
+  .nav-backdrop {
+    display: none;
+  }
+
+  /* Inner labels wrap each link so tapping a menu item both navigates
+     (via the inner <a>) and toggles the checkbox (closing the menu).
+     The label should be a transparent block that lets the link define its
+     own appearance. */
+  .nav-links li label {
+    display: contents;   /* desktop: label is invisible in flow; link styles itself */
+    cursor: pointer;
   }
 
   /* =============================================================
@@ -1149,6 +1231,225 @@
   }
 
   /* =============================================================
+     COMPREHENSIVE PHONE BREAKPOINT
+     Catches everything for small viewports (~iPhone-sized and below).
+     ============================================================= */
+  @media (max-width: 640px) {
+    /* Container — tighter side gutters at small viewports */
+    .container { padding: 0 1.25rem; }
+
+    /* Nav — smaller logo */
+    nav { padding: 0.75rem 0; }
+    .brand-logo { height: 40px; }
+    .reg-mark-brand { font-size: 11px; margin-top: 4px; }
+
+    /* Show the hamburger icon */
+    .nav-hamburger { display: block; }
+
+    /* Backdrop overlay — fades in when menu opens, sits behind the panel */
+    .nav-backdrop {
+      display: block;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(60, 34, 34, 0.35);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .3s var(--ease);
+      z-index: 98;
+    }
+    .nav-toggle:checked ~ .nav-backdrop {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* On mobile the inner labels need to be display: block so the tap area
+       fills the li, but visually the anchor's styling still dominates. */
+    .nav-links li label {
+      display: block;
+      width: 100%;
+    }
+
+    /* Transform nav-links into a slide-down panel */
+    .nav-links {
+      position: fixed;
+      top: 64px;                /* below the nav bar (height: ~64px on mobile) */
+      left: 0;
+      right: 0;
+      max-height: 0;
+      overflow: hidden;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+      background: var(--cream);
+      border-bottom: 1px solid var(--line);
+      box-shadow: 0 10px 30px -10px rgba(60, 34, 34, 0.18);
+      transition: max-height .4s var(--ease), padding .4s var(--ease);
+      padding: 0 1.25rem;
+      z-index: 99;
+    }
+    /* Open state — slide the panel into view when checkbox is checked */
+    .nav-toggle:checked ~ .nav-links {
+      max-height: 400px;
+      padding: 0.5rem 1.25rem 1rem;
+    }
+    /* Each link gets a full-width tap area and a divider */
+    .nav-links li {
+      width: 100%;
+      border-bottom: 1px solid var(--line);
+    }
+    .nav-links li:last-child { border-bottom: none; }
+    .nav-links a:not(.nav-cta) {
+      display: block;
+      padding: 1rem 0;
+      font-size: 1rem;
+    }
+    /* Underline animation doesn't work well on a stacked panel — disable */
+    .nav-links a:not(.nav-cta)::after { display: none; }
+
+    /* Get in touch CTA becomes a full-width button at the bottom of the panel */
+    .nav-links a.nav-cta {
+      display: block;
+      text-align: center;
+      padding: 0.85rem 1.1rem !important;
+      font-size: 0.92rem;
+      margin-top: 0.75rem;
+    }
+    .nav-links a.nav-cta:hover,
+    .nav-links a.nav-cta:active {
+      transform: none;          /* no lift inside the panel */
+      box-shadow: 0 8px 20px -8px rgba(241, 90, 45, 0.5);
+    }
+
+    /* Hero — shrink heading floor, kill the big spinning mark to avoid
+       horizontal overflow, tighten paragraph */
+    .hero { padding: 5.5rem 0 3.5rem; }
+    .hero h1 {
+      font-size: clamp(2.4rem, 11vw, 3.5rem);
+      max-width: none;
+      margin-bottom: 1.5rem;
+    }
+    .hero-eyebrow {
+      font-size: 0.68rem;
+      letter-spacing: 0.18em;
+      margin-bottom: 1.25rem;
+    }
+    .hero-lead {
+      font-size: 1rem;
+      margin-bottom: 2rem;
+    }
+    .hero-mark { display: none; }
+    .hero-actions { gap: 0.75rem; }
+    .btn { padding: 0.85rem 1.3rem; font-size: 0.88rem; }
+    .hero-pillars {
+      margin-top: 3rem;
+      padding-top: 2rem;
+      gap: 1.25rem;
+    }
+
+    /* Section head — smaller heading, ensure long words break before overflow */
+    .section-head { margin-bottom: 2.5rem; gap: 1.25rem; }
+    .section-head h2 {
+      font-size: clamp(2rem, 8vw, 3rem);
+      overflow-wrap: anywhere;
+    }
+    .section-head .marker {
+      font-size: 0.7rem;
+      letter-spacing: 0.18em;
+    }
+    .section-head p { font-size: 0.95rem; }
+
+    /* Approach — flight section tightened */
+    .approach { padding: 4rem 0; }
+    .approach-flight {
+      margin: 1.5rem 0 0.5rem;
+      padding: 2rem 0 1rem;
+    }
+    .flight-waypoints { row-gap: 2rem; }
+    .waypoint-node { width: 100px; height: 100px; }
+    .waypoint-name-inline { font-size: 1.1rem; }
+
+    /* Ventures — full-width cards, tighter padding */
+    .ventures { padding: 4rem 0; }
+    .venture { padding: 1.5rem; }
+    .venture h3 { font-size: 1.4rem; }
+    .venture-tag { font-size: 0.68rem; letter-spacing: 0.15em; }
+    .venture p { font-size: 0.92rem; }
+    .venture-logo-img { max-width: 180px; }
+
+    /* Team — full-width cards, tighter padding, no min-height pressure */
+    .team { padding: 4rem 0; }
+    .team-group { margin-bottom: 2.5rem; }
+    .team-group-label {
+      font-size: 0.68rem;
+      letter-spacing: 0.18em;
+      margin-bottom: 1.25rem;
+      padding-bottom: 1.25rem;
+    }
+    .team-grid { gap: 1rem; }
+    .member { padding: 1.5rem; min-height: 0; }
+    .member h3 { font-size: 1.35rem; }
+    .member-role { font-size: 0.65rem; letter-spacing: 0.15em; }
+    .member-domain { font-size: 0.85rem; }
+    .member-bio { font-size: 0.86rem; }
+
+    /* Contact — plane stacked on top, tighter section, no overlap with text */
+    .contact { padding: 4rem 0 3rem; }
+    .contact-grid { gap: 1.5rem; }
+    .plane-bg {
+      max-width: 360px;
+      margin: 0 auto 1rem;
+    }
+    .contact h2 { font-size: clamp(2.2rem, 10vw, 3.2rem); }
+    .contact-lead { font-size: 0.98rem; margin-bottom: 1.5rem; }
+    .contact-email {
+      font-size: 1.1rem;
+      word-break: break-word;
+      margin-bottom: 2rem;
+    }
+    .contact-form { padding-top: 1.5rem; }
+    .form-row { margin-bottom: 1.25rem; }
+    .form-row label {
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
+    }
+    .form-row textarea { min-height: 80px; }
+
+    /* Footer — single column, stacked legal links, tighter spacing */
+    footer { padding: 3rem 0 1.5rem; }
+    .footer-grid { gap: 1.75rem; margin-bottom: 2.5rem; }
+    .brand-mark-only { height: 60px; }
+    .reg-mark-footer { font-size: 13px; margin-top: 7px; }
+    .footer-col h4 {
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      margin-bottom: 0.6rem;
+    }
+    .footer-col p,
+    .footer-col a { font-size: 0.88rem; }
+    .footer-bottom {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+      font-size: 0.8rem;
+    }
+    .footer-bottom ul { gap: 1.25rem; }
+  }
+
+  /* Extra-tight breakpoint for very small phones (iPhone SE etc.) */
+  @media (max-width: 380px) {
+    .container { padding: 0 1rem; }
+    .brand-logo { height: 36px; }
+    .nav-links { top: 60px; }
+    .hero h1 { font-size: clamp(2rem, 11vw, 2.6rem); }
+    .section-head h2 { font-size: clamp(1.75rem, 8vw, 2.5rem); }
+    .waypoint-node { width: 88px; height: 88px; }
+    .waypoint-name-inline { font-size: 1rem; }
+  }
+
+  /* =============================================================
      ANIMATIONS
      ============================================================= */
   @keyframes fadeUp {
@@ -1201,12 +1502,22 @@
   <div class="container">
     <a href="#" class="brand" aria-label="Barnstorm Foundry home">
       <img class="brand-logo" src="NAV.png" alt="Barnstorm Foundry">
+      <sup class="reg-mark reg-mark-brand">&reg;</sup>
     </a>
+    <!-- Hidden checkbox controls the menu open/close state with no JS -->
+    <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-label="Toggle menu">
+    <label for="nav-toggle" class="nav-hamburger" aria-hidden="true">
+      <span></span>
+      <span></span>
+      <span></span>
+    </label>
+    <!-- Backdrop label: tapping outside the panel closes the menu -->
+    <label for="nav-toggle" class="nav-backdrop" aria-hidden="true"></label>
     <ul class="nav-links">
-      <li><a href="#approach">Process</a></li>
-      <li><a href="#ventures">Ventures</a></li>
-      <li><a href="#team">Team</a></li>
-      <li><a href="#contact" class="nav-cta">Get in touch</a></li>
+      <li><label for="nav-toggle"><a href="#approach">Process</a></label></li>
+      <li><label for="nav-toggle"><a href="#ventures">Ventures</a></label></li>
+      <li><label for="nav-toggle"><a href="#team">Team</a></label></li>
+      <li><label for="nav-toggle"><a href="#contact" class="nav-cta">Get in touch</a></label></li>
     </ul>
   </div>
 </nav>
@@ -1221,7 +1532,7 @@
   <div class="container">
     <h1>Reimagining<br><em>Health</em></h1>
     <p class="hero-lead">
-      Propelled by <a href="https://cornucopiancapital.com/" target="_blank" rel="noopener" class="inline-link">Cornucopian Capital</a>, we collaborate with entrepreneurs and leading industry and scientific experts to launch new businesses that deliver first-in-class innovations in food, metabolic health, and personalized care offerings.
+      Propelled by <a href="https://cornucopiancapital.com/" target="_blank" rel="noopener" class="inline-link">Cornucopian Capital<sup class="reg-mark">&reg;</sup></a>, we collaborate with entrepreneurs and leading industry and scientific experts to launch new businesses that deliver first-in-class innovations in food, metabolic health, and personalized care offerings.
     </p>
     <div class="hero-actions">
       <a href="#contact" class="btn btn-primary">
@@ -1508,7 +1819,7 @@
           <h3>Avi Rosenbaum, PhD</h3>
           <div class="member-role">Venture Partner · 2026 EIR</div>
           <div class="member-domain">COO, AminoSense</div>
-          <p class="member-bio">Decades of experience in molecular health, food ingredients, and diagnostics. Founder of advisors.bio and a Mentor at Endless Frontier Labs. Previously led an R&amp;D team at Ion Torrent (now Thermo Fisher). PhD, Harvard, in George Church's lab on personal genome sequencing.</p>
+          <p class="member-bio">Twenty-plus years at the intersection of molecular health, food ingredients, and diagnostics. Previously COO of Peak B and launched a dozen products at Ion Torrent (acquired by Thermo Fisher Scientific). Founder of advisors.bio, and mentor at Endless Frontier Labs. PhD, Harvard, in George Church's lab.</p>
         </article>
 
       </div>
@@ -1616,6 +1927,7 @@
       <div class="footer-brand">
         <a href="#" class="brand">
           <img class="brand-mark-only" src="FOOTER.png" alt="">
+          <sup class="reg-mark reg-mark-brand reg-mark-footer">&reg;</sup>
         </a>
       </div>
 
@@ -1637,10 +1949,10 @@
     </div>
 
     <div class="footer-bottom">
-      <span>© Barnstorm Foundry, L.P. 2026</span>
+      <span>© Barnstorm Foundry<sup class="reg-mark">&reg;</sup>, L.P. 2026</span>
       <ul>
-        <li><a href="#">Privacy Policy</a></li>
-        <li><a href="#">Terms of Use</a></li>
+        <li><a href="barnstorm-foundry-privacy.html">Privacy Policy</a></li>
+        <li><a href="barnstorm-foundry-terms.html">Terms of Use</a></li>
       </ul>
     </div>
   </div>
