@@ -1011,7 +1011,7 @@
     display: grid;
     grid-template-columns: 580px 1fr;
     gap: 3rem;
-    align-items: start;
+    align-items: center;
   }
   .contact-text {
     grid-column: 2;
@@ -1044,21 +1044,21 @@
     color: var(--brown);
     border-bottom: 1px solid var(--orange);
     padding-bottom: 4px;
-    margin-bottom: 2.5rem;
+    margin-bottom: 0;
     transition: color .35s var(--ease);
   }
   .contact-email:hover { color: var(--orange); }
 
-  /* Plane image — anchored to top-left of the section. Positioned so the full
-     plane silhouette including the tail is visible inside the viewport. */
+  /* Plane image — sits in column 1 of the contact grid and centers vertically
+     against the text block in column 2 (set via .contact-grid align-items). */
   .plane-bg {
-    position: absolute;
-    top: 90px;
-    left: 0;
-    width: 560px;
+    grid-column: 1;
+    grid-row: 1;
+    width: 100%;
+    max-width: 560px;
     height: auto;
+    justify-self: start;
     pointer-events: none;
-    z-index: 0;
     animation: planeIn 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
   }
   @keyframes planeIn {
@@ -1066,10 +1066,7 @@
     to   { opacity: 1; transform: translateX(0) translateY(0); }
   }
   @media (max-width: 1100px) {
-    .plane-bg {
-      left: 0;
-      width: 480px;
-    }
+    .plane-bg { max-width: 480px; }
     .contact-grid {
       grid-template-columns: 500px 1fr;
       gap: 2rem;
@@ -1077,13 +1074,10 @@
   }
   @media (max-width: 900px) {
     .plane-bg {
-      position: relative;
-      top: auto;
-      left: auto;
       width: 100%;
       max-width: 480px;
       margin: 0 auto -1rem;
-      display: block;
+      justify-self: center;
     }
     .contact-grid {
       grid-template-columns: 1fr;
@@ -1092,6 +1086,7 @@
     .contact-text {
       grid-column: 1;
     }
+    .plane-bg { grid-column: 1; grid-row: auto; }
   }
 
   .contact-form {
@@ -1361,15 +1356,86 @@
     }
     .section-head p { font-size: 0.95rem; }
 
-    /* Approach — flight section tightened */
+    /* Approach — vertical boxed stack with arrows between each stage.
+       Overrides the circular waypoint design that only makes sense alongside
+       the flight-path SVG (which is hidden below 1100px). */
     .approach { padding: 4rem 0; }
     .approach-flight {
       margin: 1.5rem 0 0.5rem;
-      padding: 2rem 0 1rem;
+      padding: 1rem 0 0;
     }
-    .flight-waypoints { row-gap: 2rem; }
-    .waypoint-node { width: 100px; height: 100px; }
-    .waypoint-name-inline { font-size: 1.1rem; }
+    .flight-waypoints {
+      grid-template-columns: 1fr;
+      row-gap: 0;
+      max-width: 360px;
+      margin: 0 auto;
+    }
+    /* Each .waypoint becomes a vertical slot containing a boxed card + arrow.
+       Also kill the scroll-reveal `animation-timeline: view()` animation
+       here — on a vertical stack the animation-range timing leaves later
+       items (wp4 Pilot and wp5 Launch) stuck at partial opacity until the
+       user scrolls way past them, which reads as "grayed out". */
+    .waypoint[data-reveal] {
+      animation: none !important;
+      animation-timeline: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
+    .waypoint {
+      position: relative;
+      padding-bottom: 2.25rem;
+      transform: none !important;   /* kill any leftover odd/even Y offset */
+    }
+    .waypoint:last-child { padding-bottom: 0; }
+
+    /* Reshape the circular node into a rectangular box card.
+       The !important on border-color/box-shadow/transform is required because
+       the desktop nodeActiveN keyframes set these via animation; even with
+       `animation: none` some browsers retain the last computed frame, which
+       can leave Pilot/Launch with their resting blue border + dim shadow. */
+    .waypoint-node {
+      width: 100%;
+      height: auto;
+      border-radius: 14px;
+      background: var(--cream-warm);
+      border: 2px solid var(--brown) !important;
+      box-shadow:
+        0 1px 0 var(--brown),
+        0 10px 22px -14px rgba(60, 34, 34, 0.3) !important;
+      padding: 1.1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: none !important;
+      animation: none !important;
+    }
+    /* Hide the dashed concentric ring used in desktop circular design */
+    .waypoint-node::before {
+      display: none;
+    }
+    /* Stage name fills the box, slightly larger for legibility.
+       Reset color with !important since the textActiveN keyframes override it. */
+    .waypoint-name-inline {
+      position: static;
+      top: auto;
+      font-size: 1.35rem;
+      font-weight: 500;
+      color: var(--brown) !important;
+      animation: none !important;
+    }
+
+    /* Down-arrow chevron between each box (skip after the last) */
+    .waypoint:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      bottom: 0.55rem;
+      left: 50%;
+      width: 14px;
+      height: 14px;
+      border-right: 2px solid var(--orange);
+      border-bottom: 2px solid var(--orange);
+      transform: translateX(-50%) rotate(45deg);
+    }
 
     /* Ventures — full-width cards, tighter padding */
     .ventures { padding: 4rem 0; }
@@ -1395,27 +1461,20 @@
     .member-domain { font-size: 0.85rem; }
     .member-bio { font-size: 0.86rem; }
 
-    /* Contact — plane stacked on top, tighter section, no overlap with text */
+    /* Contact — plane removed entirely on mobile, leaving just the text */
     .contact { padding: 4rem 0 3rem; }
     .contact-grid { gap: 1.5rem; }
-    .plane-bg {
-      max-width: 360px;
-      margin: 0 auto 1rem;
-    }
+    .plane-bg { display: none; }
     .contact h2 { font-size: clamp(2.2rem, 10vw, 3.2rem); }
     .contact-lead { font-size: 0.98rem; margin-bottom: 1.5rem; }
     .contact-email {
       font-size: 1.1rem;
       word-break: break-word;
-      margin-bottom: 2rem;
+      margin-bottom: 0;
     }
-    .contact-form { padding-top: 1.5rem; }
-    .form-row { margin-bottom: 1.25rem; }
-    .form-row label {
-      font-size: 0.68rem;
-      letter-spacing: 0.12em;
-    }
-    .form-row textarea { min-height: 80px; }
+    /* On mobile, the contact form is removed entirely — email is the only
+       way to get in touch. Tapping the email opens the user's mail app. */
+    .contact-form { display: none; }
 
     /* Footer — single column, stacked legal links, tighter spacing */
     footer { padding: 3rem 0 1.5rem; }
@@ -1445,8 +1504,7 @@
     .nav-links { top: 60px; }
     .hero h1 { font-size: clamp(2rem, 11vw, 2.6rem); }
     .section-head h2 { font-size: clamp(1.75rem, 8vw, 2.5rem); }
-    .waypoint-node { width: 88px; height: 88px; }
-    .waypoint-name-inline { font-size: 1rem; }
+    .waypoint-name-inline { font-size: 1.2rem; }
   }
 
   /* =============================================================
@@ -1882,9 +1940,9 @@
 
 <!-- ========== CONTACT ========== -->
 <section class="contact" id="contact">
-  <img class="plane-bg" src="PLANE.png" alt="" aria-hidden="true">
   <div class="container">
     <div class="contact-grid">
+      <img class="plane-bg" src="PLANE.png" alt="" aria-hidden="true">
       <div class="contact-text" data-reveal data-delay="1">
         <div class="section-head" style="display:block; margin-bottom:0;">
           <div class="marker">04 / Get in touch</div>
@@ -1894,27 +1952,6 @@
           If you're passionate about building food, beverage, or health &amp; wellness businesses, we'd love to hear from you.
         </p>
         <a href="mailto:build@barnstormfoundry.com" class="contact-email">build@barnstormfoundry.com</a>
-
-        <form class="contact-form" action="mailto:build@barnstormfoundry.com" method="post" enctype="text/plain">
-          <div class="form-row">
-            <label for="f-name">Name <span class="req">*</span></label>
-            <input type="text" id="f-name" name="name" required>
-          </div>
-          <div class="form-row">
-            <label for="f-email">Email <span class="req">*</span></label>
-            <input type="email" id="f-email" name="email" required>
-          </div>
-          <div class="form-row">
-            <label for="f-msg">Message</label>
-            <textarea id="f-msg" name="message" placeholder="Hi, I'd like to chat about…"></textarea>
-          </div>
-          <button type="submit" class="form-submit">
-            Send
-            <svg class="arrow" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6">
-              <path d="M3 11L11 3M11 3H5M11 3V9"/>
-            </svg>
-          </button>
-        </form>
       </div>
     </div>
   </div>
@@ -1951,8 +1988,8 @@
     <div class="footer-bottom">
       <span>© Barnstorm Foundry<sup class="reg-mark">&reg;</sup>, L.P. 2026</span>
       <ul>
-        <li><a href="barnstorm-foundry-privacy.html">Privacy Policy</a></li>
-        <li><a href="barnstorm-foundry-terms.html">Terms of Use</a></li>
+        <li><a href="privacy.html">Privacy Policy</a></li>
+        <li><a href="terms.html">Terms of Use</a></li>
       </ul>
     </div>
   </div>
