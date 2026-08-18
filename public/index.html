@@ -1,0 +1,344 @@
+<title>AminoSense</title>
+<style>
+/* ============================================================
+   One committed visual world: dark and light fields alternate as
+   composition, not as viewer theme. Every colour is painted
+   explicitly so the page holds on any host background.
+   ============================================================ */
+:root{
+  --disp:Bahnschrift,"DIN Alternate","Roboto","Helvetica Neue",system-ui,sans-serif;
+  --body:system-ui,-apple-system,"Segoe UI Variable Text","Segoe UI",Roboto,sans-serif;
+  --mono:"Cascadia Mono",ui-monospace,"SF Mono","Segoe UI Mono",Consolas,monospace;
+  --pad:clamp(1.4rem,5vw,5.5rem);
+  --max:78rem;
+  color-scheme:only light;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0; background:#0A0D12; font-family:var(--body); font-size:1rem; line-height:1.6; -webkit-font-smoothing:antialiased; overflow-x:hidden}
+a{color:inherit}
+p{margin:0; text-wrap:pretty}
+::selection{background:#F0A422; color:#0A0D12}
+:focus-visible{outline:2px solid currentColor; outline-offset:3px}
+
+/* ---------- the two fields ---------- */
+.field{background:var(--bg); color:var(--fg)}
+.dark{
+  --bg:#0A0D12; --fg:#EDF0F5; --dim:#8791A0; --faint:#5A6472;
+  --line:#1E2734; --panel:#0F141C; --panel-2:#141B25;
+  --accent:#F0A422; --accent-soft:rgba(240,164,34,.13);
+}
+.light{
+  --bg:#EDF0F3; --fg:#0A0D12; --dim:#59636F; --faint:#8D97A3;
+  --line:#D2D8DF; --panel:#F6F8F9; --panel-2:#E4E8ED;
+  --accent:#A15A00; --accent-soft:rgba(161,90,0,.10);
+}
+
+/* ---------- type ---------- */
+h1,h2,h3{font-family:var(--disp); margin:0; text-wrap:balance}
+h1{
+  font-weight:300; font-stretch:87.5%; font-size:clamp(2.7rem,6.6vw,5.8rem);
+  line-height:1.0; letter-spacing:-.025em;
+}
+h1 b{font-weight:600; color:var(--accent)}
+h2{
+  font-weight:300; font-size:clamp(1.8rem,3.6vw,3.1rem);
+  line-height:1.06; letter-spacing:-.018em; max-width:20ch;
+}
+h2 b{font-weight:600}
+h3{font-weight:600; font-size:clamp(1.05rem,1.5vw,1.28rem); line-height:1.16; letter-spacing:-.005em}
+
+.marker{
+  display:flex; align-items:center; gap:.7rem; width:100%;
+  font-family:var(--mono); font-size:.66rem; letter-spacing:.2em;
+  text-transform:uppercase; color:var(--dim); margin-bottom:2.4rem;
+}
+.marker::before{content:"+"; color:var(--accent); font-size:.95rem; line-height:1}
+.marker::after{content:""; flex:1; height:1px; background:var(--line)}
+
+.prose{display:flex; flex-direction:column; gap:1.05rem; color:var(--dim); font-size:1.03rem; line-height:1.62}
+.prose strong{color:var(--fg); font-weight:600}
+
+/* ---------- layout ---------- */
+section{padding:clamp(3.6rem,8vh,6.5rem) var(--pad); border-bottom:1px solid var(--line)}
+.inner{max-width:var(--max); margin-inline:auto; width:100%}
+.duo{display:grid; grid-template-columns:minmax(0,1.05fr) minmax(0,1fr); gap:clamp(1.6rem,4vw,4rem); align-items:start}
+@media (max-width:62rem){ .duo{grid-template-columns:minmax(0,1fr); gap:1.3rem} }
+
+/* ---------- hero ---------- */
+.hero{
+  position:relative; min-height:100svh; display:grid; place-items:center;
+  padding:clamp(4rem,10vh,7rem) var(--pad); overflow:hidden; border-bottom:none;
+}
+#field{position:absolute; inset:0; width:100%; height:100%; display:block}
+.hero::after{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background:radial-gradient(ellipse at 50% 50%, rgba(10,13,18,.82) 0%, rgba(10,13,18,.5) 45%, rgba(10,13,18,.9) 100%);
+}
+.hero .stage{position:relative; z-index:2; text-align:center; max-width:52rem}
+.hero .kicker{
+  font-family:var(--mono); font-size:.66rem; letter-spacing:.32em; text-transform:uppercase;
+  color:var(--accent); margin-bottom:2rem;
+}
+.hero .sub{
+  font-family:var(--mono); font-size:clamp(.68rem,1vw,.78rem); letter-spacing:.24em;
+  text-transform:uppercase; color:var(--dim); margin-top:2.2rem;
+}
+.cue{
+  position:absolute; left:50%; bottom:2rem; transform:translateX(-50%); z-index:2;
+  display:flex; flex-direction:column; align-items:center; gap:.7rem; text-decoration:none;
+  font-family:var(--mono); font-size:.58rem; letter-spacing:.22em; text-transform:uppercase; color:var(--faint);
+}
+.cue i{display:block; width:1px; height:2.6rem; background:linear-gradient(var(--faint),transparent); animation:drop 2.6s ease-in-out infinite}
+@keyframes drop{0%,100%{opacity:.25; transform:scaleY(.6); transform-origin:top}50%{opacity:1; transform:scaleY(1)}}
+
+/* ---------- statement band ---------- */
+.band{padding:clamp(4rem,10vh,7.5rem) var(--pad); border-bottom:1px solid var(--line)}
+.band p{
+  font-family:var(--disp); font-weight:300; font-size:clamp(1.65rem,4vw,3.5rem);
+  line-height:1.08; letter-spacing:-.022em; max-width:32ch; text-wrap:balance;
+}
+.band p b{font-weight:600; color:var(--accent)}
+
+/* ---------- stat bar ---------- */
+.bar{display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); border:1px solid var(--line); margin-top:2.6rem}
+.bar div{padding:1.5rem 1.4rem; background:var(--panel)}
+.bar b{display:block; font-family:var(--disp); font-weight:600; font-size:clamp(1.8rem,3vw,2.6rem); line-height:.92; letter-spacing:-.02em; color:var(--accent); font-variant-numeric:tabular-nums}
+.bar span{display:block; margin-top:.75rem; font-family:var(--mono); font-size:.62rem; line-height:1.7; letter-spacing:.1em; text-transform:uppercase; color:var(--dim)}
+@media (max-width:52rem){ .bar{grid-template-columns:1fr} }
+
+/* ---------- grids ---------- */
+/* explicit column counts — auto-fit would leave orphan cells showing the grid ground */
+.tiles{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line); margin-top:2.6rem}
+@media (max-width:70rem){ .tiles{grid-template-columns:repeat(2,1fr)} }
+@media (max-width:40rem){ .tiles{grid-template-columns:1fr} }
+.tile{background:var(--panel); padding:1.7rem 1.5rem; display:flex; flex-direction:column; gap:.85rem; transition:background .25s}
+.tile:hover{background:var(--panel-2)}
+.tile p:last-child{font-size:.9rem; line-height:1.55; color:var(--dim)}
+
+.crew{display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); border:1px solid var(--line); margin-top:2.6rem}
+@media (max-width:52rem){ .crew{grid-template-columns:1fr} }
+.person{background:var(--panel); padding:1.7rem 1.5rem}
+.person .sq{width:2.4rem; height:2.4rem; border:1px solid var(--line); background:var(--panel-2); display:grid; place-items:center; margin-bottom:1.1rem; font-family:var(--mono); font-size:.68rem; color:var(--faint)}
+.person .who{font-family:var(--disp); font-weight:600; font-size:1.08rem; letter-spacing:-.01em}
+.person .role{font-family:var(--mono); font-size:.6rem; letter-spacing:.16em; text-transform:uppercase; color:var(--accent); margin-top:.4rem}
+
+/* ---------- get in touch ---------- */
+.reasons{display:flex; flex-direction:column; gap:1.4rem}
+.reasons .tag{font-family:var(--mono); font-size:.6rem; letter-spacing:.2em; text-transform:uppercase; font-weight:600; color:var(--accent); margin-bottom:.45rem}
+.reasons p:last-child{color:var(--dim); font-size:1.02rem; line-height:1.55}
+.mailto{
+  display:inline-block; margin-top:2.2rem; font-family:var(--disp); font-weight:600;
+  font-size:clamp(1.15rem,2.5vw,2rem); letter-spacing:-.018em; color:var(--accent);
+  text-decoration:none; border-bottom:1px solid var(--accent); padding-bottom:.15rem;
+  transition:opacity .2s;
+}
+.mailto:hover{opacity:.7}
+
+footer{padding:1.6rem var(--pad); display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; font-family:var(--mono); font-size:.6rem; letter-spacing:.15em; text-transform:uppercase; color:var(--faint)}
+footer .wm{font-family:var(--disp); font-weight:600; font-size:.85rem; letter-spacing:.14em; color:var(--fg)}
+
+@media (prefers-reduced-motion:reduce){ *{animation:none !important; transition:none !important} html{scroll-behavior:auto} }
+</style>
+
+<header class="field dark hero">
+  <canvas id="field" aria-hidden="true"></canvas>
+  <div class="stage">
+    <p class="kicker">AminoSense</p>
+    <h1>Make amino acids <b>visible</b>.</h1>
+    <p class="sub">In real time &nbsp;&middot;&nbsp; outside a lab &nbsp;&middot;&nbsp; for the first time</p>
+  </div>
+  <a class="cue" href="#signal"><i></i>Scroll</a>
+</header>
+
+<div class="field light band" id="signal">
+  <div class="inner">
+    <p>Every meal, every dose, every training block leaves a trace. <b>Nobody has been able to read it.</b></p>
+  </div>
+</div>
+
+<section class="field light">
+  <div class="inner">
+    <p class="marker">The blind spot</p>
+    <div class="duo">
+      <h2>A generation is losing muscle on purpose-built drugs. <b>Nobody is measuring it.</b></h2>
+      <div class="prose">
+        <p>GLP-1 medications work. They also take <strong>lean mass along with the fat</strong> &mdash; and the standard mitigation, &ldquo;eat more protein,&rdquo; is the most given and least verified instruction in medicine.</p>
+        <p>Protein adequacy is assessed today by asking people what they ate. Body composition confirms the loss months after it happened. Neither tells a patient, a clinician, or a drugmaker what is happening <strong>this week</strong>, while there is still time to act.</p>
+        <p>The same blind spot sits underneath healthy aging, recovery and performance. It has persisted for exactly one reason: amino acid status has never been practically observable outside a lab.</p>
+      </div>
+    </div>
+    <div class="bar">
+      <div><b>~1 in 8</b><span>US adults have used a GLP-1</span></div>
+      <div><b>25&ndash;40%</b><span>of weight lost can be lean mass</span></div>
+      <div><b>1&times; / year</b><span>how often anyone measures</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="field dark">
+  <div class="inner">
+    <p class="marker">What it unlocks</p>
+    <div class="duo">
+      <h2>Real-time visibility <b>changes what people can decide.</b></h2>
+      <div class="prose">
+        <p>Not a new number for its own sake. A signal that arrives early enough to <strong>change the outcome</strong> &mdash; for the person taking the drug, the clinician managing them, and the company that made it.</p>
+      </div>
+    </div>
+    <div class="tiles">
+      <div class="tile">
+        <h3>Protein adequacy becomes a number.</h3>
+        <p>The most-given instruction in metabolic health finally becomes something anyone can check.</p>
+      </div>
+      <div class="tile">
+        <h3>Muscle loss becomes preventable.</h3>
+        <p>Body composition is a lagging indicator. Catching it while it is still correctable is a different product entirely.</p>
+      </div>
+      <div class="tile">
+        <h3>Nutrition becomes individual.</h3>
+        <p>Requirements move with age, medication, illness and training load. A personal signal replaces a population average.</p>
+      </div>
+      <div class="tile">
+        <h3>Interventions become closed-loop.</h3>
+        <p>Any protocol built around protein can be tuned against a response instead of a schedule.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="field light">
+  <div class="inner">
+    <p class="marker">Team</p>
+    <div class="duo">
+      <h2>Who is <b>building it.</b></h2>
+      <div class="prose">
+        <p>A small team working at the intersection of sensing, metabolism and clinical translation.</p>
+      </div>
+    </div>
+    <div class="crew">
+      <div class="person">
+        <div class="sq">AG</div>
+        <p class="who">Aryeh Ganz</p>
+        <p class="role">Founder &amp; CEO</p>
+      </div>
+      <div class="person">
+        <div class="sq">JS</div>
+        <p class="who">Justin Siegel</p>
+        <p class="role">Co-founder</p>
+      </div>
+      <div class="person">
+        <div class="sq">AA</div>
+        <p class="who">Augustine Arredondo</p>
+        <p class="role">Co-founder &amp; Senior Scientist</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="field dark">
+  <div class="inner">
+    <p class="marker">Get in touch</p>
+    <div class="duo">
+      <h2>Two reasons to <b>write to us.</b></h2>
+      <div>
+        <div class="reasons">
+          <div>
+            <p class="tag">Researchers</p>
+            <p>If you want to put what we are building to work in your own studies.</p>
+          </div>
+          <div>
+            <p class="tag">Investors</p>
+            <p>If you invest early and want to follow this closely.</p>
+          </div>
+        </div>
+        <a class="mailto" href="mailto:business@aminosense.bio">business@aminosense.bio</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="field dark">
+  <span class="wm">AminoSense</span>
+  <span>Confidential &mdash; not for distribution</span>
+</footer>
+
+<script>
+(function () {
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var cv = document.getElementById('field');
+  var ctx = cv.getContext('2d');
+  var W = 0, H = 0, dpr = 1, parts = [];
+
+  function build() {
+    var host = cv.parentElement;
+    W = host.clientWidth; H = host.clientHeight;
+    if (!W || !H) return false;
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    cv.width = W * dpr; cv.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.fillStyle = '#0A0D12'; ctx.fillRect(0, 0, W, H);
+
+    // density scales with area, capped so large screens stay smooth
+    var n = Math.min(1400, Math.round(W * H / 1100));
+    parts = new Array(n);
+    for (var i = 0; i < n; i++) {
+      // deterministic scatter — no randomness, identical every load
+      var a = i * 2.39996;            // golden-angle spiral, fills evenly
+      var r = Math.sqrt(i / n);
+      parts[i] = {
+        x: (0.5 + 0.62 * r * Math.cos(a)) * W,
+        y: (0.5 + 0.62 * r * Math.sin(a)) * H,
+        z: (i % 97) / 96,
+        hot: i % 3 === 0
+      };
+    }
+    return true;
+  }
+
+  // layered sine flow field — molecules drifting, never repeating visibly
+  function angleAt(x, y, t) {
+    return Math.sin(x * 0.0022 + t * 0.11) * 1.7
+         + Math.cos(y * 0.0027 - t * 0.09) * 1.7
+         + Math.sin((x + y) * 0.0013 + t * 0.05) * 1.1;
+  }
+
+  function frame(t) {
+    // translucent wash instead of clear → soft motion trails
+    ctx.fillStyle = 'rgba(10,13,18,0.13)';
+    ctx.fillRect(0, 0, W, H);
+
+    for (var i = 0; i < parts.length; i++) {
+      var p = parts[i];
+      var ang = angleAt(p.x, p.y, t);
+      var sp = 0.16 + p.z * 0.55;
+      p.x += Math.cos(ang) * sp;
+      p.y += Math.sin(ang) * sp;
+
+      if (p.x < -20) p.x = W + 20; else if (p.x > W + 20) p.x = -20;
+      if (p.y < -20) p.y = H + 20; else if (p.y > H + 20) p.y = -20;
+
+      var s = p.z > 0.72 ? 1.7 : 1;
+      ctx.fillStyle = p.hot
+        ? 'rgba(240,164,34,' + (0.10 + p.z * 0.5).toFixed(3) + ')'
+        : 'rgba(190,205,225,' + (0.05 + p.z * 0.26).toFixed(3) + ')';
+      ctx.fillRect(p.x, p.y, s, s);
+    }
+  }
+
+  function start() {
+    if (!build()) return;
+    if (reduce) { for (var k = 0; k < 220; k++) frame(k * 0.05); return; }
+    var t0 = null;
+    (function run(ts) {
+      if (t0 === null) t0 = ts || 0;
+      frame(((ts || 0) - t0) / 1000);
+      requestAnimationFrame(run);
+    })();
+  }
+
+  var rt;
+  addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(build, 220); });
+  start();
+})();
+</script>
