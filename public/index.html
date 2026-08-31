@@ -78,7 +78,7 @@ section{padding:clamp(3.6rem,8vh,6.5rem) var(--pad); border-bottom:1px solid var
   position:relative; min-height:100svh; display:grid; place-items:center;
   padding:clamp(4rem,10vh,7rem) var(--pad); overflow:hidden; border-bottom:none;
 }
-#field{position:absolute; inset:0; width:100%; height:100%; display:block; opacity:.88}
+#field{position:absolute; inset:0; width:100%; height:100%; display:block; opacity:1}
 .hero::after{
   content:""; position:absolute; inset:0; pointer-events:none;
   background:radial-gradient(ellipse at 50% 50%, rgba(247,245,251,.80) 0%, rgba(247,245,251,.34) 45%, rgba(247,245,251,.92) 100%);
@@ -116,13 +116,13 @@ h2.wide{max-width:100%}
 .sg-d{fill:var(--dim)}
 .sg-in{
   fill:none; stroke:var(--dim); stroke-width:1.3; stroke-dasharray:4 8; stroke-linecap:round;
-  animation:flow-spine 3s linear infinite;
+  animation:flow-spine 5s linear infinite;
 }
 .sg-body{fill:var(--accent-soft); stroke:var(--accent); stroke-width:1.8}
 .sg-ring{fill:none; stroke:var(--accent); stroke-width:1.1; opacity:.5}
 .sg-pad{fill:var(--accent); opacity:.8}
-.sg-iris{fill:var(--accent)}
-.sg-pulse{fill:none; stroke:var(--accent); stroke-width:1.2; transform-origin:480px 221px; animation:sense 3.6s ease-out infinite}
+.sg-iris{fill:#A594E0}
+.sg-pulse{fill:none; stroke:var(--accent); stroke-width:1.2; transform-origin:480px 221px; animation:sense 5.5s ease-out infinite}
 /* dash period is 4+8=12, so the step must be a multiple of 12 or the loop jumps */
 @keyframes flow-spine{to{stroke-dashoffset:-24}}
 @keyframes sense{0%{transform:scale(.5); opacity:.55}70%,100%{transform:scale(1.5); opacity:0}}
@@ -417,7 +417,7 @@ footer{padding:1.6rem var(--pad); display:flex; justify-content:flex-end; gap:1r
   var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   var cv = document.getElementById('field');
   var ctx = cv.getContext('2d');
-  var W = 0, H = 0, dpr = 1, nodes = [], LINK = 172, maxR = 1;
+  var W = 0, H = 0, dpr = 1, nodes = [], LINK = 190, maxR = 1;
 
   var INK = '75,63,115', GOLD = '240,164,34', RED = '178,8,52';
 
@@ -431,18 +431,18 @@ footer{padding:1.6rem var(--pad); display:flex; justify-content:flex-end; gap:1r
     ctx.lineCap = 'round';
     maxR = Math.sqrt(W * W + H * H) * 0.62;
 
-    var n = Math.max(30, Math.min(78, Math.round(W * H / 15500)));
+    var n = Math.max(24, Math.min(58, Math.round(W * H / 21000)));
     nodes = new Array(n);
     for (var i = 0; i < n; i++) {
       var a = i * 2.39996, rr = Math.sqrt(i / n);
       nodes[i] = {
         x: (0.5 + 0.56 * rr * Math.cos(a)) * W,
         y: (0.5 + 0.56 * rr * Math.sin(a)) * H,
-        r: (i % 9 === 0) ? 4.8 : (i % 3 === 0 ? 3.1 : 2.1),
+        r: (i % 9 === 0) ? 7.5 : (i % 3 === 0 ? 5.0 : 3.4),
         tint: (i % 11 === 0) ? GOLD : ((i % 17 === 0) ? RED : INK),
         ring: i % 9 === 0,
-        vx: Math.cos(a * 1.7) * 0.085,
-        vy: Math.sin(a * 2.3) * 0.085,
+        vx: Math.cos(a * 1.7) * 0.028,
+        vy: Math.sin(a * 2.3) * 0.028,
         lit: 0
       };
     }
@@ -454,7 +454,7 @@ footer{padding:1.6rem var(--pad); display:flex; justify-content:flex-end; gap:1r
 
     // a reading sweeps outward from the middle and passes over the network
     var cx = W * 0.5, cy = H * 0.52;
-    var period = 9.0, phase = (t % period) / period;
+    var period = 20.0, phase = (t % period) / period;
     var pr = phase * maxR, band = 78;
 
     for (var i = 0; i < nodes.length; i++) {
@@ -464,7 +464,7 @@ footer{padding:1.6rem var(--pad); display:flex; justify-content:flex-end; gap:1r
       if (p.y < -40) p.y = H + 40; else if (p.y > H + 40) p.y = -40;
       var d = Math.sqrt((p.x - cx) * (p.x - cx) + (p.y - cy) * (p.y - cy));
       var hit = 1 - Math.min(1, Math.abs(d - pr) / band);
-      p.lit = Math.max(p.lit * 0.94, hit * hit);          // brighten, then fade
+      p.lit = Math.max(p.lit * 0.975, hit * hit);          // brighten, then fade
     }
 
     // bonds between neighbours, faint and distance-weighted
@@ -477,8 +477,8 @@ footer{padding:1.6rem var(--pad); display:flex; justify-content:flex-end; gap:1r
         if (d > LINK) continue;
         var k = 1 - d / LINK;
         var glow = Math.max(a.lit, b.lit);
-        ctx.strokeStyle = 'rgba(' + INK + ',' + (k * 0.16 + glow * 0.14).toFixed(3) + ')';
-        ctx.lineWidth = 1.1;
+        ctx.strokeStyle = 'rgba(' + INK + ',' + (k * 0.26 + glow * 0.2).toFixed(3) + ')';
+        ctx.lineWidth = 1.5;
         ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
       }
     }
@@ -490,12 +490,12 @@ footer{padding:1.6rem var(--pad); display:flex; justify-content:flex-end; gap:1r
 
     for (var i = 0; i < nodes.length; i++) {
       var p = nodes[i];
-      ctx.fillStyle = 'rgba(' + p.tint + ',' + (0.36 + p.lit * 0.5).toFixed(3) + ')';
+      ctx.fillStyle = 'rgba(' + p.tint + ',' + (0.5 + p.lit * 0.42).toFixed(3) + ')';
       ctx.beginPath(); ctx.arc(p.x, p.y, p.r + p.lit * 1.6, 0, 6.2832); ctx.fill();
       if (p.ring) {
-        ctx.strokeStyle = 'rgba(' + p.tint + ',' + (0.24 + p.lit * 0.34).toFixed(3) + ')';
+        ctx.strokeStyle = 'rgba(' + p.tint + ',' + (0.4 + p.lit * 0.34).toFixed(3) + ')';
         ctx.lineWidth = 0.9;
-        ctx.beginPath(); ctx.arc(p.x, p.y, p.r + 5 + p.lit * 3, 0, 6.2832); ctx.stroke();
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r + 7 + p.lit * 3, 0, 6.2832); ctx.stroke();
       }
     }
   }
